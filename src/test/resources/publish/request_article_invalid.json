@@ -1,0 +1,26 @@
+{
+  "article": {
+    "title": "",
+    "url": "bad-url",
+    "contentType": "text/plain",
+    "tags": [
+      "tag1", "tag2"
+    ],
+    "slug": "No slug",
+    "content": "",
+    "language": "???",
+    "country": "??",
+    "categories": [
+      "actualite"
+    ]
+  },
+  "feed": {
+    "name": "Test",
+    "id": 1221
+  },
+  "messageInfo": {
+    "clientId": "1",
+    "debug": true,
+    "transactionId": "21093209320"
+  }
+}
