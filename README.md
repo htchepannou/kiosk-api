@@ -1,3 +1,7 @@
+### Build Status
+[![Build Status](https://travis-ci.org/htchepannou/kiosk-api.svg?branch=master)](https://travis-ci.org/htchepannou/kiosk-api)
+
+
 # Prerequises
 - Java 8+
 - Maven 3.x+
