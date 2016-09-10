@@ -3,10 +3,6 @@ language: java
 jdk:
   - oraclejdk8
 
-branches:
-  only:
-  - master
-
 notifications:
   email:
   - herve.tchepannou@gmail.com
