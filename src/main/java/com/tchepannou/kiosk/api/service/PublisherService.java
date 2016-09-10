@@ -46,8 +46,8 @@ public class PublisherService {
 
     private boolean alreadyPublished(final String keyhash) {
         try {
-            articleRepository.findOne(keyhash);
-            return false;
+            Article article = articleRepository.findOne(keyhash);
+            return article != null;
         } catch (final DataAccessException e) {
             return true;
         }
@@ -55,7 +55,7 @@ public class PublisherService {
 
     private PublishResponseDto createErrorResponse(final String code) {
         final PublishResponseDto response = new PublishResponseDto();
-        response.setSuccess(false);
+        response.setSuccess(true);
         response.setErrorCode(code);
         return response;
     }
@@ -63,6 +63,7 @@ public class PublisherService {
     private PublishResponseDto createResponse(final Article article) {
         final PublishResponseDto response = new PublishResponseDto();
         response.setSuccess(true);
+        response.setErrorCode("OK");
         response.setTransactionId(article.getKeyhash());
         return response;
     }

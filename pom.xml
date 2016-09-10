@@ -19,6 +19,7 @@
         <project.sourceEncoding>UTF-8</project.sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <commons-codec.version>1.10</commons-codec.version>
         <commons-io.version>2.4</commons-io.version>
         <h2database.version>1.4.192</h2database.version>
         <hikary-cp.version>1.1.1</hikary-cp.version>
@@ -74,6 +75,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
         </dependency>
 
     </dependencies>
