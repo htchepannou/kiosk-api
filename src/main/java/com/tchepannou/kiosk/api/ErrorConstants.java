@@ -1,4 +1,5 @@
 package com.tchepannou.kiosk.api;
 
-public class ErrorConstants {
+public interface ErrorConstants {
+    String ALREADY_PUBLISHED = "already_published";
 }

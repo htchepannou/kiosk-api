@@ -1,7 +1,5 @@
 package com.tchepannou.kiosk.api.dto;
 
-import java.util.Date;
-
 public class PublishRequestDto {
     private long feedId;
     private String url;
@@ -9,7 +7,7 @@ public class PublishRequestDto {
     private String slug;
     private String countryCode;
     private String languageCode;
-    private Date publishedDate;
+    private String publishedDate;
     private String content;
 
     public long getFeedId() {
@@ -60,11 +58,11 @@ public class PublishRequestDto {
         this.languageCode = languageCode;
     }
 
-    public Date getPublishedDate() {
+    public String getPublishedDate() {
         return publishedDate;
     }
 
-    public void setPublishedDate(final Date publishedDate) {
+    public void setPublishedDate(final String publishedDate) {
         this.publishedDate = publishedDate;
     }
 
