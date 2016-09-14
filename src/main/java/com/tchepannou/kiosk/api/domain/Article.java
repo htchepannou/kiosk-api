@@ -1,6 +1,6 @@
 package com.tchepannou.kiosk.api.domain;
 
-import org.springframework.util.DigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -29,7 +29,7 @@ public class Article {
     public static String generateKeyhash (final String url){
         return url == null
                 ? null
-                : DigestUtils.md5DigestAsHex(url.getBytes());
+                : DigestUtils.md5Hex(url.getBytes());
     }
 
     public String contentKey(final Status status){

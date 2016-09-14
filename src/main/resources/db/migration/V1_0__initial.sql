@@ -13,8 +13,7 @@ INSERT INTO feed VALUES (1002, 'rss', 'CMR', 'Cameroon Post Online', 'http://www
 INSERT INTO feed VALUES (1003, 'rss', 'CMR', 'Spark Cameroon', 'http://www.sparkcameroun.com/feed/');
 INSERT INTO feed VALUES (1004, 'rss', 'CMR', 'Cameroon Post', 'http://www.cameroonpostline.com/feed/');
 INSERT INTO feed VALUES (1005, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php');
-INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php');
-INSERT INTO feed VALUES (1007, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed/');
+INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed/');
 
 
 -- articles

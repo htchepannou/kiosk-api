@@ -3,7 +3,7 @@ package com.tchepannou.kiosk.api.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeedAllResponseDto {
+public class FeedListResponseDto {
     private List<FeedDto> feeds = new ArrayList<>();
 
     public int getSize() {

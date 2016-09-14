@@ -1,5 +1,6 @@
 package com.tchepannou.kiosk.api.service;
 
+import com.tchepannou.kiosk.api.ErrorConstants;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.dto.PublishRequestDto;
 import com.tchepannou.kiosk.api.dto.PublishResponseDto;
@@ -26,12 +27,13 @@ public class PublisherService {
     @Transactional
     public PublishResponseDto publish(final PublishRequestDto request) throws IOException {
         final String keyhash = Article.generateKeyhash(request.getUrl());
-        if (alreadyPublished(keyhash)) {
-            return createErrorResponse("already_submitted");
+        Article article = findArticle(keyhash);
+        if (article != null) {
+            return createResponse(article, ErrorConstants.ALREADY_PUBLISHED);
         }
 
         /* store the meta */
-        final Article article = articleMapper.toArticle(request);
+        article = articleMapper.toArticle(request);
         article.setStatus(Article.Status.submitted);
         articleRepository.save(article);
 
@@ -41,29 +43,22 @@ public class PublisherService {
             contentRepositoryService.write(key, in);
         }
 
-        return createResponse(article);
+        return createResponse(article, null);
     }
 
-    private boolean alreadyPublished(final String keyhash) {
+    private Article findArticle(final String keyhash) {
         try {
-            articleRepository.findOne(keyhash);
-            return false;
+            return articleRepository.findOne(keyhash);
         } catch (final DataAccessException e) {
-            return true;
+            return null;
         }
     }
 
-    private PublishResponseDto createErrorResponse(final String code) {
+    private PublishResponseDto createResponse(final Article article, final String code) {
         final PublishResponseDto response = new PublishResponseDto();
-        response.setSuccess(false);
-        response.setErrorCode(code);
-        return response;
-    }
-
-    private PublishResponseDto createResponse(final Article article) {
-        final PublishResponseDto response = new PublishResponseDto();
-        response.setSuccess(true);
+        response.setSuccess(code == null);
         response.setTransactionId(article.getKeyhash());
+        response.setErrorCode(code);
         return response;
     }
 }
