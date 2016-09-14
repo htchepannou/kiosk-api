@@ -6,6 +6,7 @@ import com.tchepannou.kiosk.api.service.ContentRepositoryService;
 import com.tchepannou.kiosk.api.service.FeedService;
 import com.tchepannou.kiosk.api.service.LocalContentRepositoryService;
 import com.tchepannou.kiosk.api.service.PublisherService;
+import com.tchepannou.kiosk.core.service.TimeService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,11 @@ public class AppConfig {
     @Bean
     FeedService feedService(){
         return new FeedService();
+    }
+
+    @Bean
+    TimeService timeService (){
+        return new TimeService();
     }
 
     @Bean
