@@ -3,6 +3,12 @@ language: java
 jdk:
   - oraclejdk8
 
+services:
+  - mysql
+
+before_script:
+  - mysql -uroot -e 'CREATE DATABASE IF NOT EXIST kiosk;'
+
 after_success:
   - ./after_success.sh
 
