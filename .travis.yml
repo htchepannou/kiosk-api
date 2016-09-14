@@ -7,7 +7,7 @@ services:
   - mysql
 
 before_script:
-  - mysql -uroot -e 'CREATE DATABASE IF NOT EXIST kiosk;'
+  - mysql -e 'CREATE DATABASE kiosk;' -uroot
 
 after_success:
   - ./after_success.sh
