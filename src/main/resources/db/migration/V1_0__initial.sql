@@ -28,7 +28,6 @@ CREATE TABLE article (
   url             TEXT     NOT NULL,
 
   inserttimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatetimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   feed_id         BIGINT   NOT NULL REFERENCES feed (id)
 )

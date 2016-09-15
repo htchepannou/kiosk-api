@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Api(basePath = "/kiosk/v1/feeds", value = "Feed API")
+@Api(basePath = "/kiosk/v1/feeds", value = "Content Feed API")
 @RequestMapping(value = "/kiosk/v1/feeds", produces = MediaType.APPLICATION_JSON_VALUE)
 public class FeedController {
     @Autowired
