@@ -59,11 +59,15 @@ public class AppConfig {
     }
 
     @Bean
-    PipelineService pipelineService(){
-        final TextFilterSet fs = new TextFilterSet(Arrays.asList(
+    TextFilterSet textFilterSet (){
+        return new TextFilterSet(Arrays.asList(
                 new SanitizeFilter(),
                 new ContentFilter(minBlocLength)
         ));
-        return new PipelineService(fs);
+    }
+
+    @Bean
+    PipelineService pipelineService(){
+        return new PipelineService();
     }
 }

@@ -21,11 +21,8 @@ public class PipelineService {
     @Autowired
     ContentRepositoryService contentRepository;
 
-    private final TextFilterSet filters;
-
-    public PipelineService(final TextFilterSet filters) {
-        this.filters = filters;
-    }
+    @Autowired
+    TextFilterSet filters;
 
     @Transactional
     public void process(final String keyhash) throws ArticleException, IOException {
