@@ -6,7 +6,10 @@ import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.core.service.LogService;
+import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +22,7 @@ import org.mockito.stubbing.Answer;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import static com.tchepannou.kiosk.api.Fixture.createArticle;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +44,22 @@ public class PipelineServiceTest {
     @Mock
     TextFilterSet filters;
 
+    @Mock
+    LogService logService;
+
+    @Mock
+    TransactionIdProvider transactionIdProvider;
+
     @InjectMocks
     PipelineService service;
+
+    String transactionId;
+
+    @Before
+    public void setUp (){
+        transactionId = UUID.randomUUID().toString();
+        when(transactionIdProvider.get()).thenReturn(transactionId);
+    }
 
     @Test
     public void shouldProcessArticle() throws Exception {
@@ -68,7 +86,8 @@ public class PipelineServiceTest {
         final ProcessResponse response = service.process(createProcessRequest(keyhash));
 
         // Then
-        assertThat(response.getTransactionId()).isEqualTo(keyhash);
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getKeyhash()).isEqualTo(keyhash);
         assertThat(response.isSuccess()).isTrue();
 
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
@@ -86,8 +105,9 @@ public class PipelineServiceTest {
         final ProcessResponse response = service.process(createProcessRequest("????"));
 
         // Then
-        assertThat(response.getTransactionId()).isEqualTo("????");
-        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getKeyhash()).isEqualTo("????");
+        assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
     }
 
@@ -102,8 +122,9 @@ public class PipelineServiceTest {
         final ProcessResponse response = service.process(createProcessRequest(keyhash));
 
         // Then
-        assertThat(response.getTransactionId()).isEqualTo("????");
-        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getKeyhash()).isEqualTo(keyhash);
+        assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.CONTENT_NOT_FOUND);
     }
 

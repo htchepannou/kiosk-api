@@ -1,12 +1,15 @@
 package com.tchepannou.kiosk.api.service;
 
-import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.client.dto.PublishRequest;
-import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
+import com.tchepannou.kiosk.client.dto.ErrorConstants;
+import com.tchepannou.kiosk.client.dto.PublishRequest;
+import com.tchepannou.kiosk.client.dto.PublishResponse;
+import com.tchepannou.kiosk.core.service.LogService;
+import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 import static com.tchepannou.kiosk.api.Fixture.createPublishRequest;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,8 +40,22 @@ public class PublisherServiceTest {
     @Mock
     ArticleMapper articleMapper;
 
+    @Mock
+    LogService logService;
+
+    @Mock
+    TransactionIdProvider transactionIdProvider;
+
     @InjectMocks
     PublisherService service;
+
+    String transactionId;
+
+    @Before
+    public void setUp (){
+        transactionId = UUID.randomUUID().toString();
+        when(transactionIdProvider.get()).thenReturn(transactionId);
+    }
 
     @Test
     public void shouldPublishArticle() throws Exception {
@@ -62,7 +80,8 @@ public class PublisherServiceTest {
         assertThat(key.getValue()).isEqualTo("/foo/bar");
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(request.getArticle().getContent());
 
-        assertThat(response.getTransactionId()).isEqualTo("key-hash");
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getKeyhash()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isTrue();
     }
 
@@ -83,7 +102,8 @@ public class PublisherServiceTest {
 
         verify(contentRepositoryService, never()).write(any(), any());
 
-        assertThat(response.getTransactionId()).isEqualTo("key-hash");
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getKeyhash()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
     }

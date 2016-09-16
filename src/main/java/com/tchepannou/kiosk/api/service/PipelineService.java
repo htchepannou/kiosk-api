@@ -7,6 +7,8 @@ import com.tchepannou.kiosk.client.dto.ErrorDto;
 import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.core.service.LogService;
+import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,36 +25,48 @@ public class PipelineService {
     ContentRepositoryService contentRepository;
 
     @Autowired
+    LogService logService;
+
+    @Autowired
+    TransactionIdProvider transactionIdProvider;
+
+    @Autowired
     TextFilterSet filters;
 
     @Transactional
     public ProcessResponse process(final ProcessRequest request) throws IOException {
         final String keyhash = request.getKeyhash();
+        ProcessResponse response = null;
         try {
 
             // Get data
             final Article article = articleRepository.findOne(request.getKeyhash());
             if (article == null){
-                return createProcessResponse(keyhash, ErrorConstants.ARTICLE_NOT_FOUND);
+                response = createProcessResponse(keyhash, ErrorConstants.ARTICLE_NOT_FOUND);
+            } else {
+
+                // Get content
+                final String html = fetchContent(article);
+
+                // Process
+                final String xhtml = filters.filter(html);
+
+                // Save all
+                storeContent(article, xhtml, Article.Status.processed);
+                updateStatus(article, Article.Status.processed);
+
+                response = createProcessResponse(article);
             }
-
-            // Get content
-            final String html = fetchContent(article);
-
-            // Process
-            final String xhtml = filters.filter(html);
-
-            // Save all
-            storeContent(article, xhtml, Article.Status.processed);
-            updateStatus(article, Article.Status.processed);
-
-            return createProcessResponse(article);
 
         } catch (final FileNotFoundException ex) {
 
-            return createProcessResponse(keyhash, ErrorConstants.CONTENT_NOT_FOUND);
+            response = createProcessResponse(keyhash, ErrorConstants.CONTENT_NOT_FOUND);
 
+        } finally {
+            log(request, response);
         }
+
+        return response;
     }
 
     private String fetchContent(final Article article) throws IOException {
@@ -72,15 +86,28 @@ public class PipelineService {
         articleRepository.save(article);
     }
 
+    private void log(final ProcessRequest request, final ProcessResponse response) {
+        logService.add("keyhash", request.getKeyhash());
+
+        if (response != null) {
+            logService.add("Success", response.isSuccess());
+
+            if (!response.isSuccess()) {
+                final ErrorDto error = response.getError();
+                logService.add("ErrorCode", error.getCode());
+                logService.add("ErrorMessage", error.getMessage());
+            }
+        }
+    }
+
     private ProcessResponse createProcessResponse(final Article article) {
-        final ProcessResponse response = new ProcessResponse();
-        response.setTransactionId(article.getKeyhash());
-        return response;
+        return createProcessResponse(article.getKeyhash(), null);
     }
 
     private ProcessResponse createProcessResponse(final String keyhash, final String code) {
         final ProcessResponse response = new ProcessResponse();
-        response.setTransactionId(keyhash);
+        response.setTransactionId(transactionIdProvider.get());
+        response.setKeyhash(keyhash);
         if (code != null){
             response.setError(new ErrorDto(code));
         }

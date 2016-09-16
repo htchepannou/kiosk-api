@@ -38,6 +38,16 @@
             <groupId>com.tchepannou.kiosk</groupId>
             <artifactId>kiosk-core</artifactId>
             <version>${kiosk-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.tchepannou.kiosk</groupId>
