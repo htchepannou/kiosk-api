@@ -1,10 +1,9 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.exception.ArticleException;
-import com.tchepannou.kiosk.api.exception.ArticleNotFoundException;
-import com.tchepannou.kiosk.api.exception.ContentNotFoundException;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.client.dto.ErrorConstants;
+import com.tchepannou.kiosk.client.dto.ErrorDto;
 import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
@@ -27,10 +26,17 @@ public class PipelineService {
     TextFilterSet filters;
 
     @Transactional
-    public ProcessResponse process(final ProcessRequest request) throws ArticleException, IOException {
+    public ProcessResponse process(final ProcessRequest request) throws IOException {
+        final String keyhash = request.getKeyhash();
         try {
+
             // Get data
-            final Article article = loadArticle(request.getKeyhash());
+            final Article article = articleRepository.findOne(request.getKeyhash());
+            if (article == null){
+                return createProcessResponse(keyhash, ErrorConstants.ARTICLE_NOT_FOUND);
+            }
+
+            // Get content
             final String html = fetchContent(article);
 
             // Process
@@ -41,17 +47,12 @@ public class PipelineService {
             updateStatus(article, Article.Status.processed);
 
             return createProcessResponse(article);
-        } catch (final FileNotFoundException ex) {
-            throw new ContentNotFoundException("Unable to find article content", ex);
-        }
-    }
 
-    private Article loadArticle(final String keyhash) throws ArticleException {
-        final Article article = articleRepository.findOne(keyhash);
-        if (article == null) {
-            throw new ArticleNotFoundException(keyhash);
+        } catch (final FileNotFoundException ex) {
+
+            return createProcessResponse(keyhash, ErrorConstants.CONTENT_NOT_FOUND);
+
         }
-        return article;
     }
 
     private String fetchContent(final Article article) throws IOException {
@@ -74,6 +75,15 @@ public class PipelineService {
     private ProcessResponse createProcessResponse(final Article article) {
         final ProcessResponse response = new ProcessResponse();
         response.setTransactionId(article.getKeyhash());
+        return response;
+    }
+
+    private ProcessResponse createProcessResponse(final String keyhash, final String code) {
+        final ProcessResponse response = new ProcessResponse();
+        response.setTransactionId(keyhash);
+        if (code != null){
+            response.setError(new ErrorDto(code));
+        }
         return response;
     }
 }

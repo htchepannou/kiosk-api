@@ -2,9 +2,7 @@ package com.tchepannou.kiosk.client.dto;
 
 public abstract class AbstractResponse {
     private String transactionId;
-    private boolean success;
-    private String errorCode;
-    private String errorMessage;
+    private ErrorDto error;
 
     public String getTransactionId() {
         return transactionId;
@@ -15,26 +13,14 @@ public abstract class AbstractResponse {
     }
 
     public boolean isSuccess() {
-        return success;
+        return error == null;
     }
 
-    public void setSuccess(final boolean success) {
-        this.success = success;
+    public ErrorDto getError() {
+        return error;
     }
 
-    public String getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(final String errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(final String errorMessage) {
-        this.errorMessage = errorMessage;
+    public void setError(final ErrorDto error) {
+        this.error = error;
     }
 }

@@ -1,8 +1,9 @@
 package com.tchepannou.kiosk.api.service;
 
-import com.tchepannou.kiosk.api.ErrorConstants;
+import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
+import com.tchepannou.kiosk.client.dto.ErrorDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
@@ -58,9 +59,10 @@ public class PublisherService {
 
     private PublishResponse createResponse(final Article article, final String code) {
         final PublishResponse response = new PublishResponse();
-        response.setSuccess(code == null);
         response.setTransactionId(article.getKeyhash());
-        response.setErrorCode(code);
+        if (code != null){
+            response.setError(new ErrorDto(code, code));
+        }
         return response;
     }
 }

@@ -1,6 +1,6 @@
 package com.tchepannou.kiosk.api.service;
 
-import com.tchepannou.kiosk.api.ErrorConstants;
+import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
@@ -64,8 +64,6 @@ public class PublisherServiceTest {
 
         assertThat(response.getTransactionId()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getErrorCode()).isNull();
-        assertThat(response.getErrorMessage()).isNull();
     }
 
     @Test
@@ -87,7 +85,6 @@ public class PublisherServiceTest {
 
         assertThat(response.getTransactionId()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isFalse();
-        assertThat(response.getErrorCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
-        assertThat(response.getErrorMessage()).isNull();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
     }
 }

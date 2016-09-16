@@ -1,9 +1,8 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.exception.ArticleNotFoundException;
-import com.tchepannou.kiosk.api.exception.ContentNotFoundException;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
@@ -55,7 +54,7 @@ public class PipelineServiceTest {
         doAnswer(new Answer() {
                      @Override
                      public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                         final OutputStream out = (OutputStream)invocationOnMock.getArguments()[1];
+                         final OutputStream out = (OutputStream) invocationOnMock.getArguments()[1];
                          out.write(html.getBytes());
                          return null;
                      }
@@ -66,10 +65,11 @@ public class PipelineServiceTest {
         when(filters.filter(html)).thenReturn(xhtml);
 
         // When
-        ProcessResponse response = service.process(createProcessRequest(keyhash));
+        final ProcessResponse response = service.process(createProcessRequest(keyhash));
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(keyhash);
+        assertThat(response.isSuccess()).isTrue();
 
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
         verify(articleRepository).save(article);
@@ -81,24 +81,33 @@ public class PipelineServiceTest {
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(xhtml);
     }
 
-    @Test(expected = ArticleNotFoundException.class)
-    public void shouldThrowArticleNotFoundExceptionForInvalidArticle() throws Exception {
-        service.process(createProcessRequest("????"));
+    public void shouldReturnErrorWhenArticleNotFound() throws Exception {
+        // When
+        final ProcessResponse response = service.process(createProcessRequest("????"));
+
+        // Then
+        assertThat(response.getTransactionId()).isEqualTo("????");
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
     }
 
-    @Test(expected = ContentNotFoundException.class)
     public void shouldThrowContentNotFoundExceptionForArticleWithNoContent() throws Exception {
+        // Givevn
         final String keyhash = "430940393";
-
         final Article article = new Article();
         when(articleRepository.findOne(keyhash)).thenReturn(article);
 
         doThrow(FileNotFoundException.class).when(contentRepository).read(anyString(), any(OutputStream.class));
 
-        service.process(createProcessRequest(keyhash));
+        final ProcessResponse response = service.process(createProcessRequest(keyhash));
+
+        // Then
+        assertThat(response.getTransactionId()).isEqualTo("????");
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.CONTENT_NOT_FOUND);
     }
 
-    private ProcessRequest createProcessRequest(final String keyhash){
+    private ProcessRequest createProcessRequest(final String keyhash) {
         final ProcessRequest request = new ProcessRequest();
         request.setKeyhash(keyhash);
         return request;

@@ -10,7 +10,7 @@ services:
   - mysql
 
 before_script:
-  - mysql -e 'CREATE DATABASE kiosk;' -uroot
+  - mysql -e 'DROP DATABASE IF EXISTS kiosk; CREATE DATABASE kiosk;' -uroot
 
 after_success:
   - ./after_success.sh
