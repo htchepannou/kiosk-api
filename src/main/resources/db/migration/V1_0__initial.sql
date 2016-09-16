@@ -27,8 +27,6 @@ CREATE TABLE article (
   status          INT,
   url             TEXT     NOT NULL,
 
-  inserttimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
   feed_id         BIGINT   NOT NULL REFERENCES feed (id)
 )
   ENGINE = InnoDB;

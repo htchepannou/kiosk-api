@@ -5,6 +5,8 @@ import com.tchepannou.kiosk.api.exception.ArticleException;
 import com.tchepannou.kiosk.api.exception.ArticleNotFoundException;
 import com.tchepannou.kiosk.api.exception.ContentNotFoundException;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.client.dto.ProcessRequest;
+import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +27,10 @@ public class PipelineService {
     TextFilterSet filters;
 
     @Transactional
-    public void process(final String keyhash) throws ArticleException, IOException {
+    public ProcessResponse process(final ProcessRequest request) throws ArticleException, IOException {
         try {
-
             // Get data
-            final Article article = loadArticle(keyhash);
+            final Article article = loadArticle(request.getKeyhash());
             final String html = fetchContent(article);
 
             // Process
@@ -39,6 +40,7 @@ public class PipelineService {
             storeContent(article, xhtml, Article.Status.processed);
             updateStatus(article, Article.Status.processed);
 
+            return createProcessResponse(article);
         } catch (final FileNotFoundException ex) {
             throw new ContentNotFoundException("Unable to find article content", ex);
         }
@@ -67,5 +69,11 @@ public class PipelineService {
     private void updateStatus(final Article article, final Article.Status status) {
         article.setStatus(status);
         articleRepository.save(article);
+    }
+
+    private ProcessResponse createProcessResponse(final Article article) {
+        final ProcessResponse response = new ProcessResponse();
+        response.setTransactionId(article.getKeyhash());
+        return response;
     }
 }

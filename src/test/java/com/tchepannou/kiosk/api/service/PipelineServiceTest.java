@@ -4,6 +4,8 @@ import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.exception.ArticleNotFoundException;
 import com.tchepannou.kiosk.api.exception.ContentNotFoundException;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.client.dto.ProcessRequest;
+import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -19,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static com.tchepannou.kiosk.api.Fixture.createArticle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -44,8 +47,8 @@ public class PipelineServiceTest {
     @Test
     public void shouldProcessArticle() throws Exception {
         // Given
-        final String keyhash = "430940393";
-        final Article article = new Article();
+        final Article article = createArticle();
+        final String keyhash = article.getKeyhash();
         when(articleRepository.findOne(keyhash)).thenReturn(article);
 
         final String html = "hello world";
@@ -63,11 +66,12 @@ public class PipelineServiceTest {
         when(filters.filter(html)).thenReturn(xhtml);
 
         // When
-        service.process(keyhash);
+        ProcessResponse response = service.process(createProcessRequest(keyhash));
 
         // Then
-        assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
+        assertThat(response.getTransactionId()).isEqualTo(keyhash);
 
+        assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
         verify(articleRepository).save(article);
 
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
@@ -79,7 +83,7 @@ public class PipelineServiceTest {
 
     @Test(expected = ArticleNotFoundException.class)
     public void shouldThrowArticleNotFoundExceptionForInvalidArticle() throws Exception {
-        service.process("????");
+        service.process(createProcessRequest("????"));
     }
 
     @Test(expected = ContentNotFoundException.class)
@@ -91,6 +95,12 @@ public class PipelineServiceTest {
 
         doThrow(FileNotFoundException.class).when(contentRepository).read(anyString(), any(OutputStream.class));
 
-        service.process(keyhash);
+        service.process(createProcessRequest(keyhash));
+    }
+
+    private ProcessRequest createProcessRequest(final String keyhash){
+        final ProcessRequest request = new ProcessRequest();
+        request.setKeyhash(keyhash);
+        return request;
     }
 }
