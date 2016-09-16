@@ -2,8 +2,8 @@ package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.ErrorConstants;
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.dto.PublishRequestDto;
-import com.tchepannou.kiosk.api.dto.PublishResponseDto;
+import com.tchepannou.kiosk.client.dto.PublishRequest;
+import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import org.apache.commons.io.IOUtils;
@@ -42,15 +42,15 @@ public class PublisherServiceTest {
     @Test
     public void shouldPublishArticle() throws Exception {
         // Given
-        PublishRequestDto request = createPublishRequest();
+        final PublishRequest request = createPublishRequest();
 
-        Article article = mock(Article.class);
+        final Article article = mock(Article.class);
         when(article.contentKey(any())).thenReturn("/foo/bar");
         when(article.getKeyhash()).thenReturn("key-hash");
         when(articleMapper.toArticle(request)).thenReturn(article);
 
         // When
-        PublishResponseDto response = service.publish(request);
+        final PublishResponse response = service.publish(request);
 
         // Then
         verify(articleRepository).save(article);
@@ -60,7 +60,7 @@ public class PublisherServiceTest {
         verify(contentRepositoryService).write(key.capture(), in.capture());
 
         assertThat(key.getValue()).isEqualTo("/foo/bar");
-        assertThat(IOUtils.toString(in.getValue())).isEqualTo(request.getContent());
+        assertThat(IOUtils.toString(in.getValue())).isEqualTo(request.getArticle().getContent());
 
         assertThat(response.getTransactionId()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isTrue();
@@ -68,18 +68,17 @@ public class PublisherServiceTest {
         assertThat(response.getErrorMessage()).isNull();
     }
 
-
     @Test
     public void shouldNotRepublishArticle() throws Exception {
         // Given
-        PublishRequestDto request = createPublishRequest();
+        final PublishRequest request = createPublishRequest();
 
-        Article article = mock(Article.class);
+        final Article article = mock(Article.class);
         when(article.getKeyhash()).thenReturn("key-hash");
         when(articleRepository.findOne(anyString())).thenReturn(article);
 
         // When
-        PublishResponseDto response = service.publish(request);
+        final PublishResponse response = service.publish(request);
 
         // Then
         verify(articleRepository, never()).save(article);

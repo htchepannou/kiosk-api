@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.controller;
 
-import com.tchepannou.kiosk.api.dto.PublishRequestDto;
-import com.tchepannou.kiosk.api.dto.PublishResponseDto;
+import com.tchepannou.kiosk.client.dto.PublishRequest;
+import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.api.service.PipelineService;
 import com.tchepannou.kiosk.api.service.PublisherService;
 import io.swagger.annotations.Api;
@@ -31,10 +31,10 @@ public class ArticleController {
 
     @ApiOperation("Publish an article")
     @RequestMapping(value="/publish", method = RequestMethod.POST)
-    public ResponseEntity<PublishResponseDto> publish(
-            @RequestBody final PublishRequestDto request
+    public ResponseEntity<PublishResponse> publish(
+            @RequestBody final PublishRequest request
     ) throws IOException {
-        final PublishResponseDto dto = publisherService.publish(request);
+        final PublishResponse dto = publisherService.publish(request);
         final HttpStatus status = dto.isSuccess() ? HttpStatus.OK : HttpStatus.CONFLICT;
 
         return new ResponseEntity<>(dto, status);
@@ -47,5 +47,4 @@ public class ArticleController {
     ) throws IOException {
         pipelineService.process(keyhash);
     }
-
 }

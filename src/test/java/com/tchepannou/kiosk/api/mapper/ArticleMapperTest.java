@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.dto.PublishRequestDto;
+import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class ArticleMapperTest {
     @Test
     public void shouldConvertArticle () throws Exception{
         // Given
-        final PublishRequestDto request = createPublishRequest();
+        final PublishRequest request = createPublishRequest();
 
         final Date date = new Date();
         when(timeService.parse(anyString())).thenReturn(date);
@@ -37,21 +37,21 @@ public class ArticleMapperTest {
         Article article = mapper.toArticle(request);
 
         // Then
-        assertThat(article.getCountryCode()).isEqualTo(request.getCountryCode());
+        assertThat(article.getCountryCode()).isEqualTo(request.getArticle().getCountryCode());
         assertThat(article.getFeedId()).isEqualTo(request.getFeedId());
-        assertThat(article.getLanguageCode()).isEqualTo(request.getLanguageCode());
+        assertThat(article.getLanguageCode()).isEqualTo(request.getArticle().getLanguageCode());
         assertThat(article.getPublishedDate()).isEqualTo(date);
-        assertThat(article.getSlug()).isEqualTo(request.getSlug());
+        assertThat(article.getSlug()).isEqualTo(request.getArticle().getSlug());
         assertThat(article.getStatus()).isNull();
-        assertThat(article.getTitle()).isEqualTo(request.getTitle());
-        assertThat(article.getUrl()).isEqualTo(request.getUrl());
+        assertThat(article.getTitle()).isEqualTo(request.getArticle().getTitle());
+        assertThat(article.getUrl()).isEqualTo(request.getArticle().getUrl());
     }
 
     @Test
     public void shouldNotConvertPublishedDateWhenNull () throws Exception{
         // Given
-        final PublishRequestDto request = createPublishRequest();
-        request.setPublishedDate(null);
+        final PublishRequest request = createPublishRequest();
+        request.getArticle().setPublishedDate(null);
 
         // When
         Article article = mapper.toArticle(request);
@@ -63,7 +63,7 @@ public class ArticleMapperTest {
     @Test(expected = MappingException.class)
     public void shouldThrowMappingExceptionIfDateMalformed () throws Exception{
         // Given
-        final PublishRequestDto request = createPublishRequest();
+        final PublishRequest request = createPublishRequest();
 
         when(timeService.parse(anyString())).thenThrow(new ParseException("foo", 1));
 

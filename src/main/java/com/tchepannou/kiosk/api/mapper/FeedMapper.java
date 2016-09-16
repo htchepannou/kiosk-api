@@ -1,8 +1,8 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.api.dto.FeedListResponseDto;
-import com.tchepannou.kiosk.api.dto.FeedDto;
+import com.tchepannou.kiosk.client.dto.FeedListResponse;
+import com.tchepannou.kiosk.client.dto.FeedDto;
 import org.springframework.beans.BeanUtils;
 
 import java.util.stream.Collectors;
@@ -16,8 +16,8 @@ public class FeedMapper {
         return dto;
     }
 
-    public FeedListResponseDto toFeedListDto(final Iterable<Feed> domains) {
-        final FeedListResponseDto dto = new FeedListResponseDto();
+    public FeedListResponse toFeedListDto(final Iterable<Feed> domains) {
+        final FeedListResponse dto = new FeedListResponse();
         dto.setFeeds(
                 StreamSupport.stream(domains.spliterator(), false)
                         .map(domain -> toFeedDto(domain))

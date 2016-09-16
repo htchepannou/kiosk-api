@@ -1,6 +1,6 @@
-package com.tchepannou.kiosk.api.dto;
+package com.tchepannou.kiosk.client.dto;
 
-public class PublishResponseDto {
+public class PublishResponse {
     private String transactionId;
     private boolean success;
     private String errorCode;

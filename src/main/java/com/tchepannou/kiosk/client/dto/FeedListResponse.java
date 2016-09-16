@@ -1,9 +1,9 @@
-package com.tchepannou.kiosk.api.dto;
+package com.tchepannou.kiosk.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeedListResponseDto {
+public class FeedListResponse {
     private List<FeedDto> feeds = new ArrayList<>();
 
     public int getSize() {

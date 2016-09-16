@@ -2,8 +2,9 @@ package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.ErrorConstants;
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.dto.PublishRequestDto;
-import com.tchepannou.kiosk.api.dto.PublishResponseDto;
+import com.tchepannou.kiosk.client.dto.ArticleDto;
+import com.tchepannou.kiosk.client.dto.PublishRequest;
+import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,9 @@ public class PublisherService {
     ArticleMapper articleMapper;
 
     @Transactional
-    public PublishResponseDto publish(final PublishRequestDto request) throws IOException {
-        final String keyhash = Article.generateKeyhash(request.getUrl());
+    public PublishResponse publish(final PublishRequest request) throws IOException {
+        final ArticleDto requestArticle = request.getArticle();
+        final String keyhash = Article.generateKeyhash(requestArticle.getUrl());
         Article article = findArticle(keyhash);
         if (article != null) {
             return createResponse(article, ErrorConstants.ALREADY_PUBLISHED);
@@ -38,7 +40,7 @@ public class PublisherService {
         articleRepository.save(article);
 
         /* store the content */
-        try (final InputStream in = new ByteArrayInputStream(request.getContent().getBytes())) {
+        try (final InputStream in = new ByteArrayInputStream(requestArticle.getContent().getBytes())) {
             final String key = article.contentKey(article.getStatus());
             contentRepositoryService.write(key, in);
         }
@@ -54,8 +56,8 @@ public class PublisherService {
         }
     }
 
-    private PublishResponseDto createResponse(final Article article, final String code) {
-        final PublishResponseDto response = new PublishResponseDto();
+    private PublishResponse createResponse(final Article article, final String code) {
+        final PublishResponse response = new PublishResponse();
         response.setSuccess(code == null);
         response.setTransactionId(article.getKeyhash());
         response.setErrorCode(code);

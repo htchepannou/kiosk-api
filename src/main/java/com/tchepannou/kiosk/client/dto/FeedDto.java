@@ -1,4 +1,4 @@
-package com.tchepannou.kiosk.api.dto;
+package com.tchepannou.kiosk.client.dto;
 
 public class FeedDto {
     private long id;
