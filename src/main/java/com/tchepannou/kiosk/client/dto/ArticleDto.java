@@ -1,7 +1,6 @@
-package com.tchepannou.kiosk.api.dto;
+package com.tchepannou.kiosk.client.dto;
 
-public class PublishRequestDto {
-    private long feedId;
+public class ArticleDto {
     private String url;
     private String title;
     private String slug;
@@ -9,14 +8,6 @@ public class PublishRequestDto {
     private String languageCode;
     private String publishedDate;
     private String content;
-
-    public long getFeedId() {
-        return feedId;
-    }
-
-    public void setFeedId(final long feedId) {
-        this.feedId = feedId;
-    }
 
     public String getUrl() {
         return url;

@@ -9,7 +9,8 @@ import java.util.Date;
 @Entity
 public class Article {
     public static enum Status {
-        submitted
+        submitted,
+        processed
     }
 
     @Id
@@ -26,13 +27,13 @@ public class Article {
     public Article() {
     }
 
-    public static String generateKeyhash (final String url){
+    public static String generateKeyhash(final String url) {
         return url == null
                 ? null
                 : DigestUtils.md5Hex(url.getBytes());
     }
 
-    public String contentKey(final Status status){
+    public String contentKey(final Status status) {
         return getKeyhash() + "/" + status.name() + ".html";
     }
 

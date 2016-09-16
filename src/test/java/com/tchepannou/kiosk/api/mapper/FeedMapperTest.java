@@ -1,8 +1,8 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.api.dto.FeedListResponseDto;
-import com.tchepannou.kiosk.api.dto.FeedDto;
+import com.tchepannou.kiosk.client.dto.FeedListResponse;
+import com.tchepannou.kiosk.client.dto.FeedDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -42,7 +42,7 @@ public class FeedMapperTest {
         );
 
         // When
-        FeedListResponseDto result = mapper.toFeedListDto(feeds);
+        FeedListResponse result = mapper.toFeedListDto(feeds);
 
         // Then
         assertThat(result.getSize()).isEqualTo(feeds.size());

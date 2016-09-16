@@ -2,22 +2,17 @@ package com.tchepannou.kiosk.api;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.api.dto.PublishRequestDto;
+import com.tchepannou.kiosk.client.dto.ArticleDto;
+import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 
 public class Fixture {
     private static long uid = System.currentTimeMillis();
 
-    public static PublishRequestDto createPublishRequest() {
-        final PublishRequestDto request = new PublishRequestDto();
-        request.setContent("<p>This is the content of the article</p>");
-        request.setCountryCode("CA");
+    public static PublishRequest createPublishRequest() {
+        final PublishRequest request = new PublishRequest();
         request.setFeedId(112);
-        request.setLanguageCode("FR");
-        request.setPublishedDate("2012-10-15 11:00:00 -0500");
-        request.setSlug("This is a slug");
-        request.setTitle("Title of article");
-        request.setUrl("http://fdlkfd.com/1232");
+        request.setArticle(createArticleDto());
 
         return request;
     }
@@ -46,6 +41,20 @@ public class Fixture {
         article.setStatus(Article.Status.submitted);
         article.setTitle("This is title");
         article.setUrl("http://article.com/" + id);
+
+        return article;
+    }
+
+    public static ArticleDto createArticleDto (){
+        ArticleDto article = new ArticleDto();
+
+        article.setContent("<p>This is the content of the article</p>");
+        article.setCountryCode("CA");
+        article.setLanguageCode("FR");
+        article.setPublishedDate("2012-10-15 11:00:00 -0500");
+        article.setSlug("This is a slug");
+        article.setTitle("Title of article");
+        article.setUrl("http://fdlkfd.com/1232");
 
         return article;
     }

@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.api.dto.FeedListResponseDto;
+import com.tchepannou.kiosk.client.dto.FeedListResponse;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import org.junit.Test;
@@ -35,11 +35,11 @@ public class FeedServiceTest {
         final List<Feed> feeds = Arrays.asList(createFeed(), createFeed());
         when(feedRepository.findAll()).thenReturn(feeds);
 
-        final FeedListResponseDto response = new FeedListResponseDto();
+        final FeedListResponse response = new FeedListResponse();
         when(feedMapper.toFeedListDto(feeds)).thenReturn(response);
 
         // When
-        final FeedListResponseDto result = service.all();
+        final FeedListResponse result = service.all();
 
         // Then
         assertThat(result).isEqualTo(response);
