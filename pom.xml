@@ -20,6 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <kiosk-core.version>1.0-SNAPSHOT</kiosk-core.version>
+        <kiosk-client.version>1.0-SNAPSHOT</kiosk-client.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-io.version>2.4</commons-io.version>
         <h2database.version>1.4.192</h2database.version>
@@ -37,6 +38,29 @@
             <groupId>com.tchepannou.kiosk</groupId>
             <artifactId>kiosk-core</artifactId>
             <version>${kiosk-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tchepannou.kiosk</groupId>
+            <artifactId>kiosk-client</artifactId>
+            <version>${kiosk-client.version}</version>
+
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- ==== SPRING ==== -->
