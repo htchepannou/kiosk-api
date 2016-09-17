@@ -1,6 +1,7 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
@@ -20,13 +21,13 @@ public class ArticleMapper {
         return article;
     }
 
-    public Article toArticle(final ArticleDto dto) {
+    public Article toArticle(final ArticleDataDto dto) {
         final Article article = new Article();
         toArticle(dto, article);
         return article;
     }
 
-    private void toArticle(final ArticleDto dto, final Article article) {
+    private void toArticle(final ArticleDataDto dto, final Article article) {
         article.setCountryCode(dto.getCountryCode());
         article.setLanguageCode(dto.getLanguageCode());
         article.setSlug(dto.getSlug());
@@ -41,5 +42,21 @@ public class ArticleMapper {
                 throw new MappingException(String.format("%s format doesn't match $s", publishedDate, TimeService.DATETIME_FORMAT), e);
             }
         }
+    }
+
+    public ArticleDto toArticleDto(final Article article) {
+        final ArticleDataDto data = new ArticleDataDto();
+        data.setCountryCode(article.getCountryCode());
+        data.setLanguageCode(article.getLanguageCode());
+        data.setPublishedDate(timeService.format(article.getPublishedDate()));
+        data.setSlug(article.getSlug());
+        data.setTitle(article.getTitle());
+        data.setUrl(article.getUrl());
+
+        final ArticleDto dto = new ArticleDto();
+        dto.setId(article.getId());
+        dto.setStatus(article.getStatus().name());
+        dto.setData(data);
+        return dto;
     }
 }

@@ -1,6 +1,7 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 import org.junit.Test;
@@ -12,8 +13,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.text.ParseException;
 import java.util.Date;
 
+import static com.tchepannou.kiosk.api.Fixture.createArticle;
 import static com.tchepannou.kiosk.api.Fixture.createPublishRequest;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -71,5 +74,27 @@ public class ArticleMapperTest {
         mapper.toArticle(request);
 
         // Then
+    }
+
+    public void shouldConvertArticleDto () {
+        // Given
+        final Article article = createArticle();
+        
+        final String date = "2012-03-15 10:30:00 -05000";
+        when(timeService.format(any())).thenReturn(date);
+        
+        // When
+        final ArticleDto dto = mapper.toArticleDto(article);
+        
+        // Then
+        assertThat(dto.getId()).isEqualTo(article.getId());
+        assertThat(dto.getStatus()).isEqualTo(article.getStatus().name());
+
+        assertThat(dto.getData().getCountryCode()).isEqualTo(article.getCountryCode());
+        assertThat(dto.getData().getLanguageCode()).isEqualTo(article.getLanguageCode());
+        assertThat(dto.getData().getPublishedDate()).isEqualTo(date);
+        assertThat(dto.getData().getSlug()).isEqualTo(article.getSlug());
+        assertThat(dto.getData().getTitle()).isEqualTo(article.getTitle());
+        assertThat(dto.getData().getUrl()).isEqualTo(article.getUrl());
     }
 }

@@ -3,7 +3,7 @@ package com.tchepannou.kiosk.api.service;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
-import com.tchepannou.kiosk.client.dto.ArticleDto;
+import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ErrorDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
@@ -37,11 +37,12 @@ public class PublisherService {
     @Transactional
     public PublishResponse publish(final PublishRequest request) throws IOException {
         PublishResponse response = null;
+        String articleId = null;
         try {
 
-            final ArticleDto requestArticle = request.getArticle();
-            final String keyhash = Article.generateKeyhash(requestArticle.getUrl());
-            Article article = findArticle(keyhash);
+            final ArticleDataDto requestArticle = request.getArticle();
+            articleId = Article.generateId(requestArticle.getUrl());
+            Article article = findArticle(articleId);
             if (article != null) {
                 response = createResponse(article, ErrorConstants.ALREADY_PUBLISHED);
                 return response;
@@ -63,15 +64,16 @@ public class PublisherService {
 
         } finally {
 
-            log(request, response);
+            log(articleId, request, response);
 
         }
     }
 
-    private void log(final PublishRequest request, final PublishResponse response) {
+    private void log(final String articleId, final PublishRequest request, final PublishResponse response) {
         logService.add("FeedId", request.getFeedId());
 
-        final ArticleDto article = request.getArticle();
+        final ArticleDataDto article = request.getArticle();
+        logService.add("ArticleId", articleId);
         logService.add("ArticleUrl", article.getUrl());
         logService.add("ArticleTitle", article.getTitle());
 
@@ -85,9 +87,9 @@ public class PublisherService {
         }
     }
 
-    private Article findArticle(final String keyhash) {
+    private Article findArticle(final String articleId) {
         try {
-            return articleRepository.findOne(keyhash);
+            return articleRepository.findOne(articleId);
         } catch (final DataAccessException e) {
             return null;
         }
@@ -95,7 +97,7 @@ public class PublisherService {
 
     private PublishResponse createResponse(final Article article, final String code) {
         final PublishResponse response = new PublishResponse();
-        response.setKeyhash(article.getKeyhash());
+        response.setArticleId(article.getId());
         response.setTransactionId(transactionIdProvider.get());
         if (code != null) {
             response.setError(new ErrorDto(code));

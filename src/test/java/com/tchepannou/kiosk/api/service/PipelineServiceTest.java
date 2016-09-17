@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public class PipelineServiceTest {
     String transactionId;
 
     @Before
-    public void setUp (){
+    public void setUp() {
         transactionId = UUID.randomUUID().toString();
         when(transactionIdProvider.get()).thenReturn(transactionId);
     }
@@ -65,8 +66,8 @@ public class PipelineServiceTest {
     public void shouldProcessArticle() throws Exception {
         // Given
         final Article article = createArticle();
-        final String keyhash = article.getKeyhash();
-        when(articleRepository.findOne(keyhash)).thenReturn(article);
+        final String articleId = article.getId();
+        when(articleRepository.findOne(articleId)).thenReturn(article);
 
         final String html = "hello world";
         doAnswer(new Answer() {
@@ -83,11 +84,11 @@ public class PipelineServiceTest {
         when(filters.filter(html)).thenReturn(xhtml);
 
         // When
-        final ProcessResponse response = service.process(createProcessRequest(keyhash));
+        final ProcessResponse response = service.process(createProcessRequest(articleId));
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo(keyhash);
+        assertThat(response.getArticleId()).isEqualTo(articleId);
         assertThat(response.isSuccess()).isTrue();
 
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
@@ -100,37 +101,55 @@ public class PipelineServiceTest {
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(xhtml);
     }
 
+    @Test
     public void shouldReturnErrorWhenArticleNotFound() throws Exception {
         // When
         final ProcessResponse response = service.process(createProcessRequest("????"));
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo("????");
+        assertThat(response.getArticleId()).isEqualTo("????");
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
     }
 
-    public void shouldThrowContentNotFoundExceptionForArticleWithNoContent() throws Exception {
-        // Givevn
-        final String keyhash = "430940393";
-        final Article article = new Article();
-        when(articleRepository.findOne(keyhash)).thenReturn(article);
+    @Test
+    public void shouldReturnErrorWhenDBError() throws Exception {
+        // Given
+        when(articleRepository.findOne(any())).thenThrow(new DataIntegrityViolationException("failed"));
 
-        doThrow(FileNotFoundException.class).when(contentRepository).read(anyString(), any(OutputStream.class));
-
-        final ProcessResponse response = service.process(createProcessRequest(keyhash));
+        // When
+        final ProcessResponse response = service.process(createProcessRequest("????"));
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo(keyhash);
+        assertThat(response.getArticleId()).isEqualTo("????");
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
+    }
+
+    @Test
+    public void shouldThrowContentNotFoundExceptionForArticleWithNoContent() throws Exception {
+        // Givevn
+        final String articleId = "430940393";
+        final Article article = new Article();
+        when(articleRepository.findOne(articleId)).thenReturn(article);
+
+        final ContentRepositoryException ex = new ContentRepositoryException(new FileNotFoundException());
+        doThrow(ex).when(contentRepository).read(anyString(), any(OutputStream.class));
+
+        final ProcessResponse response = service.process(createProcessRequest(articleId));
+
+        // Then
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticleId()).isEqualTo(articleId);
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.CONTENT_NOT_FOUND);
     }
 
-    private ProcessRequest createProcessRequest(final String keyhash) {
+    private ProcessRequest createProcessRequest(final String articleId) {
         final ProcessRequest request = new ProcessRequest();
-        request.setKeyhash(keyhash);
+        request.setArticleId(articleId);
         return request;
     }
 }

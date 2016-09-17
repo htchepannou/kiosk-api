@@ -18,7 +18,7 @@ INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.d
 
 -- articles
 CREATE TABLE article (
-  keyhash         CHAR(32) NOT NULL PRIMARY KEY,
+  id              CHAR(32) NOT NULL PRIMARY KEY,
   title           VARCHAR(256),
   slug            TEXT,
   country_code    CHAR(3),
