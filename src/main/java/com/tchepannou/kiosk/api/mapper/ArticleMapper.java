@@ -2,6 +2,7 @@ package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.client.dto.ArticleDataDto;
+import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +42,21 @@ public class ArticleMapper {
                 throw new MappingException(String.format("%s format doesn't match $s", publishedDate, TimeService.DATETIME_FORMAT), e);
             }
         }
+    }
+
+    public ArticleDto toArticleDto(final Article article) {
+        final ArticleDataDto data = new ArticleDataDto();
+        data.setCountryCode(article.getCountryCode());
+        data.setLanguageCode(article.getLanguageCode());
+        data.setPublishedDate(timeService.format(article.getPublishedDate()));
+        data.setSlug(article.getSlug());
+        data.setTitle(article.getTitle());
+        data.setUrl(article.getUrl());
+
+        final ArticleDto dto = new ArticleDto();
+        dto.setId(article.getId());
+        dto.setStatus(article.getStatus().name());
+        dto.setData(data);
+        return dto;
     }
 }

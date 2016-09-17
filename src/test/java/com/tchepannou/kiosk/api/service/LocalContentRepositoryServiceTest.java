@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,8 +52,8 @@ public class LocalContentRepositoryServiceTest {
 
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void shouldThrowFileNotFoundExceptionWhenReadInvalidFile () throws Exception {
+    @Test(expected = ContentRepositoryException.class)
+    public void shouldThrowContentRepositoryExceptionnWhenReadInvalidFile () throws Exception {
         // Given
         final File home = Files.createTempDir();
         final ContentRepositoryService repo = new LocalContentRepositoryService(home);

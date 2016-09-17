@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Entity
 public class Article {
-    public static enum Status {
+    public enum Status {
         submitted,
         processed
     }

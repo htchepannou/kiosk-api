@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public class PipelineServiceTest {
     String transactionId;
 
     @Before
-    public void setUp (){
+    public void setUp() {
         transactionId = UUID.randomUUID().toString();
         when(transactionIdProvider.get()).thenReturn(transactionId);
     }
@@ -100,6 +101,7 @@ public class PipelineServiceTest {
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(xhtml);
     }
 
+    @Test
     public void shouldReturnErrorWhenArticleNotFound() throws Exception {
         // When
         final ProcessResponse response = service.process(createProcessRequest("????"));
@@ -111,13 +113,30 @@ public class PipelineServiceTest {
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
     }
 
+    @Test
+    public void shouldReturnErrorWhenDBError() throws Exception {
+        // Given
+        when(articleRepository.findOne(any())).thenThrow(new DataIntegrityViolationException("failed"));
+
+        // When
+        final ProcessResponse response = service.process(createProcessRequest("????"));
+
+        // Then
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticleId()).isEqualTo("????");
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
+    }
+
+    @Test
     public void shouldThrowContentNotFoundExceptionForArticleWithNoContent() throws Exception {
         // Givevn
         final String articleId = "430940393";
         final Article article = new Article();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
-        doThrow(FileNotFoundException.class).when(contentRepository).read(anyString(), any(OutputStream.class));
+        final ContentRepositoryException ex = new ContentRepositoryException(new FileNotFoundException());
+        doThrow(ex).when(contentRepository).read(anyString(), any(OutputStream.class));
 
         final ProcessResponse response = service.process(createProcessRequest(articleId));
 

@@ -2,6 +2,7 @@ package com.tchepannou.kiosk.api.config;
 
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
+import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ContentRepositoryService;
 import com.tchepannou.kiosk.api.service.FeedService;
 import com.tchepannou.kiosk.api.service.LocalContentRepositoryService;
@@ -67,6 +68,11 @@ public class AppConfig {
     @Bean
     PublisherService publisherService () {
         return new PublisherService();
+    }
+
+    @Bean
+    ArticleService articleService () {
+        return new ArticleService();
     }
 
     @Bean

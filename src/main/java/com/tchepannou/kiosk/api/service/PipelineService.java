@@ -10,12 +10,11 @@ import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class PipelineService {
     @Autowired
@@ -34,33 +33,35 @@ public class PipelineService {
     TextFilterSet filters;
 
     @Transactional
-    public ProcessResponse process(final ProcessRequest request) throws IOException {
+    public ProcessResponse process(final ProcessRequest request) {
         final String articelId = request.getArticleId();
         ProcessResponse response = null;
         try {
 
             // Get data
-            final Article article = articleRepository.findOne(request.getArticleId());
+            final Article article = findArticle(request.getArticleId());
             if (article == null){
                 response = createProcessResponse(articelId, ErrorConstants.ARTICLE_NOT_FOUND);
-            } else {
+                return response;
 
-                // Get content
-                final String html = fetchContent(article);
-
-                // Process
-                final String xhtml = filters.filter(html);
-
-                // Save all
-                storeContent(article, xhtml, Article.Status.processed);
-                updateStatus(article, Article.Status.processed);
-
-                response = createProcessResponse(article);
             }
 
-        } catch (final FileNotFoundException ex) {
+            // Get content
+            final String html = fetchContent(article);
+            if (html == null){
+                response = createProcessResponse(articelId, ErrorConstants.CONTENT_NOT_FOUND);
+                return response;
+            }
 
-            response = createProcessResponse(articelId, ErrorConstants.CONTENT_NOT_FOUND);
+            // Process
+            final String xhtml = filters.filter(html);
+
+            // Save all
+            storeContent(article, xhtml, Article.Status.processed);
+            updateStatus(article, Article.Status.processed);
+
+            response = createProcessResponse(article);
+
 
         } finally {
             log(request, response);
@@ -69,14 +70,32 @@ public class PipelineService {
         return response;
     }
 
-    private String fetchContent(final Article article) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final String key = article.contentKey(Article.Status.submitted);
-        contentRepository.read(key, out);
-        return out.toString();
+    private Article findArticle (final String id){
+        try{
+            return articleRepository.findOne(id);
+        } catch (DataAccessException e){
+            logService.add("Exception", e.getClass().getName());
+            logService.add("ExceptionMessage", e.getMessage());
+            return null;
+        }
     }
 
-    private void storeContent(final Article article, final String html, final Article.Status status) throws IOException {
+    private String fetchContent(final Article article) {
+        try {
+
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final String key = article.contentKey(Article.Status.submitted);
+            contentRepository.read(key, out);
+            return out.toString();
+
+        } catch (ContentRepositoryException e){
+            logService.add("Exception", e.getClass().getName());
+            logService.add("ExceptionMessage", e.getMessage());
+            return null;
+        }
+    }
+
+    private void storeContent(final Article article, final String html, final Article.Status status) {
         final String key = article.contentKey(status);
         contentRepository.write(key, new ByteArrayInputStream(html.getBytes()));
     }

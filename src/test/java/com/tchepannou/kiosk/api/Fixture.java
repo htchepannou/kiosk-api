@@ -33,6 +33,7 @@ public class Fixture {
         final Article article = new Article();
         final long id = ++uid;
 
+        article.setId(String.valueOf(id));
         article.setCountryCode("US");
         article.setFeedId(id);
         article.setLanguageCode("en");

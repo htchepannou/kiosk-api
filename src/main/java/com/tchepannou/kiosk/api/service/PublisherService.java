@@ -37,10 +37,11 @@ public class PublisherService {
     @Transactional
     public PublishResponse publish(final PublishRequest request) throws IOException {
         PublishResponse response = null;
+        String articleId = null;
         try {
 
             final ArticleDataDto requestArticle = request.getArticle();
-            final String articleId = Article.generateId(requestArticle.getUrl());
+            articleId = Article.generateId(requestArticle.getUrl());
             Article article = findArticle(articleId);
             if (article != null) {
                 response = createResponse(article, ErrorConstants.ALREADY_PUBLISHED);
@@ -63,15 +64,16 @@ public class PublisherService {
 
         } finally {
 
-            log(request, response);
+            log(articleId, request, response);
 
         }
     }
 
-    private void log(final PublishRequest request, final PublishResponse response) {
+    private void log(final String articleId, final PublishRequest request, final PublishResponse response) {
         logService.add("FeedId", request.getFeedId());
 
         final ArticleDataDto article = request.getArticle();
+        logService.add("ArticleId", articleId);
         logService.add("ArticleUrl", article.getUrl());
         logService.add("ArticleTitle", article.getTitle());
 
