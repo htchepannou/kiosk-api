@@ -65,8 +65,8 @@ public class PipelineServiceTest {
     public void shouldProcessArticle() throws Exception {
         // Given
         final Article article = createArticle();
-        final String keyhash = article.getKeyhash();
-        when(articleRepository.findOne(keyhash)).thenReturn(article);
+        final String articleId = article.getId();
+        when(articleRepository.findOne(articleId)).thenReturn(article);
 
         final String html = "hello world";
         doAnswer(new Answer() {
@@ -83,11 +83,11 @@ public class PipelineServiceTest {
         when(filters.filter(html)).thenReturn(xhtml);
 
         // When
-        final ProcessResponse response = service.process(createProcessRequest(keyhash));
+        final ProcessResponse response = service.process(createProcessRequest(articleId));
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo(keyhash);
+        assertThat(response.getArticleId()).isEqualTo(articleId);
         assertThat(response.isSuccess()).isTrue();
 
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
@@ -106,31 +106,31 @@ public class PipelineServiceTest {
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo("????");
+        assertThat(response.getArticleId()).isEqualTo("????");
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ARTICLE_NOT_FOUND);
     }
 
     public void shouldThrowContentNotFoundExceptionForArticleWithNoContent() throws Exception {
         // Givevn
-        final String keyhash = "430940393";
+        final String articleId = "430940393";
         final Article article = new Article();
-        when(articleRepository.findOne(keyhash)).thenReturn(article);
+        when(articleRepository.findOne(articleId)).thenReturn(article);
 
         doThrow(FileNotFoundException.class).when(contentRepository).read(anyString(), any(OutputStream.class));
 
-        final ProcessResponse response = service.process(createProcessRequest(keyhash));
+        final ProcessResponse response = service.process(createProcessRequest(articleId));
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo(keyhash);
+        assertThat(response.getArticleId()).isEqualTo(articleId);
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.CONTENT_NOT_FOUND);
     }
 
-    private ProcessRequest createProcessRequest(final String keyhash) {
+    private ProcessRequest createProcessRequest(final String articleId) {
         final ProcessRequest request = new ProcessRequest();
-        request.setKeyhash(keyhash);
+        request.setArticleId(articleId);
         return request;
     }
 }

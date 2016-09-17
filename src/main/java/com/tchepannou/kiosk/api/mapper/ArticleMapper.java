@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.client.dto.ArticleDto;
+import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +20,13 @@ public class ArticleMapper {
         return article;
     }
 
-    public Article toArticle(final ArticleDto dto) {
+    public Article toArticle(final ArticleDataDto dto) {
         final Article article = new Article();
         toArticle(dto, article);
         return article;
     }
 
-    private void toArticle(final ArticleDto dto, final Article article) {
+    private void toArticle(final ArticleDataDto dto, final Article article) {
         article.setCountryCode(dto.getCountryCode());
         article.setLanguageCode(dto.getLanguageCode());
         article.setSlug(dto.getSlug());

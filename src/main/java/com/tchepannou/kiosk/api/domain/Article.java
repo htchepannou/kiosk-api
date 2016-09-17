@@ -14,7 +14,7 @@ public class Article {
     }
 
     @Id
-    private String keyhash;
+    private String id;
     private String url;
     private String title;
     private String slug;
@@ -27,22 +27,22 @@ public class Article {
     public Article() {
     }
 
-    public static String generateKeyhash(final String url) {
+    public static String generateId(final String url) {
         return url == null
                 ? null
                 : DigestUtils.md5Hex(url.getBytes());
     }
 
     public String contentKey(final Status status) {
-        return getKeyhash() + "/" + status.name() + ".html";
+        return getId() + "/" + status.name() + ".html";
     }
 
-    public String getKeyhash() {
-        return keyhash;
+    public String getId() {
+        return id;
     }
 
-    public void setKeyhash(final String keyhash) {
-        this.keyhash = keyhash;
+    public void setId(final String id) {
+        this.id = id;
     }
 
     public String getUrl() {
@@ -51,7 +51,7 @@ public class Article {
 
     public void setUrl(final String url) {
         this.url = url;
-        this.keyhash = generateKeyhash(url);
+        this.id = generateId(url);
     }
 
     public String getTitle() {

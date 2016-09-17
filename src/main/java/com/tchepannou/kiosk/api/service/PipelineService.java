@@ -35,14 +35,14 @@ public class PipelineService {
 
     @Transactional
     public ProcessResponse process(final ProcessRequest request) throws IOException {
-        final String keyhash = request.getKeyhash();
+        final String articelId = request.getArticleId();
         ProcessResponse response = null;
         try {
 
             // Get data
-            final Article article = articleRepository.findOne(request.getKeyhash());
+            final Article article = articleRepository.findOne(request.getArticleId());
             if (article == null){
-                response = createProcessResponse(keyhash, ErrorConstants.ARTICLE_NOT_FOUND);
+                response = createProcessResponse(articelId, ErrorConstants.ARTICLE_NOT_FOUND);
             } else {
 
                 // Get content
@@ -60,7 +60,7 @@ public class PipelineService {
 
         } catch (final FileNotFoundException ex) {
 
-            response = createProcessResponse(keyhash, ErrorConstants.CONTENT_NOT_FOUND);
+            response = createProcessResponse(articelId, ErrorConstants.CONTENT_NOT_FOUND);
 
         } finally {
             log(request, response);
@@ -87,7 +87,7 @@ public class PipelineService {
     }
 
     private void log(final ProcessRequest request, final ProcessResponse response) {
-        logService.add("keyhash", request.getKeyhash());
+        logService.add("ArticelId", request.getArticleId());
 
         if (response != null) {
             logService.add("Success", response.isSuccess());
@@ -101,13 +101,13 @@ public class PipelineService {
     }
 
     private ProcessResponse createProcessResponse(final Article article) {
-        return createProcessResponse(article.getKeyhash(), null);
+        return createProcessResponse(article.getId(), null);
     }
 
-    private ProcessResponse createProcessResponse(final String keyhash, final String code) {
+    private ProcessResponse createProcessResponse(final String articleId, final String code) {
         final ProcessResponse response = new ProcessResponse();
         response.setTransactionId(transactionIdProvider.get());
-        response.setKeyhash(keyhash);
+        response.setArticleId(articleId);
         if (code != null){
             response.setError(new ErrorDto(code));
         }

@@ -49,6 +49,7 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
+
     private <T> ResponseEntity<T> toResponseEntity(final AbstractResponse response){
         final HttpStatus status = response.isSuccess() ? HttpStatus.OK : HttpStatus.CONFLICT;
         return (ResponseEntity<T>)new ResponseEntity<>(response, status);

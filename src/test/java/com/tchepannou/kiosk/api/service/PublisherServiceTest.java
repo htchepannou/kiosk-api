@@ -64,7 +64,7 @@ public class PublisherServiceTest {
 
         final Article article = mock(Article.class);
         when(article.contentKey(any())).thenReturn("/foo/bar");
-        when(article.getKeyhash()).thenReturn("key-hash");
+        when(article.getId()).thenReturn("key-hash");
         when(articleMapper.toArticle(request)).thenReturn(article);
 
         // When
@@ -81,7 +81,7 @@ public class PublisherServiceTest {
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(request.getArticle().getContent());
 
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo("key-hash");
+        assertThat(response.getArticleId()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isTrue();
     }
 
@@ -91,7 +91,7 @@ public class PublisherServiceTest {
         final PublishRequest request = createPublishRequest();
 
         final Article article = mock(Article.class);
-        when(article.getKeyhash()).thenReturn("key-hash");
+        when(article.getId()).thenReturn("key-hash");
         when(articleRepository.findOne(anyString())).thenReturn(article);
 
         // When
@@ -103,7 +103,7 @@ public class PublisherServiceTest {
         verify(contentRepositoryService, never()).write(any(), any());
 
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getKeyhash()).isEqualTo("key-hash");
+        assertThat(response.getArticleId()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
     }

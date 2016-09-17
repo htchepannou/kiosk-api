@@ -2,7 +2,7 @@ package com.tchepannou.kiosk.api;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.client.dto.ArticleDto;
+import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 
@@ -45,8 +45,8 @@ public class Fixture {
         return article;
     }
 
-    public static ArticleDto createArticleDto (){
-        ArticleDto article = new ArticleDto();
+    public static ArticleDataDto createArticleDto (){
+        ArticleDataDto article = new ArticleDataDto();
 
         article.setContent("<p>This is the content of the article</p>");
         article.setCountryCode("CA");
