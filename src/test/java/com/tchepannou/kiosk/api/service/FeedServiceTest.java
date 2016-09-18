@@ -33,7 +33,7 @@ public class FeedServiceTest {
     public void testAll() throws Exception {
         // Given
         final List<Feed> feeds = Arrays.asList(createFeed(), createFeed());
-        when(feedRepository.findAll()).thenReturn(feeds);
+        when(feedRepository.findByActive(true)).thenReturn(feeds);
 
         final FeedListResponse response = new FeedListResponse();
         when(feedMapper.toFeedListDto(feeds)).thenReturn(response);

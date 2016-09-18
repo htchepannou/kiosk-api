@@ -14,7 +14,7 @@ public class FeedService {
     FeedMapper feedMapper;
 
     public FeedListResponse all(){
-        final Iterable<Feed> feeds = feedRepository.findAll();
+        final Iterable<Feed> feeds = feedRepository.findByActive(true);
         return feedMapper.toFeedListDto(feeds);
     }
 }

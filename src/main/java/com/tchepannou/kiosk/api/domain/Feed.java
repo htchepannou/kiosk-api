@@ -11,6 +11,7 @@ public class Feed {
     private String type;
     private String name;
     private String url;
+    private boolean active;
 
     public long getId() {
         return id;
