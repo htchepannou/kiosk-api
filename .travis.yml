@@ -7,9 +7,6 @@ jdk:
 sudo:
   - required
 
-services:
-  - mysql
-
 addons:
   apt:
     packages:
