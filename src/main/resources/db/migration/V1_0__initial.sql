@@ -24,10 +24,11 @@ CREATE TABLE article (
   slug            TEXT,
   country_code    CHAR(3),
   language_code   CHAR(3),
-  published_date  DATETIME,
+  published_date  DATETIME DEFAULT now(),
   status          INT,
   url             TEXT     NOT NULL,
 
-  feed_id         BIGINT   NOT NULL REFERENCES feed (id)
+  feed_id         BIGINT   NOT NULL REFERENCES feed (id),
+  insertdatetime  DATETIME DEFAULT now()
 )
   ENGINE = InnoDB;

@@ -7,6 +7,7 @@ import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ErrorDto;
+import com.tchepannou.kiosk.client.dto.GetArticleListResponse;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
 import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
@@ -23,6 +24,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArticleService {
     @Autowired
@@ -62,6 +65,11 @@ public class ArticleService {
 
         /* result */
         return createGetArticleResponse(dto, null);
+    }
+
+    public GetArticleListResponse status (final String status) {
+        final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()));
+        return createGetArticleListResponse(articles);
     }
 
     @Transactional
@@ -234,6 +242,18 @@ public class ArticleService {
         if (code != null){
             response.setError(new ErrorDto(code));
         }
+        return response;
+    }
+
+    private GetArticleListResponse createGetArticleListResponse(final List<Article> articles) {
+        final List<ArticleDto> dtos = articles
+                .stream()
+                .map(a -> articleMapper.toArticleDto(a))
+                .collect(Collectors.toList());
+
+        final GetArticleListResponse response = new GetArticleListResponse();
+        response.setTransactionId(transactionIdProvider.get());
+        response.setArticles(dtos);
         return response;
     }
 }
