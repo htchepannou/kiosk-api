@@ -1,8 +1,6 @@
 package com.tchepannou.kiosk.api.controller;
 
 import com.tchepannou.kiosk.api.service.ArticleService;
-import com.tchepannou.kiosk.api.service.PipelineService;
-import com.tchepannou.kiosk.api.service.PublisherService;
 import com.tchepannou.kiosk.client.dto.AbstractResponse;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
@@ -34,18 +32,12 @@ public class ArticleController {
     @Autowired
     ArticleService articleService;
 
-    @Autowired
-    PublisherService publisherService;
-
-    @Autowired
-    PipelineService pipelineService;
-
     @ApiOperation("Publish an article")
     @RequestMapping(value="/publish", method = RequestMethod.POST)
     public ResponseEntity<PublishResponse> publish(
             @RequestBody final PublishRequest request
     ) throws IOException {
-        final PublishResponse response = publisherService.publish(request);
+        final PublishResponse response = articleService.publish(request);
         return toResponseEntity(response);
     }
 
@@ -61,7 +53,7 @@ public class ArticleController {
     public ResponseEntity<ProcessResponse>  process(
             @RequestBody final ProcessRequest request
     ) {
-        final ProcessResponse response = pipelineService.process(request);
+        final ProcessResponse response = articleService.process(request);
         return toResponseEntity(response);
     }
 

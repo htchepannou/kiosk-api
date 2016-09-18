@@ -4,16 +4,17 @@ CREATE TABLE feed (
   type         CHAR(3)     NOT NULL,
   country_code CHAR(3),
   name         VARCHAR(64) NOT NULL,
-  url          TEXT        NOT NULL
+  url          TEXT        NOT NULL,
+  active       BOOL
 )
   ENGINE = InnoDB;
 
-INSERT INTO feed VALUES (1001, 'rss', 'CMR', 'Mboa Football', 'http://mboafootball.com/rss');
-INSERT INTO feed VALUES (1002, 'rss', 'CMR', 'Cameroon Post Online', 'http://www.cameroonpostline.com/feed/');
-INSERT INTO feed VALUES (1003, 'rss', 'CMR', 'Spark Cameroon', 'http://www.sparkcameroun.com/feed/');
-INSERT INTO feed VALUES (1004, 'rss', 'CMR', 'Cameroon Post', 'http://www.cameroonpostline.com/feed/');
-INSERT INTO feed VALUES (1005, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php');
-INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed/');
+INSERT INTO feed VALUES (1001, 'rss', 'CMR', 'Mboa Football', 'http://mboafootball.com/rss', false);
+INSERT INTO feed VALUES (1002, 'rss', 'CMR', 'Cameroon Post Online', 'http://www.cameroonpostline.com/feed/', true);
+INSERT INTO feed VALUES (1003, 'rss', 'CMR', 'Spark Cameroon', 'http://www.sparkcameroun.com/feed/', true);
+INSERT INTO feed VALUES (1004, 'rss', 'CMR', 'Cameroon Post', 'http://www.cameroonpostline.com/feed/', true);
+INSERT INTO feed VALUES (1005, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php', true);
+INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed/', true);
 
 
 -- articles

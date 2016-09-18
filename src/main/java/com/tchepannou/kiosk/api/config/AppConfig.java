@@ -6,8 +6,6 @@ import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ContentRepositoryService;
 import com.tchepannou.kiosk.api.service.FeedService;
 import com.tchepannou.kiosk.api.service.LocalContentRepositoryService;
-import com.tchepannou.kiosk.api.service.PipelineService;
-import com.tchepannou.kiosk.api.service.PublisherService;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
@@ -66,11 +64,6 @@ public class AppConfig {
     }
 
     @Bean
-    PublisherService publisherService () {
-        return new PublisherService();
-    }
-
-    @Bean
     ArticleService articleService () {
         return new ArticleService();
     }
@@ -94,10 +87,4 @@ public class AppConfig {
                 new ContentFilter(minBlocLength)
         ));
     }
-
-    @Bean
-    PipelineService pipelineService(){
-        return new PipelineService();
-    }
-
 }
