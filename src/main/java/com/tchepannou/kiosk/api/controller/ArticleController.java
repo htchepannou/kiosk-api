@@ -54,7 +54,7 @@ public class ArticleController {
     @ApiOperation("Process the content of all the published articles")
     @RequestMapping(value = "/process", method = RequestMethod.GET)
     public void process() {
-        final List<Article> articles = repository.findByStatus(Article.Status.submitted);
+        final List<Article> articles = repository.findByStatusOrderByPublishedDateDesc(Article.Status.submitted);
         for (final Article article : articles) {
             try {
                 final ProcessRequest request = new ProcessRequest();
@@ -68,7 +68,7 @@ public class ArticleController {
     }
 
     @ApiOperation("Return an API by ID")
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiResponses(
             {
                     @ApiResponse(code = 200, message = "Success"),
@@ -83,7 +83,7 @@ public class ArticleController {
     }
 
     @ApiOperation("Return a list of article by status")
-    @RequestMapping(value = "/status/{status}", method = RequestMethod.POST)
+    @RequestMapping(value = "/status/{status}", method = RequestMethod.GET)
     @ApiResponses(
             {
                     @ApiResponse(code = 200, message = "Success"),

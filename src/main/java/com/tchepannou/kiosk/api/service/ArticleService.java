@@ -68,7 +68,7 @@ public class ArticleService {
     }
 
     public GetArticleListResponse status (final String status) {
-        final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()));
+        final List<Article> articles = articleRepository.findByStatusOrderByPublishedDateDesc(Article.Status.valueOf(status.toLowerCase()));
         return createGetArticleListResponse(articles);
     }
 

@@ -15,13 +15,14 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Starter.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-@Sql({"/sql/clean.sql", "/sql/controller/FeedController.all.sql"})
-public class FeedControllerIT {
+@Sql({"/sql/clean.sql", "/sql/FeedGetAll.sql"})
+public class FeedGetAllIT {
     @Value("${local.server.port}")
     private int serverPort;
 
@@ -40,7 +41,10 @@ public class FeedControllerIT {
                 .log().all()
                 .statusCode(HttpStatus.SC_OK)
                 .body("size", is(2))
-                
+
+                .body("success", is(true))
+                .body("error", nullValue())
+
                 .body("feeds[0].id", is(1001))
                 .body("feeds[0].countryCode", is("CMR"))
                 .body("feeds[0].type", is("rss"))

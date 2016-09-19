@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface ArticleRepository extends CrudRepository<Article, String> {
-    List<Article> findByStatus(Article.Status status);
+    List<Article> findByStatusOrderByPublishedDateDesc(Article.Status status);
 }

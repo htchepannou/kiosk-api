@@ -1,5 +1,7 @@
 package com.tchepannou.kiosk.api.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
@@ -18,10 +20,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import javax.servlet.Filter;
 import java.io.File;
 import java.util.Arrays;
+import java.util.TimeZone;
 
 /**
  * Declare your services here!
@@ -30,6 +34,19 @@ import java.util.Arrays;
 public class AppConfig {
     @Value("${kiosk.filters.content.blocMinLength}")
     int minBlocLength;
+
+    @Bean
+    public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
+        return new Jackson2ObjectMapperBuilder()
+                .simpleDateFormat("yyyy-MM-dd HH:mm:ss Z")
+                .timeZone(TimeZone.getTimeZone("GMT"))
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+                .featuresToDisable(
+                        DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+                )
+                ;
+    }
 
     @Bean
     @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
