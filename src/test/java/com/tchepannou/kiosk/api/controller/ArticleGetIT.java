@@ -1,16 +1,13 @@
 package com.tchepannou.kiosk.api.controller;
 
-import com.jayway.restassured.RestAssured;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.service.ContentRepositoryService;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -28,17 +25,10 @@ import static org.hamcrest.Matchers.nullValue;
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
 @Sql({"/sql/clean.sql", "/sql/ArticleGet.sql"})
-public class ArticleGetIT {
-    @Value("${local.server.port}")
-    private int serverPort;
+public class ArticleGetIT extends RestAssuredSupport{
 
     @Autowired
     ContentRepositoryService contentRepository;
-
-    @Before
-    public void setUp() {
-        RestAssured.port = serverPort;
-    }
 
     @Test
     public void shouldReturnAnArticle() throws Exception {

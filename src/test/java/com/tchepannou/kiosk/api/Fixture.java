@@ -6,13 +6,29 @@ import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
 
+import java.io.File;
+
 public class Fixture {
     private static long uid = System.currentTimeMillis();
+
+    public static void deleteRecursive(File home){
+        if (home.isDirectory()) {
+            final File[] files = home.listFiles();
+            if (files != null && files.length>0){
+                for (File file : files){
+                    deleteRecursive(file);
+                }
+
+            }
+        }
+
+        home.delete();
+    }
 
     public static PublishRequest createPublishRequest() {
         final PublishRequest request = new PublishRequest();
         request.setFeedId(112);
-        request.setArticle(createArticleDto());
+        request.setArticle(createArticleDataDto());
 
         return request;
     }
@@ -46,7 +62,7 @@ public class Fixture {
         return article;
     }
 
-    public static ArticleDataDto createArticleDto (){
+    public static ArticleDataDto createArticleDataDto(){
         ArticleDataDto article = new ArticleDataDto();
 
         article.setContent("<p>This is the content of the article</p>");
@@ -58,5 +74,12 @@ public class Fixture {
         article.setUrl("http://fdlkfd.com/1232");
 
         return article;
+    }
+
+    public static PublishRequest createPublishRequest(long feedId, ArticleDataDto article) {
+        PublishRequest request = new PublishRequest();
+        request.setArticle(article);
+        request.setFeedId(feedId);
+        return request;
     }
 }

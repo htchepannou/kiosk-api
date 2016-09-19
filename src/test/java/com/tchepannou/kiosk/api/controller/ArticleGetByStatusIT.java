@@ -1,12 +1,9 @@
 package com.tchepannou.kiosk.api.controller;
 
-import com.jayway.restassured.RestAssured;
 import com.tchepannou.kiosk.api.Starter;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -22,14 +19,7 @@ import static org.hamcrest.Matchers.nullValue;
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
 @Sql({"/sql/clean.sql", "/sql/ArticleGetByStatus.sql"})
-public class ArticleGetByStatusIT {
-    @Value("${local.server.port}")
-    private int serverPort;
-
-    @Before
-    public void setUp() {
-        RestAssured.port = serverPort;
-    }
+public class ArticleGetByStatusIT extends RestAssuredSupport{
 
     @Test
     public void shouldReturnAllProcessedArticles() throws Exception {

@@ -43,7 +43,7 @@ public class ArticleController {
     LogService logService;
 
     @ApiOperation("Publish an article")
-    @RequestMapping(value = "/publish", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<PublishResponse> publish(
             @RequestBody final PublishRequest request
     ) throws IOException {
