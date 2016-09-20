@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
+import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ContentRepositoryService;
 import com.tchepannou.kiosk.api.service.FeedService;
 import com.tchepannou.kiosk.api.service.LocalContentRepositoryService;
+import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
@@ -82,6 +84,16 @@ public class AppConfig {
     @Bean
     TimeService timeService() {
         return new TimeService();
+    }
+
+    @Bean
+    WebsiteMapper websiteMapper (){
+        return new WebsiteMapper();
+    }
+
+    @Bean
+    WebsiteService websiteService (){
+        return new WebsiteService();
     }
 
     @Bean
