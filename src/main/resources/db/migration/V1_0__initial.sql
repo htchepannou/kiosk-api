@@ -16,6 +16,7 @@ INSERT INTO feed VALUES (1004, 'rss', 'CMR', 'Cameroon Post', 'http://www.camero
 INSERT INTO feed VALUES (1005, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php', TRUE);
 INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed', TRUE);
 INSERT INTO feed VALUES (1007, 'rss', 'CMR', 'culturebene.com', 'http://www.culturebene.com/feed', TRUE);
+INSERT INTO feed VALUES (1000, 'rss', 'CMR', 'camerounsports.info', 'http://www.camerounsports.info/feed', TRUE);
 
 
 -- articles

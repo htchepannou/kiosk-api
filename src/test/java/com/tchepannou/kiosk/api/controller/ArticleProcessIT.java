@@ -49,7 +49,7 @@ public class ArticleProcessIT extends RestAssuredSupport {
         ;
 
         // @formatter:on
-        Thread.sleep(5000);
+//        Thread.sleep(5000);
 
         assertProcessed("100");
         assertProcessed("200");
