@@ -14,6 +14,7 @@ import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
+import com.tchepannou.kiosk.core.servlet.LogFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import javax.servlet.Filter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.TimeZone;
@@ -48,38 +50,38 @@ public class AppConfig {
 
     @Bean
     @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    LogService logService (){
+    LogService logService() {
         return new LogService(timeService());
     }
 
     @Bean
     @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    TransactionIdProvider transactionIdProvider (){
+    TransactionIdProvider transactionIdProvider() {
         return new TransactionIdProvider();
     }
 
-//    @Bean
-//    Filter logFilter (){
-//        return new LogFilter(logService(), transactionIdProvider());
-//    }
+    @Bean
+    Filter logFilter() {
+        return new LogFilter(logService(), transactionIdProvider());
+    }
 
     @Bean
-    FeedMapper feedMapper(){
+    FeedMapper feedMapper() {
         return new FeedMapper();
     }
 
     @Bean
-    FeedService feedService(){
+    FeedService feedService() {
         return new FeedService();
     }
 
     @Bean
-    TimeService timeService (){
+    TimeService timeService() {
         return new TimeService();
     }
 
     @Bean
-    ArticleService articleService () {
+    ArticleService articleService() {
         return new ArticleService();
     }
 
@@ -89,14 +91,14 @@ public class AppConfig {
     }
 
     @Bean
-    ContentRepositoryService contentRepositoryService (
-            @Value("${kiosk.repository.home}") String repositoryHome
-    ){
+    ContentRepositoryService contentRepositoryService(
+            @Value("${kiosk.repository.home}") final String repositoryHome
+    ) {
         return new LocalContentRepositoryService(new File(repositoryHome));
     }
 
     @Bean
-    TextFilterSet textFilterSet (){
+    TextFilterSet textFilterSet() {
         return new TextFilterSet(Arrays.asList(
                 new SanitizeFilter(),
                 new ContentFilter(minBlocLength)
