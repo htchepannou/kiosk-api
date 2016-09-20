@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.mapper;
 
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.client.dto.FeedListResponse;
+import com.tchepannou.kiosk.client.dto.GetFeedListResponse;
 import com.tchepannou.kiosk.client.dto.FeedDto;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class FeedMapperTest {
         );
 
         // When
-        FeedListResponse result = mapper.toFeedListDto(feeds);
+        GetFeedListResponse result = mapper.toFeedListDto(feeds);
 
         // Then
         assertThat(result.getTransactionId()).isEqualTo(transactionId);

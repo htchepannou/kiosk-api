@@ -15,7 +15,8 @@ INSERT INTO feed VALUES (1003, 'rss', 'CMR', 'Spark Cameroon', 'http://www.spark
 INSERT INTO feed VALUES (1004, 'rss', 'CMR', 'Cameroon Post', 'http://www.cameroonpostline.com/feed', TRUE);
 INSERT INTO feed VALUES (1005, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php', TRUE);
 INSERT INTO feed VALUES (1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed', TRUE);
-INSERT INTO feed VALUES (1007, 'rss', 'CMR', 'Cameroun Sports', 'http://www.camerounsports.info/feed', TRUE);
+INSERT INTO feed VALUES (1007, 'rss', 'CMR', 'culturebene.com', 'http://www.culturebene.com/feed', TRUE);
+INSERT INTO feed VALUES (1008, 'rss', 'CMR', 'camerounsports.info', 'http://www.camerounsports.info/feed', TRUE);
 
 
 -- articles
@@ -25,10 +26,11 @@ CREATE TABLE article (
   slug           TEXT,
   country_code   CHAR(3),
   language_code  CHAR(3),
-  published_date DATETIME,
+  published_date DATETIME DEFAULT now(),
   status         INT,
   url            TEXT     NOT NULL,
 
-  feed_id        BIGINT   NOT NULL REFERENCES feed (id)
+  feed_id        BIGINT   NOT NULL REFERENCES feed (id),
+  insertdatetime DATETIME DEFAULT now()
 )
   ENGINE = InnoDB;
