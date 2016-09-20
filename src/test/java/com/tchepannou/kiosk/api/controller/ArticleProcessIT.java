@@ -1,18 +1,11 @@
 package com.tchepannou.kiosk.api.controller;
 
-import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.service.ContentRepositoryService;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,11 +15,11 @@ import java.io.OutputStream;
 import static com.jayway.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Starter.class)
-@WebAppConfiguration
-@IntegrationTest("server.port:0")
-@Sql({"/sql/clean.sql", "/sql/ArticleProcess.sql"})
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringApplicationConfiguration(classes = Starter.class)
+//@WebAppConfiguration
+//@IntegrationTest("server.port:0")
+//@Sql({"/sql/clean.sql", "/sql/ArticleProcess.sql"})
 public class ArticleProcessIT extends RestAssuredSupport {
 
     @Autowired
