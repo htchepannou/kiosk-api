@@ -16,6 +16,7 @@ import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import com.tchepannou.kiosk.core.servlet.LogFilter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -61,8 +62,11 @@ public class AppConfig {
     }
 
     @Bean
-    Filter logFilter() {
-        return new LogFilter(logService(), transactionIdProvider());
+    FilterRegistrationBean logFilter() {
+        Filter filter = new LogFilter(logService(), transactionIdProvider());
+        FilterRegistrationBean bean = new FilterRegistrationBean(filter);
+        bean.addUrlPatterns("/kiosk/v1/*");
+        return bean;
     }
 
     @Bean
