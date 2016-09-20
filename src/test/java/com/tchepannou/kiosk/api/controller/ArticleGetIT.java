@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Starter.class)
@@ -56,7 +57,7 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("article.data.slug", is("Slug #100"))
                 .body("article.data.countryCode", is("CMR"))
                 .body("article.data.languageCode", is("FR"))
-                .body("article.data.publishedDate", is("2013-11-15 17:30:00 +0000"))
+                .body("article.data.publishedDate", startsWith("2013-11-15"))
                 .body("article.data.content", is(content))
         ;
 

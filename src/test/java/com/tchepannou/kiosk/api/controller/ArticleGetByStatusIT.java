@@ -13,6 +13,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Starter.class)
@@ -43,7 +44,7 @@ public class ArticleGetByStatusIT extends RestAssuredSupport{
                 .body("articles[0].data.slug", is("Slug #200"))
                 .body("articles[0].data.countryCode", is("CMR"))
                 .body("articles[0].data.languageCode", is("FR"))
-                .body("articles[0].data.publishedDate", is("2013-11-15 20:30:00 +0000"))
+                .body("articles[0].data.publishedDate", startsWith("2013-11-15"))
 
                 .body("articles[1].id", is("102"))
                 .body("articles[1].status", is("processed"))
@@ -52,7 +53,7 @@ public class ArticleGetByStatusIT extends RestAssuredSupport{
                 .body("articles[1].data.slug", is("Slug #102"))
                 .body("articles[1].data.countryCode", is("CMR"))
                 .body("articles[1].data.languageCode", is("FR"))
-                .body("articles[1].data.publishedDate", is("2013-11-15 19:30:00 +0000"))
+                .body("articles[1].data.publishedDate", startsWith("2013-11-15"))
         
                 .body("articles[2].id", is("101"))
                 .body("articles[2].status", is("processed"))
@@ -61,7 +62,7 @@ public class ArticleGetByStatusIT extends RestAssuredSupport{
                 .body("articles[2].data.slug", is("Slug #101"))
                 .body("articles[2].data.countryCode", is("CMR"))
                 .body("articles[2].data.languageCode", is("FR"))
-                .body("articles[2].data.publishedDate", is("2013-11-15 18:30:00 +0000"))
+                .body("articles[2].data.publishedDate", startsWith("2013-11-15"))
         ;
 
         // @formatter:on
