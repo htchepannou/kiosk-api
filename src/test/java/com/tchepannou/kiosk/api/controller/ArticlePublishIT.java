@@ -5,7 +5,7 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
-import com.tchepannou.kiosk.api.service.ContentRepositoryService;
+import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import org.apache.http.HttpStatus;
@@ -66,7 +66,7 @@ public class ArticlePublishIT extends RestAssuredSupport {
         final Article article = articleRepository.findOne(id);
         assertThat(article).isNotNull();
         assertThat(article.getCountryCode()).isEqualTo(request.getArticle().getCountryCode());
-        assertThat(article.getFeedId()).isEqualTo(request.getFeedId());
+        assertThat(article.getFeed().getId()).isEqualTo(request.getFeedId());
         assertThat(article.getLanguageCode()).isEqualTo(request.getArticle().getLanguageCode());
         assertThat(article.getSlug()).isEqualTo(request.getArticle().getSlug());
         assertThat(article.getStatus()).isEqualTo(Article.Status.submitted);
@@ -105,6 +105,40 @@ public class ArticlePublishIT extends RestAssuredSupport {
 
                 .body("error", notNullValue())
                 .body("error.code", is(ErrorConstants.ALREADY_PUBLISHED))
+
+                .body("articleId", is(id))
+        ;
+
+        // @formatter:on
+    }
+
+    @Test
+    public void shouldNotPublishAnArticleWithInvalidFeed() throws Exception {
+        final PublishRequest request = createPublishRequest(9999, createArticleDataDto());
+
+        // @formatter:off
+        final String id = given ()
+                .contentType(ContentType.JSON)
+                .body(request, ObjectMapperType.JACKSON_2)
+        .when()
+                .post("/kiosk/v1/articles")
+        .then()
+        .extract()
+                .path("articleId")
+        ;
+
+        given ()
+                .contentType(ContentType.JSON)
+                .body(request, ObjectMapperType.JACKSON_2)
+        .when()
+                .post("/kiosk/v1/articles")
+        .then()
+                .log().all()
+                .statusCode(HttpStatus.SC_CONFLICT)
+                .body("success", is(false))
+
+                .body("error", notNullValue())
+                .body("error.code", is(ErrorConstants.FEED_INVALID))
 
                 .body("articleId", is(id))
         ;

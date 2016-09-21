@@ -43,6 +43,7 @@ public class Fixture {
         feed.setName("Feed #" + id);
         feed.setType("rss");
         feed.setUrl("http://www.google.ca/" + id + "/rss");
+        feed.setWebsite(createWebsite());
         return feed;
     }
 
@@ -52,7 +53,7 @@ public class Fixture {
 
         article.setId(String.valueOf(id));
         article.setCountryCode("US");
-        article.setFeedId(id);
+        article.setFeed(createFeed());
         article.setLanguageCode("en");
         article.setPublishedDate(new TimeService().now());
         article.setSlug("This is a slug");
@@ -62,6 +63,7 @@ public class Fixture {
 
         return article;
     }
+
 
     public static ArticleDataDto createArticleDataDto(){
         ArticleDataDto article = new ArticleDataDto();

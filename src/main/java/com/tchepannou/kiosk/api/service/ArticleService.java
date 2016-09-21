@@ -1,7 +1,9 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
@@ -14,16 +16,20 @@ import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.core.service.ContentRepositoryException;
+import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +39,9 @@ public class ArticleService {
 
     @Autowired
     ContentRepositoryService contentRepository;
+
+    @Autowired
+    FeedRepository feedRepository;
 
     @Autowired
     ArticleMapper articleMapper;
@@ -124,9 +133,16 @@ public class ArticleService {
                 return response;
             }
 
+            final Feed feed = findFeed(request.getFeedId());
+            if (feed == null){
+                response = createPublishResponse(article, ErrorConstants.FEED_INVALID);
+                return response;
+            }
+
             /* store the meta */
             article = articleMapper.toArticle(request);
             article.setStatus(Article.Status.submitted);
+            article.setFeed(feed);
             articleRepository.save(article);
 
             /* store the content */
@@ -149,8 +165,16 @@ public class ArticleService {
 
     //-- Private
     private Article findArticle (final String id){
+        return (Article)findById(id, articleRepository);
+    }
+
+    private Feed findFeed(final long id){
+        return (Feed)findById(id, feedRepository);
+    }
+
+    private Object findById (final Serializable id, CrudRepository repository){
         try{
-            return articleRepository.findOne(id);
+            return repository.findOne(id);
         } catch (DataAccessException e){
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
@@ -203,8 +227,10 @@ public class ArticleService {
 
     private PublishResponse createPublishResponse(final Article article, final String code) {
         final PublishResponse response = new PublishResponse();
-        response.setArticleId(article.getId());
         response.setTransactionId(transactionIdProvider.get());
+        if (article != null) {
+            response.setArticleId(article.getId());
+        }
         if (code != null) {
             response.setError(new ErrorDto(code));
         }

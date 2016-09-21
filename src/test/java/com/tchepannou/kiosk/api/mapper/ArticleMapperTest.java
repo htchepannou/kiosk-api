@@ -41,7 +41,6 @@ public class ArticleMapperTest {
 
         // Then
         assertThat(article.getCountryCode()).isEqualTo(request.getArticle().getCountryCode());
-        assertThat(article.getFeedId()).isEqualTo(request.getFeedId());
         assertThat(article.getLanguageCode()).isEqualTo(request.getArticle().getLanguageCode());
         assertThat(article.getPublishedDate()).isEqualTo(date);
         assertThat(article.getSlug()).isEqualTo(request.getArticle().getSlug());

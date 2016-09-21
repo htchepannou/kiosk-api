@@ -3,6 +3,7 @@ package com.tchepannou.kiosk.api.mapper;
 import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.client.dto.GetFeedListResponse;
 import com.tchepannou.kiosk.client.dto.FeedDto;
+import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,12 +18,16 @@ import java.util.UUID;
 
 import static com.tchepannou.kiosk.api.Fixture.createFeed;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FeedMapperTest {
     @Mock
     TransactionIdProvider transactionIdProvider;
+
+    @Mock
+    WebsiteMapper websiteMapper;
 
     @InjectMocks
     FeedMapper mapper;
@@ -40,11 +45,15 @@ public class FeedMapperTest {
         // Give
         final Feed feed = createFeed();
 
+        final WebsiteDto website = new WebsiteDto();
+        when (websiteMapper.toWebsiteDto(any())).thenReturn(website);
+
         // When
         FeedDto result = mapper.toFeedDto(feed);
 
         // Then
         assertEquals(feed, result);
+        assertThat(result.getWebsite()).isEqualTo(website);
     }
 
     @Test

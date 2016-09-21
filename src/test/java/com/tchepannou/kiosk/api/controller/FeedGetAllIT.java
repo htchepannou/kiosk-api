@@ -40,12 +40,19 @@ public class FeedGetAllIT extends RestAssuredSupport {
                 .body("feeds[0].type", is("rss"))
                 .body("feeds[0].name", is("Mboa Football"))
                 .body("feeds[0].url", is("http://mboafootball.com/rss"))
+                .body("feeds[0].website.id", is(1001))
+                .body("feeds[0].website.name", is("Mboa Football"))
+                .body("feeds[0].website.url", is("http://www.mboafootball.com"))
+                
         
                 .body("feeds[1].id", is(1002))
                 .body("feeds[1].countryCode", is("CMR"))
                 .body("feeds[1].type", is("rss"))
                 .body("feeds[1].name", is("Cameroon Post Online"))
                 .body("feeds[1].url", is("http://www.cameroonpostline.com/feed/"))
+                .body("feeds[1].website.id", is(1002))
+                .body("feeds[1].website.name", is("Cameroon Post Online"))
+                .body("feeds[1].website.url", is("http://www.cameroonpostline.com"))
         
         ;
 

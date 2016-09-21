@@ -3,7 +3,7 @@ package com.tchepannou.kiosk.api.controller;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
-import com.tchepannou.kiosk.api.service.ContentRepositoryService;
+import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -4,6 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Date;
 
 @Entity
@@ -15,6 +16,10 @@ public class Article {
 
     @Id
     private String id;
+
+    @ManyToOne
+    private Feed feed;
+
     private String url;
     private String title;
     private String slug;
@@ -22,7 +27,6 @@ public class Article {
     private String languageCode;
     private Date publishedDate;
     private Status status;
-    private Long feedId;
 
     public Article() {
     }
@@ -94,12 +98,12 @@ public class Article {
         this.publishedDate = publishedDate;
     }
 
-    public Long getFeedId() {
-        return feedId;
+    public Feed getFeed() {
+        return feed;
     }
 
-    public void setFeedId(final Long feedId) {
-        this.feedId = feedId;
+    public void setFeed(final Feed feed) {
+        this.feed = feed;
     }
 
     public Status getStatus() {

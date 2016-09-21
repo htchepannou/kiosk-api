@@ -16,7 +16,6 @@ public class ArticleMapper {
     public Article toArticle(final PublishRequest dto) {
         final Article article = new Article();
 
-        article.setFeedId(dto.getFeedId());
         toArticle(dto.getArticle(), article);
         return article;
     }

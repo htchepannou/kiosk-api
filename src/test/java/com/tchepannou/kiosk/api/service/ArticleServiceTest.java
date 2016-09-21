@@ -1,7 +1,10 @@
 package com.tchepannou.kiosk.api.service;
 
+import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
@@ -11,6 +14,8 @@ import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.core.service.ContentRepositoryException;
+import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.apache.commons.io.IOUtils;
@@ -30,8 +35,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-import static com.tchepannou.kiosk.api.Fixture.createArticle;
-import static com.tchepannou.kiosk.api.Fixture.createPublishRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -52,6 +55,9 @@ public class ArticleServiceTest {
 
     @Mock
     ArticleMapper articleMapper;
+
+    @Mock
+    FeedRepository feedRepository;
 
     @Mock
     LogService logService;
@@ -77,7 +83,7 @@ public class ArticleServiceTest {
     @Test
     public void getArticleShouldReturnArticle() throws Exception {
         // Given
-        final Article article = createArticle();
+        final Article article = Fixture.createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -113,7 +119,7 @@ public class ArticleServiceTest {
     @Test
     public void getArticleShouldReturnErrorWhenContentNotFound() throws Exception {
         // Given
-        final Article article = createArticle();
+        final Article article = Fixture.createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -137,7 +143,7 @@ public class ArticleServiceTest {
     @Test
     public void shouldProcessArticle() throws Exception {
         // Given
-        final Article article = createArticle();
+        final Article article = Fixture.createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -213,14 +219,18 @@ public class ArticleServiceTest {
 
     //-- Publish
     @Test
-    public void shouldPublishArticle() throws Exception {
+    public void shouldPublish() throws Exception {
         // Given
-        final PublishRequest request = createPublishRequest();
+        final PublishRequest request = Fixture.createPublishRequest();
 
         final Article article = mock(Article.class);
         when(article.contentKey(any())).thenReturn("/foo/bar");
         when(article.getId()).thenReturn("key-hash");
         when(articleMapper.toArticle(request)).thenReturn(article);
+
+        long feedId = request.getFeedId();
+        final Feed feed = Fixture.createFeed();
+        when(feedRepository.findOne(feedId)).thenReturn(feed);
 
         // When
         final PublishResponse response = service.publish(request);
@@ -241,13 +251,17 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void shouldNotRepublishArticle() throws Exception {
+    public void shouldNotRepublish() throws Exception {
         // Given
-        final PublishRequest request = createPublishRequest();
+        final PublishRequest request = Fixture.createPublishRequest();
 
         final Article article = mock(Article.class);
         when(article.getId()).thenReturn("key-hash");
         when(articleRepository.findOne(anyString())).thenReturn(article);
+
+        long feedId = request.getFeedId();
+        final Feed feed = Fixture.createFeed();
+        when(feedRepository.findOne(feedId)).thenReturn(feed);
 
         // When
         final PublishResponse response = service.publish(request);
@@ -261,6 +275,26 @@ public class ArticleServiceTest {
         assertThat(response.getArticleId()).isEqualTo("key-hash");
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
+    }
+
+
+    @Test
+    public void shouldNotPublishIfFeedNotValid() throws Exception {
+        // Given
+        final PublishRequest request = Fixture.createPublishRequest();
+
+        // When
+        final PublishResponse response = service.publish(request);
+
+        // Then
+        verify(articleRepository, never()).save(any(Article.class));
+
+        verify(contentRepository, never()).write(any(), any());
+
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticleId()).isNull();
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.FEED_INVALID);
     }
 
     //-- Private
