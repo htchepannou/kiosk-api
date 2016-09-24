@@ -3,7 +3,7 @@ package com.tchepannou.kiosk.api.controller;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
-import com.tchepannou.kiosk.core.service.ContentRepositoryService;
+import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ArticleProcessIT extends RestAssuredSupport {
 
     @Autowired
-    ContentRepositoryService contentRepository;
+    FileService fileService;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -56,12 +56,12 @@ public class ArticleProcessIT extends RestAssuredSupport {
     }
 
 
-    private void assertProcessed (final String id){
+    private void assertProcessed (final String id) throws Exception {
         final Article article = articleRepository.findOne(id);
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
 
         final OutputStream out = new ByteArrayOutputStream();
-        contentRepository.read(article.contentKey(article.getStatus()), out);
+        fileService.get(article.contentKey(article.getStatus()), out);
         assertThat(out.toString()).isNotEmpty();
     }
 
@@ -71,7 +71,7 @@ public class ArticleProcessIT extends RestAssuredSupport {
         article.setStatus(Article.Status.submitted);
 
         try (final InputStream in = getClass().getResourceAsStream(path)) {
-            contentRepository.write(article.contentKey(article.getStatus()), in);
+            fileService.put(article.contentKey(article.getStatus()), in);
         }
     }
 }

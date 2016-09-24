@@ -16,8 +16,7 @@ import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.service.ContentRepositoryException;
-import com.tchepannou.kiosk.core.service.ContentRepositoryService;
+import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class ArticleService {
     ArticleRepository articleRepository;
 
     @Autowired
-    ContentRepositoryService contentRepository;
+    FileService fileService;
 
     @Autowired
     FeedRepository feedRepository;
@@ -82,7 +81,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public ProcessResponse process(final ProcessRequest request) {
+    public ProcessResponse process(final ProcessRequest request) throws IOException {
         final String articelId = request.getArticleId();
         ProcessResponse response = null;
         try {
@@ -148,7 +147,7 @@ public class ArticleService {
             /* store the content */
             try (final InputStream in = new ByteArrayInputStream(requestArticle.getContent().getBytes())) {
                 final String key = article.contentKey(article.getStatus());
-                contentRepository.write(key, in);
+                fileService.put(key, in);
             }
 
             response = createPublishResponse(article, null);
@@ -187,19 +186,19 @@ public class ArticleService {
 
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             final String key = article.contentKey(status);
-            contentRepository.read(key, out);
+            fileService.get(key, out);
             return out.toString();
 
-        } catch (ContentRepositoryException e){
+        } catch (Exception e){
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
             return null;
         }
     }
 
-    private void storeContent(final Article article, final String html, final Article.Status status) {
+    private void storeContent(final Article article, final String html, final Article.Status status) throws IOException {
         final String key = article.contentKey(status);
-        contentRepository.write(key, new ByteArrayInputStream(html.getBytes()));
+        fileService.put(key, new ByteArrayInputStream(html.getBytes()));
     }
 
     private void updateStatus(final Article article, final Article.Status status) {

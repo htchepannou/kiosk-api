@@ -6,9 +6,8 @@ import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
-import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import com.tchepannou.kiosk.api.service.FeedService;
-import com.tchepannou.kiosk.core.service.LocalContentRepositoryService;
+import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
@@ -107,10 +106,10 @@ public class AppConfig {
     }
 
     @Bean
-    ContentRepositoryService contentRepositoryService(
+    FileService fileService(
             @Value("${kiosk.repository.home}") final String repositoryHome
     ) {
-        return new LocalContentRepositoryService(new File(repositoryHome));
+        return new FileService(new File(repositoryHome));
     }
 
     @Bean

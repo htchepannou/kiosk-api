@@ -2,8 +2,8 @@ package com.tchepannou.kiosk.api.controller;
 
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
+import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.startsWith;
 public class ArticleGetIT extends RestAssuredSupport{
 
     @Autowired
-    ContentRepositoryService contentRepository;
+    FileService fileService;
 
     @Test
     public void shouldReturnAnArticle() throws Exception {
@@ -37,7 +37,7 @@ public class ArticleGetIT extends RestAssuredSupport{
         final Article article = new Article();
         article.setId("100");
         article.setStatus(Article.Status.submitted);
-        contentRepository.write(article.contentKey(article.getStatus()), new ByteArrayInputStream(content.getBytes()));
+        fileService.put(article.contentKey(article.getStatus()), new ByteArrayInputStream(content.getBytes()));
 
         // @formatter:off
 

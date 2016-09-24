@@ -5,9 +5,9 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
-import com.tchepannou.kiosk.core.service.ContentRepositoryService;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
+import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.nullValue;
 @Sql({"/sql/clean.sql", "/sql/ArticlePublish.sql"})
 public class ArticlePublishIT extends RestAssuredSupport {
     @Autowired
-    ContentRepositoryService contentRepository;
+    FileService fileService;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -74,7 +74,7 @@ public class ArticlePublishIT extends RestAssuredSupport {
         assertThat(article.getUrl()).isEqualTo(request.getArticle().getUrl());
 
         final OutputStream out = new ByteArrayOutputStream();
-        contentRepository.read(article.contentKey(article.getStatus()), out);
+        fileService.get(article.contentKey(article.getStatus()), out);
         assertThat(out.toString()).isEqualTo(request.getArticle().getContent());
     }
 

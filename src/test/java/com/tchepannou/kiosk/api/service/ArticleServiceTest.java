@@ -14,8 +14,7 @@ import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.service.ContentRepositoryException;
-import com.tchepannou.kiosk.core.service.ContentRepositoryService;
+import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +30,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
@@ -51,7 +51,7 @@ public class ArticleServiceTest {
     ArticleRepository articleRepository;
 
     @Mock
-    ContentRepositoryService contentRepository;
+    FileService fileService;
 
     @Mock
     ArticleMapper articleMapper;
@@ -91,7 +91,7 @@ public class ArticleServiceTest {
         when(articleMapper.toArticleDto(article)).thenReturn(dto);
 
         final String html = "hello world";
-        doAnswer(read(html)).when(contentRepository).read(anyString(), any(OutputStream.class));
+        doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
 
         // When
         final GetArticleResponse response = service.get(articleId);
@@ -126,8 +126,8 @@ public class ArticleServiceTest {
         final ArticleDto dto = new ArticleDto();
         when(articleMapper.toArticleDto(article)).thenReturn(dto);
 
-        final ContentRepositoryException ex = new ContentRepositoryException(new RuntimeException());
-        doThrow(ex).when(contentRepository).read(anyString(), any(OutputStream.class));
+        final IOException ex = new IOException(new RuntimeException());
+        doThrow(ex).when(fileService).get(anyString(), any(OutputStream.class));
 
         // When
         final GetArticleResponse response = service.get(articleId);
@@ -148,7 +148,7 @@ public class ArticleServiceTest {
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
         final String html = "hello world";
-        doAnswer(read(html)).when(contentRepository).read(anyString(), any(OutputStream.class));
+        doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
 
         final String xhtml = "!! hello";
         when(filters.filter(html)).thenReturn(xhtml);
@@ -166,7 +166,7 @@ public class ArticleServiceTest {
 
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
-        verify(contentRepository).write(key.capture(), in.capture());
+        verify(fileService).put(key.capture(), in.capture());
         assertThat(key.getValue()).isEqualTo(article.contentKey(Article.Status.processed));
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(xhtml);
     }
@@ -205,8 +205,8 @@ public class ArticleServiceTest {
         final Article article = new Article();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
-        final ContentRepositoryException ex = new ContentRepositoryException(new FileNotFoundException());
-        doThrow(ex).when(contentRepository).read(anyString(), any(OutputStream.class));
+        final IOException ex = new IOException(new FileNotFoundException());
+        doThrow(ex).when(fileService).get(anyString(), any(OutputStream.class));
 
         final ProcessResponse response = service.process(createProcessRequest(articleId));
 
@@ -240,7 +240,7 @@ public class ArticleServiceTest {
 
         final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        verify(contentRepository).write(key.capture(), in.capture());
+        verify(fileService).put(key.capture(), in.capture());
 
         assertThat(key.getValue()).isEqualTo("/foo/bar");
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(request.getArticle().getContent());
@@ -269,7 +269,7 @@ public class ArticleServiceTest {
         // Then
         verify(articleRepository, never()).save(article);
 
-        verify(contentRepository, never()).write(any(), any());
+        verify(fileService, never()).put(any(), any());
 
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isEqualTo("key-hash");
@@ -289,7 +289,7 @@ public class ArticleServiceTest {
         // Then
         verify(articleRepository, never()).save(any(Article.class));
 
-        verify(contentRepository, never()).write(any(), any());
+        verify(fileService, never()).put(any(), any());
 
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isNull();
