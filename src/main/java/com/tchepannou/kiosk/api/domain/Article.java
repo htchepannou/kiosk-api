@@ -38,7 +38,7 @@ public class Article {
     }
 
     public String contentKey(final Status status) {
-        return getId() + "/" + status.name() + ".html";
+        return "/articles/" + getId() + "/" + status.name() + ".html";
     }
 
     public String getId() {

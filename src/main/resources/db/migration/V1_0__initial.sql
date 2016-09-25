@@ -19,11 +19,14 @@ INSERT INTO website VALUES (1005, 'camer.be', 'http://www.camer.be/rss.php', NUL
 INSERT INTO website VALUES (1006, 'camer24.de', 'http://www.camer24.de', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1007, 'Culture Ebene', 'http://www.culturebene.com', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1008, 'Cameroun Sports', 'http://www.camerounsports.info', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1009, 'camerpost.com', 'http://www.camerpost.com', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1010, 'Journal Du Cameroun', 'http://www.journalducameroun.com', NULL, NULL, NULL, NULL, TRUE);
 
 INSERT INTO website VALUES (1101, 'cameroon-info.net', 'http://www.cameroon-info.net', '/article', '.html', '.cp-post-content h3', NULL, TRUE);
 INSERT INTO website VALUES (1102, 'Camfoot', 'http://www.camfoot.com', NULL, '.html', NULL, NULL, TRUE);
 INSERT INTO website VALUES (1103, 'La Nouvelle Expression', 'http://www.lanouvelleexpression.info', '/index.php', NULL, NULL, NULL, TRUE);
-INSERT INTO website VALUES (1104, 'Cameroun Tribune', 'http://www.cameroon-tribune.cm', '/articles', NULL, '.article-post h1', NULL, TRUE);
+INSERT INTO website VALUES (1104, 'Cameroun Tribune', 'http://www.cameroon-tribune.cm', '/articles', NULL, '#article-post h1', NULL, TRUE);
+INSERT INTO website VALUES (1105, 'newsducamer.com', 'https://www.newsducamer.com', '/index.php', NULL, '.ItemView .itemTitle', NULL, TRUE);
 
 -- feeds
 CREATE TABLE feed (
@@ -47,6 +50,13 @@ INSERT INTO feed VALUES (1005, 1005, 'rss', 'CMR', 'camer.be', 'http://www.camer
 INSERT INTO feed VALUES (1006, 1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed', TRUE);
 INSERT INTO feed VALUES (1007, 1007, 'rss', 'CMR', 'culturebene.com', 'http://www.culturebene.com/feed', TRUE);
 INSERT INTO feed VALUES (1008, 1008, 'rss', 'CMR', 'camerounsports.info', 'http://www.camerounsports.info/feed', TRUE);
+INSERT INTO feed VALUES (1009, 1009, 'rss', 'CMR', 'camerpost.com', 'http://www.camerpost.com/feed', TRUE);
+INSERT INTO feed VALUES (1010, 1010, 'rss', 'CMR', 'Journal Du Cameroun', 'http://www.journalducameroun.com/rss', TRUE);
+
+INSERT INTO feed VALUES (1101, 1101, 'rss', 'CMR', 'cameroon-info.net', 's3://rss/1101.xml', TRUE);
+INSERT INTO feed VALUES (1102, 1102, 'rss', 'CMR', 'Camfoot', 's3://rss/1102.xml', TRUE);
+INSERT INTO feed VALUES (1103, 1103, 'rss', 'CMR', 'La Nouvelle Expression', 's3://rss/1103.xml', TRUE);
+INSERT INTO feed VALUES (1104, 1104, 'rss', 'CMR', 'Cameroun Tribune', 's3://rss/1104.xml', TRUE);
 
 
 -- articles
