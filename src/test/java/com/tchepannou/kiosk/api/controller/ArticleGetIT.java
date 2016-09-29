@@ -51,14 +51,13 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("error", nullValue())
 
                 .body("article.id", is("100"))
-                .body("article.status", is("submitted"))
-                .body("article.data.url", is("http://feed100/100"))
-                .body("article.data.title", is("Article #100"))
-                .body("article.data.slug", is("Slug #100"))
-                .body("article.data.countryCode", is("CMR"))
-                .body("article.data.languageCode", is("FR"))
-                .body("article.data.publishedDate", startsWith("2013-11-15"))
-                .body("article.data.content", is(content))
+                .body("article.url", is("http://feed100/100"))
+                .body("article.title", is("Article #100"))
+                .body("article.slug", is("Slug #100"))
+                .body("article.countryCode", is("CMR"))
+                .body("article.languageCode", is("FR"))
+                .body("article.publishedDate", startsWith("2013-11-15"))
+                .body("article.content", is(content))
         ;
 
         // @formatter:on

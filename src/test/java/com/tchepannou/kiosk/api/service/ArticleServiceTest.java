@@ -3,6 +3,7 @@ package com.tchepannou.kiosk.api.service;
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
+import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
@@ -14,6 +15,8 @@ import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.core.rule.TextRuleSet;
+import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
@@ -66,7 +69,13 @@ public class ArticleServiceTest {
     TransactionIdProvider transactionIdProvider;
 
     @Mock
-    TextFilterSet filters;
+    TextFilterSet textFilters;
+
+    @Mock
+    ArticleFilterSet articleFilters;
+
+    @Mock
+    TextRuleSet rules;
 
     @InjectMocks
     ArticleService service;
@@ -77,6 +86,15 @@ public class ArticleServiceTest {
     public void setUp() {
         transactionId = UUID.randomUUID().toString();
         when(transactionIdProvider.get()).thenReturn(transactionId);
+
+        when(rules.validate(any())).thenReturn(Validation.success());
+
+        when(articleFilters.filter(any())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                return invocationOnMock.getArguments()[0];
+            }
+        });
     }
 
     //-- GetArticle
@@ -101,7 +119,7 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticle()).isEqualTo(dto);
 
-        assertThat(dto.getData().getContent()).isEqualTo("hello world");
+        assertThat(dto.getContent()).isEqualTo("hello world");
     }
 
     @Test
@@ -151,7 +169,7 @@ public class ArticleServiceTest {
         doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
 
         final String xhtml = "!! hello";
-        when(filters.filter(html)).thenReturn(xhtml);
+        when(textFilters.filter(html)).thenReturn(xhtml);
 
         // When
         final ProcessResponse response = service.process(createProcessRequest(articleId));
@@ -251,6 +269,32 @@ public class ArticleServiceTest {
     }
 
     @Test
+    public void shouldSetDefaultSlugOnPublish() throws Exception {
+        // Given
+        service.slugMaxLength = 5;
+
+        final PublishRequest request = Fixture.createPublishRequest();
+        request.getArticle().setSlug(null);
+        request.getArticle().setContent("12345678901234567890");
+
+        final Article article = new Article();
+        article.setId("12345");
+        article.setStatus(Article.Status.processed);
+        when(articleMapper.toArticle(request)).thenReturn(article);
+
+        long feedId = request.getFeedId();
+        final Feed feed = Fixture.createFeed();
+        when(feedRepository.findOne(feedId)).thenReturn(feed);
+
+        // When
+        service.publish(request);
+
+        // Then
+        assertThat(article.getSlug()).isEqualTo("12345...");
+        verify(articleRepository).save(article);
+    }
+
+    @Test
     public void shouldNotRepublish() throws Exception {
         // Given
         final PublishRequest request = Fixture.createPublishRequest();
@@ -276,7 +320,6 @@ public class ArticleServiceTest {
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
     }
-
 
     @Test
     public void shouldNotPublishIfFeedNotValid() throws Exception {

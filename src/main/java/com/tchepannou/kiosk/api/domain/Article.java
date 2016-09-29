@@ -11,7 +11,8 @@ import java.util.Date;
 public class Article {
     public enum Status {
         submitted,
-        processed
+        processed,
+        rejected
     }
 
     @Id
@@ -27,6 +28,7 @@ public class Article {
     private String languageCode;
     private Date publishedDate;
     private Status status;
+    private String statusReason;
 
     public Article() {
     }
@@ -112,5 +114,13 @@ public class Article {
 
     public void setStatus(final Status status) {
         this.status = status;
+    }
+
+    public String getStatusReason() {
+        return statusReason;
+    }
+
+    public void setStatusReason(final String statusReason) {
+        this.statusReason = statusReason;
     }
 }

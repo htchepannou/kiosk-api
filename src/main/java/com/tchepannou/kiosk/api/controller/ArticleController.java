@@ -77,11 +77,22 @@ public class ArticleController {
                     @ApiResponse(code = 404, message = "Article not found")
             }
     )
-    public ResponseEntity<GetArticleResponse> get(
+    public ResponseEntity<GetArticleResponse> getById(
             @PathVariable final String id
     ) {
         final GetArticleResponse response = service.get(id);
         return toResponseEntity(response);
+    }
+
+    @ApiOperation("Return a list of article ready to be read")
+    @RequestMapping( method = RequestMethod.GET)
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Success"),
+            }
+    )
+    public ResponseEntity<GetArticleListResponse> get() {
+        return getByStatus(Article.Status.processed.name());
     }
 
     @ApiOperation("Return a list of article by status")
@@ -91,7 +102,7 @@ public class ArticleController {
                     @ApiResponse(code = 200, message = "Success"),
             }
     )
-    public ResponseEntity<GetArticleListResponse> status(
+    public ResponseEntity<GetArticleListResponse> getByStatus(
             @PathVariable final String status
     ) {
         final GetArticleListResponse response = service.status(status);

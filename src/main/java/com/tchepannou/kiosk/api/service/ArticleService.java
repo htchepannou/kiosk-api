@@ -1,7 +1,9 @@
 package com.tchepannou.kiosk.api.service;
 
+import com.google.common.base.Strings;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
+import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
@@ -16,10 +18,15 @@ import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.core.rule.TextRuleSet;
+import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,11 +59,19 @@ public class ArticleService {
     LogService logService;
 
     @Autowired
-    TextFilterSet filters;
+    TextFilterSet textFilters;
 
+    @Autowired
+    ArticleFilterSet articleFilters;
+
+    @Autowired
+    TextRuleSet rules;
+
+    @Value("${kiosk.article.slug.maxLength}")
+    int slugMaxLength;
 
     //-- Public
-    public GetArticleResponse get (final String id) {
+    public GetArticleResponse get(final String id) {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
@@ -65,17 +80,17 @@ public class ArticleService {
         final ArticleDto dto = articleMapper.toArticleDto(article);
 
         /* Get the content */
-        String html = fetchContent(article, article.getStatus());
-        if (html == null){
+        final String html = fetchContent(article, article.getStatus());
+        if (html == null) {
             return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
         }
-        dto.getData().setContent(html);
+        dto.setContent(html);
 
         /* result */
         return createGetArticleResponse(dto, null);
     }
 
-    public GetArticleListResponse status (final String status) {
+    public GetArticleListResponse status(final String status) {
         final List<Article> articles = articleRepository.findByStatusOrderByPublishedDateDesc(Article.Status.valueOf(status.toLowerCase()));
         return createGetArticleListResponse(articles);
     }
@@ -83,12 +98,13 @@ public class ArticleService {
     @Transactional
     public ProcessResponse process(final ProcessRequest request) throws IOException {
         final String articelId = request.getArticleId();
+        Article article = null;
         ProcessResponse response = null;
         try {
 
             // Get data
-            final Article article = findArticle(request.getArticleId());
-            if (article == null){
+            article = findArticle(request.getArticleId());
+            if (article == null) {
                 response = createProcessResponse(articelId, ErrorConstants.ARTICLE_NOT_FOUND);
                 return response;
 
@@ -96,23 +112,27 @@ public class ArticleService {
 
             // Get content
             final String html = fetchContent(article, Article.Status.submitted);
-            if (html == null){
+            if (html == null) {
                 response = createProcessResponse(articelId, ErrorConstants.CONTENT_NOT_FOUND);
                 return response;
             }
 
             // Process
-            final String xhtml = filters.filter(html);
+            final String xhtml = textFilters.filter(html);
+
+            // Rules
+            final Validation validation = rules.validate(xhtml);
+            final Article.Status status = validation.isSuccess() ? Article.Status.processed : Article.Status.rejected;
+            final String reason = validation.isSuccess() ? null : validation.getReason();
 
             // Save all
-            storeContent(article, xhtml, Article.Status.processed);
-            updateStatus(article, Article.Status.processed);
+            storeContent(article, xhtml, status);
+            updateStatus(article, status, reason);
 
             response = createProcessResponse(article.getId(), null);
 
-
         } finally {
-            log(request, response);
+            log(article, request, response);
         }
 
         return response;
@@ -133,15 +153,21 @@ public class ArticleService {
             }
 
             final Feed feed = findFeed(request.getFeedId());
-            if (feed == null){
+            if (feed == null) {
                 response = createPublishResponse(article, ErrorConstants.FEED_INVALID);
                 return response;
             }
 
-            /* store the meta */
+            /* article */
             article = articleMapper.toArticle(request);
             article.setStatus(Article.Status.submitted);
             article.setFeed(feed);
+            if (Strings.isNullOrEmpty(article.getSlug())) {
+                article.setSlug(defaultSlug(request));
+            }
+            articleFilters.filter(article);
+
+            /* store */
             articleRepository.save(article);
 
             /* store the content */
@@ -160,21 +186,27 @@ public class ArticleService {
         }
     }
 
-
-
     //-- Private
-    private Article findArticle (final String id){
-        return (Article)findById(id, articleRepository);
+    private String defaultSlug(final PublishRequest request) {
+        final Document doc = Jsoup.parse(request.getArticle().getContent());
+        final String text = doc.text();
+        return text.length() > slugMaxLength
+                ? text.substring(0, slugMaxLength) + "..."
+                : text;
     }
 
-    private Feed findFeed(final long id){
-        return (Feed)findById(id, feedRepository);
+    private Article findArticle(final String id) {
+        return (Article) findById(id, articleRepository);
     }
 
-    private Object findById (final Serializable id, CrudRepository repository){
-        try{
+    private Feed findFeed(final long id) {
+        return (Feed) findById(id, feedRepository);
+    }
+
+    private Object findById(final Serializable id, final CrudRepository repository) {
+        try {
             return repository.findOne(id);
-        } catch (DataAccessException e){
+        } catch (final DataAccessException e) {
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
             return null;
@@ -189,7 +221,7 @@ public class ArticleService {
             fileService.get(key, out);
             return out.toString();
 
-        } catch (Exception e){
+        } catch (final Exception e) {
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
             return null;
@@ -201,8 +233,9 @@ public class ArticleService {
         fileService.put(key, new ByteArrayInputStream(html.getBytes()));
     }
 
-    private void updateStatus(final Article article, final Article.Status status) {
+    private void updateStatus(final Article article, final Article.Status status, final String reason) {
         article.setStatus(status);
+        article.setStatusReason(reason);
         articleRepository.save(article);
     }
 
@@ -236,8 +269,13 @@ public class ArticleService {
         return response;
     }
 
-    private void log(final ProcessRequest request, final ProcessResponse response) {
+    private void log(final Article article, final ProcessRequest request, final ProcessResponse response) {
         logService.add("ArticelId", request.getArticleId());
+
+        if (article != null) {
+            logService.add("ArticelStatus", article.getStatus());
+            logService.add("ArticelStatusReason", article.getStatusReason());
+        }
 
         if (response != null) {
             logService.add("Success", response.isSuccess());
@@ -254,17 +292,17 @@ public class ArticleService {
         final ProcessResponse response = new ProcessResponse();
         response.setTransactionId(transactionIdProvider.get());
         response.setArticleId(articleId);
-        if (code != null){
+        if (code != null) {
             response.setError(new ErrorDto(code));
         }
         return response;
     }
 
-    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final String code){
+    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final String code) {
         final GetArticleResponse response = new GetArticleResponse();
         response.setArticle(article);
         response.setTransactionId(transactionIdProvider.get());
-        if (code != null){
+        if (code != null) {
             response.setError(new ErrorDto(code));
         }
         return response;

@@ -25,9 +25,9 @@ INSERT INTO website VALUES (1011, 'newsducamer.com', 'https://www.newsducamer.co
 INSERT INTO website VALUES (1012, 'La Nouvelle Expression', 'http://www.lanouvelleexpression.info', NULL, NULL, NULL, NULL, TRUE);
 
 INSERT INTO website VALUES (1101, 'cameroon-info.net', 'http://www.cameroon-info.net', '/article', '.html', '.cp-post-content h3', NULL, TRUE);
-INSERT INTO website VALUES (1102, 'Camfoot', 'http://www.camfoot.com', NULL, '.html', NULL, NULL, TRUE);
+INSERT INTO website VALUES (1102, 'Camfoot', 'http://www.camfoot.com', NULL, '.html', '.cartouche h1', NULL, TRUE);
 INSERT INTO website VALUES (1103, 'Cameroun Tribune', 'http://www.cameroon-tribune.cm', '/articles', NULL, '#article-post h1', NULL, TRUE);
-INSERT INTO website VALUES (1104, 'Cameroon Online', 'http://www.cameroononline.org', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1104, 'CameroonOnline.org', 'http://www.cameroononline.org', NULL, NULL, '.post-inner .post-title', NULL, TRUE);
 
 -- feeds
 CREATE TABLE feed (
@@ -36,7 +36,7 @@ CREATE TABLE feed (
   website_id   BIGINT      NOT NULL REFERENCES website (id),
 
   type         CHAR(3)     NOT NULL,
-  country_code CHAR(3),
+  country_code CHAR(3)     NOT NULL,
   name         VARCHAR(64) NOT NULL,
   url          TEXT        NOT NULL,
   active       BOOL
@@ -53,7 +53,7 @@ INSERT INTO feed VALUES (1007, 1007, 'rss', 'CMR', 'culturebene.com', 'http://ww
 INSERT INTO feed VALUES (1008, 1008, 'rss', 'CMR', 'camerounsports.info', 'http://www.camerounsports.info/feed', TRUE);
 INSERT INTO feed VALUES (1009, 1009, 'rss', 'CMR', 'camerpost.com', 'http://www.camerpost.com/feed', TRUE);
 INSERT INTO feed VALUES (1010, 1010, 'rss', 'CMR', 'Journal Du Cameroun', 'http://www.journalducameroun.com/rss', TRUE);
-INSERT INTO feed VALUES (1011, 1011, 'rss', 'CMR', 'Cameroon Online', 'http://www.cameroononline.org/feed', TRUE);
+INSERT INTO feed VALUES (1011, 1011, 'rss', 'CMR', 'CameroonOnline.org', 'http://www.cameroononline.org/feed', TRUE);
 INSERT INTO feed VALUES (1012, 1012, 'rss', 'CMR', 'La Nouvelle Expression',
                          'http://www.lanouvelleexpression.info/index.php?option=com_k2&view=itemlist&layout=category&task=category&id=92&Itemid=632&format=feed',
                          TRUE);
@@ -77,6 +77,7 @@ CREATE TABLE article (
   published_date DATETIME DEFAULT now(),
   status         INT,
   url            TEXT     NOT NULL,
+  status_reason  VARCHAR(30),
 
   insertdatetime DATETIME DEFAULT now()
 )
