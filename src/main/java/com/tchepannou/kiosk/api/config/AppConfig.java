@@ -9,6 +9,7 @@ import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.FeedService;
+import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
@@ -17,6 +18,7 @@ import com.tchepannou.kiosk.core.filter.TrimFilter;
 import com.tchepannou.kiosk.core.rule.TextLengthRule;
 import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.service.FileService;
+import com.tchepannou.kiosk.core.service.HttpService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
@@ -53,6 +55,7 @@ public class AppConfig {
 
     @Value("${kiosk.rules.TextLengthRule.minLength}")
     int minTextLength;
+
 
     @Bean
     public FilterRegistrationBean corsFilterRegistrationBean() {
@@ -160,6 +163,11 @@ public class AppConfig {
     }
 
     @Bean
+    HttpService httpService(){
+        return new HttpService();
+    }
+
+    @Bean
     TextFilterSet textFilterSet() {
         return new TextFilterSet(Arrays.asList(
                 new SanitizeFilter(),
@@ -180,5 +188,10 @@ public class AppConfig {
         return new ArticleFilterSet(Arrays.asList(
                 new ArticleTitleFilter(titleMaxLength)
         ));
+    }
+
+    @Bean
+    ImageService imageService(){
+        return new ImageService();
     }
 }

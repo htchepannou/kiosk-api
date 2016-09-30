@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@Api(basePath = "/kiosk/v1/articles", value = "Article Publisher API")
+@Api(basePath = "/kiosk/v1/articles", value = "Article API")
 @RequestMapping(value = "/kiosk/v1/articles", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ArticleController {
 

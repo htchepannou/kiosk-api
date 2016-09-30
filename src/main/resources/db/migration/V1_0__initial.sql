@@ -84,3 +84,18 @@ CREATE TABLE article (
   insertdatetime DATETIME DEFAULT now()
 )
   ENGINE = InnoDB;
+
+-- images
+CREATE TABLE image(
+  id             CHAR(32) NOT NULL PRIMARY KEY,
+
+  url            TEXT         NOT NULL,
+  image_key      VARCHAR(100) NOT NULL,
+  content_type   VARCHAR(100),
+  title          VARCHAR(256),
+  width          INT,
+  height         INT,
+
+  insertdatetime DATETIME DEFAULT now()
+)
+  ENGINE = InnoDB;
