@@ -3,8 +3,7 @@ package com.tchepannou.kiosk.api.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
-import com.tchepannou.kiosk.api.filter.ArticleTitlePrefixFilter;
-import com.tchepannou.kiosk.api.filter.ArticleTitleSuffixFilter;
+import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
@@ -48,6 +47,9 @@ import java.util.TimeZone;
 public class AppConfig {
     @Value("${kiosk.filters.ContentFilter.blocMinLength}")
     int minBlocLength;
+
+    @Value("${kiosk.filters.ArticleTitleFilter.maxLength}")
+    int titleMaxLength;
 
     @Value("${kiosk.rules.TextLengthRule.minLength}")
     int minTextLength;
@@ -176,8 +178,7 @@ public class AppConfig {
     @Bean
     ArticleFilterSet articleFilterSet() {
         return new ArticleFilterSet(Arrays.asList(
-                new ArticleTitleSuffixFilter(),
-                new ArticleTitlePrefixFilter()
+                new ArticleTitleFilter(titleMaxLength)
         ));
     }
 }

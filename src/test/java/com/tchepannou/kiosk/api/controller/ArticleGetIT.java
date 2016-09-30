@@ -58,6 +58,10 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("article.languageCode", is("FR"))
                 .body("article.publishedDate", startsWith("2013-11-15"))
                 .body("article.content", is(content))
+
+                .body("website.id", is(100))
+                .body("website.name", is("Mboa Football"))
+                .body("website.url", is("http://www.mboafootball.com"))
         ;
 
         // @formatter:on

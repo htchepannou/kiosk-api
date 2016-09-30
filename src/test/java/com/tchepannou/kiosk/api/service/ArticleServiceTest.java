@@ -7,6 +7,7 @@ import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
+import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
@@ -14,6 +15,7 @@ import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
+import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.rule.Validation;
@@ -58,6 +60,9 @@ public class ArticleServiceTest {
 
     @Mock
     ArticleMapper articleMapper;
+
+    @Mock
+    WebsiteMapper websiteMapper;
 
     @Mock
     FeedRepository feedRepository;
@@ -105,8 +110,11 @@ public class ArticleServiceTest {
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
-        final ArticleDto dto = new ArticleDto();
-        when(articleMapper.toArticleDto(article)).thenReturn(dto);
+        final ArticleDto articleDto = new ArticleDto();
+        when(articleMapper.toArticleDto(article)).thenReturn(articleDto);
+
+        final WebsiteDto websiteDto = new WebsiteDto();
+        when(websiteMapper.toWebsiteDto(any())).thenReturn(websiteDto);
 
         final String html = "hello world";
         doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
@@ -117,9 +125,10 @@ public class ArticleServiceTest {
         // Then
         assertThat(response.isSuccess()).isTrue();
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
-        assertThat(response.getArticle()).isEqualTo(dto);
+        assertThat(response.getArticle()).isEqualTo(articleDto);
+        assertThat(response.getWebsite()).isEqualTo(websiteDto);
 
-        assertThat(dto.getContent()).isEqualTo("hello world");
+        assertThat(articleDto.getContent()).isEqualTo("hello world");
     }
 
     @Test

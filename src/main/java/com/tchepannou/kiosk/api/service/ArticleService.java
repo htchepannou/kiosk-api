@@ -3,10 +3,12 @@ package com.tchepannou.kiosk.api.service;
 import com.google.common.base.Strings;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
+import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
+import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
@@ -17,6 +19,7 @@ import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
+import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.rule.Validation;
@@ -53,6 +56,9 @@ public class ArticleService {
     ArticleMapper articleMapper;
 
     @Autowired
+    WebsiteMapper websiteMapper;
+
+    @Autowired
     TransactionIdProvider transactionIdProvider;
 
     @Autowired
@@ -75,19 +81,23 @@ public class ArticleService {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
-            return createGetArticleResponse(null, ErrorConstants.ARTICLE_NOT_FOUND);
+            return createGetArticleResponse(null, null, ErrorConstants.ARTICLE_NOT_FOUND);
         }
-        final ArticleDto dto = articleMapper.toArticleDto(article);
+        final ArticleDto articleDto = articleMapper.toArticleDto(article);
+
+        /* website */
+        final Website website = article.getFeed().getWebsite();
+        final WebsiteDto websiteDto = websiteMapper.toWebsiteDto(website);
 
         /* Get the content */
         final String html = fetchContent(article, article.getStatus());
         if (html == null) {
-            return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
+            return createGetArticleResponse(null, null, ErrorConstants.CONTENT_NOT_FOUND);
         }
-        dto.setContent(html);
+        articleDto.setContent(html);
 
         /* result */
-        return createGetArticleResponse(dto, null);
+        return createGetArticleResponse(articleDto, websiteDto, null);
     }
 
     public GetArticleListResponse status(final String status) {
@@ -298,9 +308,10 @@ public class ArticleService {
         return response;
     }
 
-    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final String code) {
+    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final WebsiteDto website, final String code) {
         final GetArticleResponse response = new GetArticleResponse();
         response.setArticle(article);
+        response.setWebsite(website);
         response.setTransactionId(transactionIdProvider.get());
         if (code != null) {
             response.setError(new ErrorDto(code));

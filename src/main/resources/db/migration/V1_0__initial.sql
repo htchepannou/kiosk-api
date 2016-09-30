@@ -23,6 +23,7 @@ INSERT INTO website VALUES (1009, 'camerpost.com', 'http://www.camerpost.com', N
 INSERT INTO website VALUES (1010, 'Journal Du Cameroun', 'http://www.journalducameroun.com', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1011, 'newsducamer.com', 'https://www.newsducamer.com', '/index.php', NULL, '.ItemView .itemTitle', NULL, TRUE);
 INSERT INTO website VALUES (1012, 'La Nouvelle Expression', 'http://www.lanouvelleexpression.info', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1013, 'JeWanda-Magazine', 'http://www.jewanda-magazine.com', NULL, NULL, NULL, NULL, TRUE);
 
 INSERT INTO website VALUES (1101, 'cameroon-info.net', 'http://www.cameroon-info.net', '/article', '.html', '.cp-post-content h3', NULL, TRUE);
 INSERT INTO website VALUES (1102, 'Camfoot', 'http://www.camfoot.com', NULL, '.html', '.cartouche h1', NULL, TRUE);
@@ -57,6 +58,7 @@ INSERT INTO feed VALUES (1011, 1011, 'rss', 'CMR', 'CameroonOnline.org', 'http:/
 INSERT INTO feed VALUES (1012, 1012, 'rss', 'CMR', 'La Nouvelle Expression',
                          'http://www.lanouvelleexpression.info/index.php?option=com_k2&view=itemlist&layout=category&task=category&id=92&Itemid=632&format=feed',
                          TRUE);
+INSERT INTO feed VALUES (1013, 1013, 'rss', 'CMR', 'JeWanda-Magazine', 'http://www.jewanda-magazine.com/feed', TRUE);
 
 INSERT INTO feed VALUES (1101, 1101, 'rss', 'CMR', 'cameroon-info.net', 's3://rss/1101.xml', TRUE);
 INSERT INTO feed VALUES (1102, 1102, 'rss', 'CMR', 'Camfoot', 's3://rss/1102.xml', TRUE);
