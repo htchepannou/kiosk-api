@@ -109,7 +109,7 @@ public class ImageService {
         final Image image = new Image();
         image.setId(Image.generateId(url));
 
-        final String keyPrefix = image.contentKeyPrefix(index);
+        final String keyPrefix = "";
         final String key = httpService.get(url, keyPrefix, fileService);
         final FileTypeMap typeMap = MimetypesFileTypeMap.getDefaultFileTypeMap();
         final String contentType = typeMap.getContentType(key);

@@ -97,10 +97,10 @@ public class CreateArticleActivity extends Activity{
             log.add("Success", false);
             log.add("Exception", ex.getClass().getName());
             log.add("ExceptionMessage", ex.getMessage());
+            log.log(ex);
         } else {
             log.add("Success", true);
+            log.log();
         }
-
-        log.log();
     }
 }

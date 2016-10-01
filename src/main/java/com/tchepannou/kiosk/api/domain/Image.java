@@ -26,10 +26,6 @@ public class Image {
                 : DigestUtils.md5Hex(url.getBytes());
     }
 
-    public String contentKeyPrefix(final int i) {
-        return "/images/" + getId() + "/" + i;
-    }
-
     public String getId() {
         return id;
     }

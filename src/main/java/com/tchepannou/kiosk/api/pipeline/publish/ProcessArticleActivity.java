@@ -73,12 +73,12 @@ public class ProcessArticleActivity extends Activity {
             log.add("Success", false);
             log.add("Exception", ex.getClass().getName());
             log.add("ExceptionMessage", ex.getMessage());
+            log.log(ex);
         } else {
             log.add("Success", validationReason == null);
             log.add("Reason", validationReason);
+            log.log();
         }
-
-        log.log();
     }
 
     private String fetchContent(final Article article, final Article.Status status) throws IOException {
