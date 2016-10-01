@@ -2,6 +2,7 @@ package com.tchepannou.kiosk.api;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
+import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
@@ -45,6 +46,21 @@ public class Fixture {
         feed.setUrl("http://www.google.ca/" + id + "/rss");
         feed.setWebsite(createWebsite());
         return feed;
+    }
+
+    public static Image createImage(){
+        final Image img = new Image();
+        final String url = "http://img.com/foo.jpeg";
+
+        img.setContentType("image/jpeg");
+        img.setHeight(100);
+        img.setId(Image.generateId(url));
+        img.setKey("images/121198/0.jpeg");
+        img.setTitle("Test Image");
+        img.setUrl(url);
+        img.setWidth(120);
+
+        return img;
     }
 
     public static Article createArticle() {

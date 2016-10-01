@@ -23,7 +23,7 @@ public class ActivityTestSupport {
         verify(publisher).publishEvent(event.capture());
 
         assertThat(event.getValue().getTopic()).isEqualTo(topic);
-        assertThat(event.getValue().getPayload()).isEqualTo(payload);
+        assertThat(event.getValue().getPayload()).isEqualToComparingFieldByField(payload);
     }
 
     protected void assertThatNoEventPublished(){

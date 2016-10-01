@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.activation.FileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
+import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+@Transactional
 public class DownloadImageActivity extends Activity {
     @Autowired
     FileService fileService;
@@ -40,6 +42,7 @@ public class DownloadImageActivity extends Activity {
         final String id = image.getId();
         if (imageRepository.findOne(id) != null) {
             log(image, null);
+            return;
         }
 
         /* download */
@@ -52,9 +55,8 @@ public class DownloadImageActivity extends Activity {
 
             if (contentType != null && contentType.startsWith("image/")) {
                 image.setKey(key);
-                image.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(key));
+                image.setContentType(contentType);
                 getDimension(image);
-
                 imageRepository.save(image);
                 log(image, null);
             } else {

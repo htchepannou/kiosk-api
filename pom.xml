@@ -19,6 +19,7 @@
         <project.sourceEncoding>UTF-8</project.sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <activation.version>1.1.1</activation.version>
         <kiosk-core.version>1.0-SNAPSHOT</kiosk-core.version>
         <kiosk-client.version>1.0-SNAPSHOT</kiosk-client.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -100,6 +101,11 @@
             <artifactId>commons-codec</artifactId>
             <version>${commons-codec.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>${activation.version}</version>
+        </dependency>
 
 
         <!-- TEST -->
@@ -180,7 +186,7 @@
                             <username>root</username>
                             <sqlCommand>
                                 DROP DATABASE IF EXISTS kiosk;
-                              CREATE DATABASE kiosk;
+                                CREATE DATABASE kiosk;
                             </sqlCommand>
                         </configuration>
                     </execution>
