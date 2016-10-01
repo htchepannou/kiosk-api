@@ -7,7 +7,6 @@ import com.tchepannou.kiosk.client.dto.AbstractResponse;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleListResponse;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
-import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.service.LogService;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @Api(basePath = "/kiosk/v1/articles", value = "Article API")
@@ -50,23 +47,6 @@ public class ArticleController {
     ) throws IOException {
         final PublishResponse response = service.publish(request);
         return toResponseEntity(response);
-    }
-
-    @Async
-    @ApiOperation("Process the content of all the published articles")
-    @RequestMapping(value = "/process", method = RequestMethod.GET)
-    public void process() {
-        final List<Article> articles = repository.findByStatusOrderByPublishedDateDesc(Article.Status.submitted);
-        for (final Article article : articles) {
-            try {
-                final ProcessRequest request = new ProcessRequest();
-                request.setArticleId(article.getId());
-                service.process(request);
-                logService.log();
-            } catch (final Exception e) {
-                logService.log(e);
-            }
-        }
     }
 
     @ApiOperation("Return an API by ID")

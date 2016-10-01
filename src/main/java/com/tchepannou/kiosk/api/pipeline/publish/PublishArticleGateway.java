@@ -9,7 +9,7 @@ import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PublishedGateway extends Activity{
+public class PublishArticleGateway extends Activity{
     @Autowired
     ArticleRepository articleRepository;
 

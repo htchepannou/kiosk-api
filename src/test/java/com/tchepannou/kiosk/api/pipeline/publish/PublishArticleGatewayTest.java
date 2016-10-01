@@ -17,12 +17,12 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublishedGatewayTest extends ActivityTestSupport{
+public class PublishArticleGatewayTest extends ActivityTestSupport{
     @Mock
     ArticleRepository articleRepository;
 
     @InjectMocks
-    PublishedGateway activity;
+    PublishArticleGateway activity;
 
     @Test
     public void testGetTopic() throws Exception {

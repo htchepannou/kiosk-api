@@ -23,7 +23,6 @@ public abstract class Activity {
     }
 
     public void publishEvent(final Event event) {
-        log.log();
         publisher.publishEvent(event);
     }
 

@@ -9,7 +9,6 @@ import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.FeedService;
-import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
@@ -188,10 +187,5 @@ public class AppConfig {
         return new ArticleFilterSet(Arrays.asList(
                 new ArticleTitleFilter(titleMaxLength)
         ));
-    }
-
-    @Bean
-    ImageService imageService(){
-        return new ImageService();
     }
 }
