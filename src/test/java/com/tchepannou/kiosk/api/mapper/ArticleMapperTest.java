@@ -41,7 +41,6 @@ public class ArticleMapperTest {
 
         // Then
         assertThat(article.getCountryCode()).isEqualTo(request.getArticle().getCountryCode());
-        assertThat(article.getFeedId()).isEqualTo(request.getFeedId());
         assertThat(article.getLanguageCode()).isEqualTo(request.getArticle().getLanguageCode());
         assertThat(article.getPublishedDate()).isEqualTo(date);
         assertThat(article.getSlug()).isEqualTo(request.getArticle().getSlug());
@@ -88,13 +87,12 @@ public class ArticleMapperTest {
         
         // Then
         assertThat(dto.getId()).isEqualTo(article.getId());
-        assertThat(dto.getStatus()).isEqualTo(article.getStatus().name());
 
-        assertThat(dto.getData().getCountryCode()).isEqualTo(article.getCountryCode());
-        assertThat(dto.getData().getLanguageCode()).isEqualTo(article.getLanguageCode());
-        assertThat(dto.getData().getPublishedDate()).isEqualTo(date);
-        assertThat(dto.getData().getSlug()).isEqualTo(article.getSlug());
-        assertThat(dto.getData().getTitle()).isEqualTo(article.getTitle());
-        assertThat(dto.getData().getUrl()).isEqualTo(article.getUrl());
+        assertThat(dto.getCountryCode()).isEqualTo(article.getCountryCode());
+        assertThat(dto.getLanguageCode()).isEqualTo(article.getLanguageCode());
+        assertThat(dto.getPublishedDate()).isEqualTo(date);
+        assertThat(dto.getSlug()).isEqualTo(article.getSlug());
+        assertThat(dto.getTitle()).isEqualTo(article.getTitle());
+        assertThat(dto.getUrl()).isEqualTo(article.getUrl());
     }
 }

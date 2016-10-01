@@ -2,6 +2,8 @@ package com.tchepannou.kiosk.api;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
+import com.tchepannou.kiosk.api.domain.Image;
+import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.TimeService;
@@ -42,7 +44,23 @@ public class Fixture {
         feed.setName("Feed #" + id);
         feed.setType("rss");
         feed.setUrl("http://www.google.ca/" + id + "/rss");
+        feed.setWebsite(createWebsite());
         return feed;
+    }
+
+    public static Image createImage(){
+        final Image img = new Image();
+        final String url = "http://img.com/foo.jpeg";
+
+        img.setContentType("image/jpeg");
+        img.setHeight(100);
+        img.setId(Image.generateId(url));
+        img.setKey("images/121198/0.jpeg");
+        img.setTitle("Test Image");
+        img.setUrl(url);
+        img.setWidth(120);
+
+        return img;
     }
 
     public static Article createArticle() {
@@ -51,7 +69,7 @@ public class Fixture {
 
         article.setId(String.valueOf(id));
         article.setCountryCode("US");
-        article.setFeedId(id);
+        article.setFeed(createFeed());
         article.setLanguageCode("en");
         article.setPublishedDate(new TimeService().now());
         article.setSlug("This is a slug");
@@ -62,10 +80,28 @@ public class Fixture {
         return article;
     }
 
+
     public static ArticleDataDto createArticleDataDto(){
         ArticleDataDto article = new ArticleDataDto();
 
-        article.setContent("<p>This is the content of the article</p>");
+        article.setContent(
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>"
+        );
         article.setCountryCode("CA");
         article.setLanguageCode("FR");
         article.setPublishedDate("2012-10-15 11:00:00 -0500");
@@ -81,5 +117,19 @@ public class Fixture {
         request.setArticle(article);
         request.setFeedId(feedId);
         return request;
+    }
+
+    public static Website createWebsite (){
+        final long id = ++uid;
+        Website w = new Website();
+        w.setActive(true);
+        w.setArticleUrlPrefix("article/");
+        w.setArticleUrlSuffix(".html");
+        w.setId(id);
+        w.setName("foo" + id);
+        w.setSlugCssSelector(".slug");
+        w.setTitleCssSelector(".title");
+        w.setUrl("http://" + w.getName() + ".com");
+        return w;
     }
 }

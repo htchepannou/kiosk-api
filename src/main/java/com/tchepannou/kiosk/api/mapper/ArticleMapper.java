@@ -16,7 +16,6 @@ public class ArticleMapper {
     public Article toArticle(final PublishRequest dto) {
         final Article article = new Article();
 
-        article.setFeedId(dto.getFeedId());
         toArticle(dto.getArticle(), article);
         return article;
     }
@@ -45,18 +44,14 @@ public class ArticleMapper {
     }
 
     public ArticleDto toArticleDto(final Article article) {
-        final ArticleDataDto data = new ArticleDataDto();
+        final ArticleDto data = new ArticleDto();
         data.setCountryCode(article.getCountryCode());
         data.setLanguageCode(article.getLanguageCode());
         data.setPublishedDate(timeService.format(article.getPublishedDate()));
         data.setSlug(article.getSlug());
         data.setTitle(article.getTitle());
         data.setUrl(article.getUrl());
-
-        final ArticleDto dto = new ArticleDto();
-        dto.setId(article.getId());
-        dto.setStatus(article.getStatus().name());
-        dto.setData(data);
-        return dto;
+        data.setId(article.getId());
+        return data;
     }
 }

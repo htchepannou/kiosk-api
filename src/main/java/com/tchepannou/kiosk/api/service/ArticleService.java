@@ -1,41 +1,49 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
-import com.tchepannou.kiosk.client.dto.ArticleDataDto;
+import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
+import com.tchepannou.kiosk.api.pipeline.Event;
+import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ErrorDto;
 import com.tchepannou.kiosk.client.dto.GetArticleListResponse;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
-import com.tchepannou.kiosk.client.dto.ProcessRequest;
-import com.tchepannou.kiosk.client.dto.ProcessResponse;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
+import com.tchepannou.kiosk.client.dto.WebsiteDto;
+import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.repository.CrudRepository;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArticleService {
     @Autowired
+    protected ApplicationEventPublisher publisher;
+
+    @Autowired
     ArticleRepository articleRepository;
 
     @Autowired
-    ContentRepositoryService contentRepository;
+    FileService fileService;
 
     @Autowired
     ArticleMapper articleMapper;
+
+    @Autowired
+    WebsiteMapper websiteMapper;
 
     @Autowired
     TransactionIdProvider transactionIdProvider;
@@ -43,115 +51,52 @@ public class ArticleService {
     @Autowired
     LogService logService;
 
-    @Autowired
-    TextFilterSet filters;
-
 
     //-- Public
-    public GetArticleResponse get (final String id) {
+    public GetArticleResponse get(final String id) {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
-            return createGetArticleResponse(null, ErrorConstants.ARTICLE_NOT_FOUND);
+            return createGetArticleResponse(null, null, ErrorConstants.ARTICLE_NOT_FOUND);
         }
-        final ArticleDto dto = articleMapper.toArticleDto(article);
+        final ArticleDto articleDto = articleMapper.toArticleDto(article);
+
+        /* website */
+        final Website website = article.getFeed().getWebsite();
+        final WebsiteDto websiteDto = websiteMapper.toWebsiteDto(website);
 
         /* Get the content */
-        String html = fetchContent(article, article.getStatus());
-        if (html == null){
-            return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
+        final String html = fetchContent(article, article.getStatus());
+        if (html == null) {
+            return createGetArticleResponse(null, null, ErrorConstants.CONTENT_NOT_FOUND);
         }
-        dto.getData().setContent(html);
+        articleDto.setContent(html);
 
         /* result */
-        return createGetArticleResponse(dto, null);
+        return createGetArticleResponse(articleDto, websiteDto, null);
     }
 
-    public GetArticleListResponse status (final String status) {
+    public GetArticleListResponse status(final String status) {
         final List<Article> articles = articleRepository.findByStatusOrderByPublishedDateDesc(Article.Status.valueOf(status.toLowerCase()));
         return createGetArticleListResponse(articles);
     }
 
-    @Transactional
-    public ProcessResponse process(final ProcessRequest request) {
-        final String articelId = request.getArticleId();
-        ProcessResponse response = null;
-        try {
-
-            // Get data
-            final Article article = findArticle(request.getArticleId());
-            if (article == null){
-                response = createProcessResponse(articelId, ErrorConstants.ARTICLE_NOT_FOUND);
-                return response;
-
-            }
-
-            // Get content
-            final String html = fetchContent(article, Article.Status.submitted);
-            if (html == null){
-                response = createProcessResponse(articelId, ErrorConstants.CONTENT_NOT_FOUND);
-                return response;
-            }
-
-            // Process
-            final String xhtml = filters.filter(html);
-
-            // Save all
-            storeContent(article, xhtml, Article.Status.processed);
-            updateStatus(article, Article.Status.processed);
-
-            response = createProcessResponse(article.getId(), null);
-
-
-        } finally {
-            log(request, response);
-        }
-
-        return response;
-    }
-
-    @Transactional
     public PublishResponse publish(final PublishRequest request) throws IOException {
-        PublishResponse response = null;
-        String articleId = null;
-        try {
+        publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
 
-            final ArticleDataDto requestArticle = request.getArticle();
-            articleId = Article.generateId(requestArticle.getUrl());
-            Article article = findArticle(articleId);
-            if (article != null) {
-                response = createPublishResponse(article, ErrorConstants.ALREADY_PUBLISHED);
-                return response;
-            }
-
-            /* store the meta */
-            article = articleMapper.toArticle(request);
-            article.setStatus(Article.Status.submitted);
-            articleRepository.save(article);
-
-            /* store the content */
-            try (final InputStream in = new ByteArrayInputStream(requestArticle.getContent().getBytes())) {
-                final String key = article.contentKey(article.getStatus());
-                contentRepository.write(key, in);
-            }
-
-            response = createPublishResponse(article, null);
-            return response;
-
-        } finally {
-
-            log(articleId, request, response);
-
-        }
+        final String articleId = Article.generateId(request.getArticle().getUrl());
+        return createPublishResponse(articleId);
     }
-
-
 
     //-- Private
-    private Article findArticle (final String id){
-        try{
-            return articleRepository.findOne(id);
-        } catch (DataAccessException e){
+    private Article findArticle(final String id) {
+        return (Article) findById(id, articleRepository);
+    }
+
+    private Object findById(final Serializable id, final CrudRepository repository) {
+        try {
+            return repository.findOne(id);
+        } catch (final DataAccessException e) {
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
             return null;
@@ -163,83 +108,29 @@ public class ArticleService {
 
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             final String key = article.contentKey(status);
-            contentRepository.read(key, out);
+            fileService.get(key, out);
             return out.toString();
 
-        } catch (ContentRepositoryException e){
+        } catch (final Exception e) {
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
             return null;
         }
     }
 
-    private void storeContent(final Article article, final String html, final Article.Status status) {
-        final String key = article.contentKey(status);
-        contentRepository.write(key, new ByteArrayInputStream(html.getBytes()));
-    }
-
-    private void updateStatus(final Article article, final Article.Status status) {
-        article.setStatus(status);
-        articleRepository.save(article);
-    }
-
-    private void log(final String articleId, final PublishRequest request, final PublishResponse response) {
-        logService.add("FeedId", request.getFeedId());
-
-        final ArticleDataDto article = request.getArticle();
-        logService.add("ArticleId", articleId);
-        logService.add("ArticleUrl", article.getUrl());
-        logService.add("ArticleTitle", article.getTitle());
-
-        if (response != null) {
-            logService.add("Success", response.isSuccess());
-            if (!response.isSuccess()) {
-                final ErrorDto error = response.getError();
-                logService.add("ErrorCode", error.getCode());
-                logService.add("ErrorMessage", error.getMessage());
-            }
-        }
-    }
-
-    private PublishResponse createPublishResponse(final Article article, final String code) {
+    private PublishResponse createPublishResponse(final String articleId) {
         final PublishResponse response = new PublishResponse();
-        response.setArticleId(article.getId());
-        response.setTransactionId(transactionIdProvider.get());
-        if (code != null) {
-            response.setError(new ErrorDto(code));
-        }
-        return response;
-    }
-
-    private void log(final ProcessRequest request, final ProcessResponse response) {
-        logService.add("ArticelId", request.getArticleId());
-
-        if (response != null) {
-            logService.add("Success", response.isSuccess());
-
-            if (!response.isSuccess()) {
-                final ErrorDto error = response.getError();
-                logService.add("ErrorCode", error.getCode());
-                logService.add("ErrorMessage", error.getMessage());
-            }
-        }
-    }
-
-    private ProcessResponse createProcessResponse(final String articleId, final String code) {
-        final ProcessResponse response = new ProcessResponse();
         response.setTransactionId(transactionIdProvider.get());
         response.setArticleId(articleId);
-        if (code != null){
-            response.setError(new ErrorDto(code));
-        }
         return response;
     }
 
-    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final String code){
+    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final WebsiteDto website, final String code) {
         final GetArticleResponse response = new GetArticleResponse();
         response.setArticle(article);
+        response.setWebsite(website);
         response.setTransactionId(transactionIdProvider.get());
-        if (code != null){
+        if (code != null) {
             response.setError(new ErrorDto(code));
         }
         return response;

@@ -2,6 +2,7 @@ package com.tchepannou.kiosk.api.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Feed {
@@ -12,6 +13,9 @@ public class Feed {
     private String name;
     private String url;
     private boolean active;
+    
+    @ManyToOne
+    private Website website;
 
     public long getId() {
         return id;
@@ -51,5 +55,21 @@ public class Feed {
 
     public void setUrl(final String url) {
         this.url = url;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(final boolean active) {
+        this.active = active;
+    }
+
+    public Website getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(final Website website) {
+        this.website = website;
     }
 }

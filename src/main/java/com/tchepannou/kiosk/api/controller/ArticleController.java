@@ -7,7 +7,6 @@ import com.tchepannou.kiosk.client.dto.AbstractResponse;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleListResponse;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
-import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.service.LogService;
@@ -26,10 +25,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
-@Api(basePath = "/kiosk/v1/articles", value = "Article Publisher API")
+@Api(basePath = "/kiosk/v1/articles", value = "Article API")
 @RequestMapping(value = "/kiosk/v1/articles", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ArticleController {
 
@@ -51,22 +49,6 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Process the content of all the published articles")
-    @RequestMapping(value = "/process", method = RequestMethod.GET)
-    public void process() {
-        final List<Article> articles = repository.findByStatusOrderByPublishedDateDesc(Article.Status.submitted);
-        for (final Article article : articles) {
-            try {
-                final ProcessRequest request = new ProcessRequest();
-                request.setArticleId(article.getId());
-                service.process(request);
-                logService.log();
-            } catch (final Exception e) {
-                logService.log(e);
-            }
-        }
-    }
-
     @ApiOperation("Return an API by ID")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiResponses(
@@ -75,11 +57,22 @@ public class ArticleController {
                     @ApiResponse(code = 404, message = "Article not found")
             }
     )
-    public ResponseEntity<GetArticleResponse> get(
+    public ResponseEntity<GetArticleResponse> getById(
             @PathVariable final String id
     ) {
         final GetArticleResponse response = service.get(id);
         return toResponseEntity(response);
+    }
+
+    @ApiOperation("Return a list of article ready to be read")
+    @RequestMapping( method = RequestMethod.GET)
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Success"),
+            }
+    )
+    public ResponseEntity<GetArticleListResponse> get() {
+        return getByStatus(Article.Status.processed.name());
     }
 
     @ApiOperation("Return a list of article by status")
@@ -89,7 +82,7 @@ public class ArticleController {
                     @ApiResponse(code = 200, message = "Success"),
             }
     )
-    public ResponseEntity<GetArticleListResponse> status(
+    public ResponseEntity<GetArticleListResponse> getByStatus(
             @PathVariable final String status
     ) {
         final GetArticleListResponse response = service.status(status);

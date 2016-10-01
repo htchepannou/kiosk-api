@@ -4,17 +4,23 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Date;
 
 @Entity
 public class Article {
     public enum Status {
         submitted,
-        processed
+        processed,
+        rejected
     }
 
     @Id
     private String id;
+
+    @ManyToOne
+    private Feed feed;
+
     private String url;
     private String title;
     private String slug;
@@ -22,7 +28,7 @@ public class Article {
     private String languageCode;
     private Date publishedDate;
     private Status status;
-    private Long feedId;
+    private String statusReason;
 
     public Article() {
     }
@@ -34,7 +40,7 @@ public class Article {
     }
 
     public String contentKey(final Status status) {
-        return getId() + "/" + status.name() + ".html";
+        return "/articles/" + getId() + "/" + status.name() + ".html";
     }
 
     public String getId() {
@@ -94,12 +100,12 @@ public class Article {
         this.publishedDate = publishedDate;
     }
 
-    public Long getFeedId() {
-        return feedId;
+    public Feed getFeed() {
+        return feed;
     }
 
-    public void setFeedId(final Long feedId) {
-        this.feedId = feedId;
+    public void setFeed(final Feed feed) {
+        this.feed = feed;
     }
 
     public Status getStatus() {
@@ -108,5 +114,13 @@ public class Article {
 
     public void setStatus(final Status status) {
         this.status = status;
+    }
+
+    public String getStatusReason() {
+        return statusReason;
+    }
+
+    public void setStatusReason(final String statusReason) {
+        this.statusReason = statusReason;
     }
 }

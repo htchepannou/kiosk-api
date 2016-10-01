@@ -1,6 +1,6 @@
 package com.tchepannou.kiosk.api.controller;
 
-import com.tchepannou.kiosk.client.dto.FeedListResponse;
+import com.tchepannou.kiosk.client.dto.GetFeedListResponse;
 import com.tchepannou.kiosk.api.service.FeedService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +19,7 @@ public class FeedController {
 
     @ApiOperation("Return the feed list")
     @RequestMapping(method = RequestMethod.GET)
-    public FeedListResponse all() {
+    public GetFeedListResponse all() {
         return service.all();
     }
 }
