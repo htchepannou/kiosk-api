@@ -5,10 +5,10 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
-import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.http.HttpStatus;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,6 @@ import static com.tchepannou.kiosk.api.Fixture.createArticleDataDto;
 import static com.tchepannou.kiosk.api.Fixture.createPublishRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -42,6 +41,7 @@ public class ArticlePublishIT extends RestAssuredSupport {
     ArticleRepository articleRepository;
 
     @Test
+    @Ignore
     public void shouldPublishAnArticle() throws Exception {
         final PublishRequest request = createPublishRequest(100, createArticleDataDto());
 
@@ -78,71 +78,4 @@ public class ArticlePublishIT extends RestAssuredSupport {
         assertThat(out.toString()).isEqualTo(request.getArticle().getContent());
     }
 
-    @Test
-    public void shouldNotRePublishAnArticle() throws Exception {
-        final PublishRequest request = createPublishRequest(100, createArticleDataDto());
-
-        // @formatter:off
-        final String id = given ()
-                .contentType(ContentType.JSON)
-                .body(request, ObjectMapperType.JACKSON_2)
-        .when()
-                .post("/kiosk/v1/articles")
-        .then()
-        .extract()
-                .path("articleId")
-        ;
-
-        given ()
-                .contentType(ContentType.JSON)
-                .body(request, ObjectMapperType.JACKSON_2)
-        .when()
-                .post("/kiosk/v1/articles")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_CONFLICT)
-                .body("success", is(false))
-
-                .body("error", notNullValue())
-                .body("error.code", is(ErrorConstants.ALREADY_PUBLISHED))
-
-                .body("articleId", is(id))
-        ;
-
-        // @formatter:on
-    }
-
-    @Test
-    public void shouldNotPublishAnArticleWithInvalidFeed() throws Exception {
-        final PublishRequest request = createPublishRequest(9999, createArticleDataDto());
-
-        // @formatter:off
-        final String id = given ()
-                .contentType(ContentType.JSON)
-                .body(request, ObjectMapperType.JACKSON_2)
-        .when()
-                .post("/kiosk/v1/articles")
-        .then()
-        .extract()
-                .path("articleId")
-        ;
-
-        given ()
-                .contentType(ContentType.JSON)
-                .body(request, ObjectMapperType.JACKSON_2)
-        .when()
-                .post("/kiosk/v1/articles")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_CONFLICT)
-                .body("success", is(false))
-
-                .body("error", notNullValue())
-                .body("error.code", is(ErrorConstants.FEED_INVALID))
-
-                .body("articleId", is(id))
-        ;
-
-        // @formatter:on
-    }
 }

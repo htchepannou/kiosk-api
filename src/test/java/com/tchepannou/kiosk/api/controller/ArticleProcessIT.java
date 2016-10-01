@@ -1,10 +1,12 @@
 package com.tchepannou.kiosk.api.controller;
 
+import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.Starter;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.http.HttpStatus;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,8 @@ public class ArticleProcessIT extends RestAssuredSupport {
     ArticleRepository articleRepository;
 
     @Test
-    public void shouldPublishAnArticle() throws Exception {
+    @Ignore
+    public void shouldProcessAnArticle() throws Exception {
         createContent("100", "/html/article100.html");
         createContent("200", "/html/article200.html");
 
@@ -49,7 +52,7 @@ public class ArticleProcessIT extends RestAssuredSupport {
         ;
 
         // @formatter:on
-//        Thread.sleep(5000);
+        Thread.sleep(5000);
 
         assertProcessed("100");
         assertProcessed("200");
@@ -66,12 +69,14 @@ public class ArticleProcessIT extends RestAssuredSupport {
     }
 
     private void createContent(final String id, final String path) throws IOException{
-        final Article article = new Article();
+        final Article article = Fixture.createArticle();
         article.setId(id);
         article.setStatus(Article.Status.submitted);
 
         try (final InputStream in = getClass().getResourceAsStream(path)) {
             fileService.put(article.contentKey(article.getStatus()), in);
         }
+
+        articleRepository.save(article);
     }
 }

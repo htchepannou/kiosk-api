@@ -42,7 +42,7 @@ public class DownloadImageActivityTest extends ActivityTestSupport{
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_SUBMITTED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_IMAGE_SUBMITTED);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class DownloadImageActivityTest extends ActivityTestSupport{
         verify(imageRepository).save(img);
         assertThat(img.getContentType()).isEqualTo("image/jpeg");
         assertThat(img.getWidth()).isEqualTo(128);
-        assertThat(img.getWidth()).isEqualTo(118);
+        assertThat(img.getWidth()).isEqualTo(128);
     }
 
     private Answer image(final String path) throws Exception {

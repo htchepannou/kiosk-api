@@ -84,7 +84,24 @@ public class Fixture {
     public static ArticleDataDto createArticleDataDto(){
         ArticleDataDto article = new ArticleDataDto();
 
-        article.setContent("<p>This is the content of the article</p>");
+        article.setContent(
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>" +
+                        "<p>This is the content of the article</p>"
+        );
         article.setCountryCode("CA");
         article.setLanguageCode("FR");
         article.setPublishedDate("2012-10-15 11:00:00 -0500");
