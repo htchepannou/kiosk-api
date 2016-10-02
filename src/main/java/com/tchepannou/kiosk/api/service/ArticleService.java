@@ -28,6 +28,8 @@ import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
 
 import java.io.ByteArrayOutputStream;
@@ -88,7 +90,8 @@ public class ArticleService {
     }
 
     public GetArticleListResponse status(final String status) {
-        final List<Article> articles = articleRepository.findByStatusOrderByPublishedDateDesc(Article.Status.valueOf(status.toLowerCase()));
+        final PageRequest pagination = new PageRequest(0, 20, Sort.Direction.DESC, "publishedDate");
+        final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()), pagination);
 
         return createGetArticleListResponse(articles);
     }
