@@ -19,15 +19,15 @@ import static org.hamcrest.Matchers.startsWith;
 @SpringApplicationConfiguration(classes = Starter.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-@Sql({"/sql/clean.sql", "/sql/ArticleGetByStatus.sql"})
-public class ArticleGetByStatusIT extends RestAssuredSupport{
+@Sql({"/sql/clean.sql", "/sql/ArticleGetList.sql"})
+public class ArticleGetListIT extends RestAssuredSupport {
 
     @Test
     public void shouldReturnAllProcessedArticles() throws Exception {
         // @formatter:off
 
         when()
-                .get("/kiosk/v1/articles/status/processed")
+                .get("/kiosk/v1/articles/list/0")
         .then()
                 .log().all()
                 .statusCode(HttpStatus.SC_OK)

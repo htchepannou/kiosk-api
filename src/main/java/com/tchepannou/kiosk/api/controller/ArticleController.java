@@ -12,6 +12,7 @@ import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.core.service.LogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +50,8 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Return an API by ID")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @ApiOperation("Return 1 article")
+    @RequestMapping(value = "/{articleId}", method = RequestMethod.GET)
     @ApiResponses(
             {
                     @ApiResponse(code = 200, message = "Success"),
@@ -58,34 +59,23 @@ public class ArticleController {
             }
     )
     public ResponseEntity<GetArticleResponse> getById(
-            @PathVariable final String id
+            @PathVariable final String articleId
     ) {
-        final GetArticleResponse response = service.get(id);
+        final GetArticleResponse response = service.get(articleId);
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Return a list of article ready to be read")
-    @RequestMapping( method = RequestMethod.GET)
+    @ApiOperation("Return a list of articles")
+    @RequestMapping(value = "/list/{page}", method = RequestMethod.GET)
     @ApiResponses(
             {
                     @ApiResponse(code = 200, message = "Success"),
             }
     )
-    public ResponseEntity<GetArticleListResponse> get() {
-        return getByStatus(Article.Status.processed.name());
-    }
-
-    @ApiOperation("Return a list of article by status")
-    @RequestMapping(value = "/status/{status}", method = RequestMethod.GET)
-    @ApiResponses(
-            {
-                    @ApiResponse(code = 200, message = "Success"),
-            }
-    )
-    public ResponseEntity<GetArticleListResponse> getByStatus(
-            @PathVariable final String status
+    public ResponseEntity<GetArticleListResponse> list(
+            @PathVariable @ApiParam(required = true, defaultValue = "0", value = "zero based index of the articles") final int page
     ) {
-        final GetArticleListResponse response = service.status(status);
+        final GetArticleListResponse response = service.findByStatus(Article.Status.processed.name(), page);
         return toResponseEntity(response);
     }
 
