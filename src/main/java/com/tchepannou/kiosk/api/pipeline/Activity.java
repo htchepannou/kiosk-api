@@ -1,6 +1,10 @@
 package com.tchepannou.kiosk.api.pipeline;
 
+import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.core.service.LogService;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -18,7 +22,10 @@ public abstract class Activity {
             return;
         }
 
-        log(event);
+        log.add("Activity", getName());
+        log.add("Topic", event.getTopic());
+        log.add("Success", true);
+
         doHandleEvent(event);
     }
 
@@ -30,13 +37,42 @@ public abstract class Activity {
 
     protected abstract void doHandleEvent(final Event event);
 
+    protected Document parseHtml(final String html, final Article article) {
+        Document doc = Jsoup.parse(html);
+        doc.setBaseUri(article.getFeed().getWebsite().getUrl());
+        return doc;
+    }
+
     protected String getName() {
         return getClass().getSimpleName();
     }
 
-    private void log(final Event event) {
-        log.add("Activity", getName());
-        log.add("Topic", event.getTopic());
+    protected void addToLog(final Article article) {
+        if (article == null) {
+            return;
+        }
+        log.add("ArticleTitle", article.getTitle());
+        log.add("ArticleUrl", article.getUrl());
+        log.add("ArticleId", article.getId());
     }
 
+    protected void addToLog(final Image image) {
+        if (image == null) {
+            return;
+        }
+        log.add("ImageUrl", image.getUrl());
+        log.add("ImageTitle", image.getTitle());
+        log.add("ImageWidth", image.getWidth());
+        log.add("ImageHeight", image.getHeight());
+    }
+
+    protected void addToLog(final Throwable ex) {
+        if (ex == null) {
+            return;
+        }
+
+        log.add("Success", false);
+        log.add("Exception", ex.getClass().getName());
+        log.add("ExceptionMessage", ex.getMessage());
+    }
 }

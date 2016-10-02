@@ -1,6 +1,9 @@
 package com.tchepannou.kiosk.api.domain;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -20,6 +23,9 @@ public class Article {
 
     @ManyToOne
     private Feed feed;
+
+    @ManyToOne
+    private Image image;
 
     private String url;
     private String title;
@@ -123,4 +129,29 @@ public class Article {
     public void setStatusReason(final String statusReason) {
         this.statusReason = statusReason;
     }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(final Image image) {
+        this.image = image;
+    }
+
+
+    @Override
+    public boolean equals(final Object obj){
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode (){
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public String toString(){
+        return ToStringBuilder.reflectionToString(this);
+    }
+
 }

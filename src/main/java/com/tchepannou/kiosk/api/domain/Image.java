@@ -1,10 +1,14 @@
 package com.tchepannou.kiosk.api.domain;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 @Entity
 public class Image {
@@ -19,6 +23,10 @@ public class Image {
     private String contentType;
     private int width;
     private int height;
+    private String publicUrl;
+
+    @Transient
+    private String base64Content;
 
     public static String generateId(final String url) {
         return url == null
@@ -81,4 +89,36 @@ public class Image {
     public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
+
+    public String getPublicUrl() {
+        return publicUrl;
+    }
+
+    public void setPublicUrl(final String publicUrl) {
+        this.publicUrl = publicUrl;
+    }
+
+    public String getBase64Content() {
+        return base64Content;
+    }
+
+    public void setBase64Content(final String base64Content) {
+        this.base64Content = base64Content;
+    }
+
+    @Override
+    public boolean equals(final Object obj){
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode (){
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public String toString(){
+        return ToStringBuilder.reflectionToString(this);
+    }
+
 }

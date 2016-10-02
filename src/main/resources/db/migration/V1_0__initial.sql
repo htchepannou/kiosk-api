@@ -71,6 +71,7 @@ CREATE TABLE article (
   id             CHAR(32) NOT NULL PRIMARY KEY,
 
   feed_id        BIGINT   NOT NULL REFERENCES feed (id),
+  image_id       CHAR(32),
 
   title          VARCHAR(256),
   slug           TEXT,
@@ -89,7 +90,8 @@ CREATE TABLE article (
 CREATE TABLE image(
   id             CHAR(32) NOT NULL PRIMARY KEY,
 
-  url            TEXT         NOT NULL,
+  url            TEXT,
+  public_url     TEXT         NOT NULL,
   image_key      VARCHAR(100) NOT NULL,
   content_type   VARCHAR(100),
   title          VARCHAR(256),

@@ -1,5 +1,9 @@
 package com.tchepannou.kiosk.api.domain;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -72,4 +76,21 @@ public class Feed {
     public void setWebsite(final Website website) {
         this.website = website;
     }
+
+
+    @Override
+    public boolean equals(final Object obj){
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode (){
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public String toString(){
+        return ToStringBuilder.reflectionToString(this);
+    }
+
 }
