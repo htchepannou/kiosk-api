@@ -26,6 +26,7 @@ import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
@@ -69,6 +70,10 @@ public class ArticleService {
     @Autowired
     LogService logService;
 
+    @Value("${kiosk.article.page.size}")
+    int pageSize = 20;
+
+
     //-- Public
     public GetArticleResponse get(final String id) {
         /* article */
@@ -89,8 +94,8 @@ public class ArticleService {
         return createGetArticleResponse(articleDto, null);
     }
 
-    public GetArticleListResponse status(final String status) {
-        final PageRequest pagination = new PageRequest(0, 20, Sort.Direction.DESC, "publishedDate");
+    public GetArticleListResponse findByStatus(final String status, final int page) {
+        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate");
         final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()), pagination);
 
         return createGetArticleListResponse(articles);
