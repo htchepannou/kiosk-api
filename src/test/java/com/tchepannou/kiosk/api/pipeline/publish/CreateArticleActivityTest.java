@@ -48,7 +48,7 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_ACCEPTED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_SUBMITTED);
     }
 
     @Test

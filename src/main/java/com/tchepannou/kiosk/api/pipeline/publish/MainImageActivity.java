@@ -7,15 +7,13 @@ import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.pipeline.support.ArticleImageSet;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,12 +45,11 @@ public class MainImageActivity extends Activity {
 
     @Override
     protected void doHandleEvent(final Event event) {
-        final Article article = (Article) event.getPayload();
+        final ArticleImageSet articleImageSet = (ArticleImageSet) event.getPayload();
+        final Article article = articleImageSet.getArticle();
         Image img = null;
         try {
-            final String html = fetchContent(article, Article.Status.submitted);
-
-            img = selectMainImage(html, article);
+            img = selectMainImage(articleImageSet);
             article.setImage(img);
             articleRepository.save(article);
 
@@ -63,24 +60,11 @@ public class MainImageActivity extends Activity {
 
     }
 
-    private void log(final Article article, final Image image, final Throwable ex) {
-        addToLog(article);
-        addToLog(image);
-        log.log(ex);
-    }
-
-    private Image selectMainImage(final String html, final Article article) {
-        final String baseUrl = article.getFeed().getWebsite().getUrl();
-        final Elements elts = imageService.extractImageTags(html, baseUrl);
-        if (elts.isEmpty()) {
-            return null;
-        }
+    private Image selectMainImage(final ArticleImageSet articleImageSet) {
 
         // Collect the size of all images
         final Map<Image, Integer> sizes = new HashMap<>();
-        for (final Element elt : elts) {
-            final String id = id(elt);
-            final Image img = imageRepository.findOne(id);
+        for (final Image img : articleImageSet.getImages()) {
             if (accept(img)) {
                 sizes.put(img, img.getHeight() * img.getWidth());
             }
@@ -94,7 +78,6 @@ public class MainImageActivity extends Activity {
             // return the 1st
             return lst.get(0);
         }
-
         return null;
     }
 
@@ -107,11 +90,9 @@ public class MainImageActivity extends Activity {
         return Image.generateId(src);
     }
 
-    private String fetchContent(final Article article, final Article.Status status) throws IOException {
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final String key = article.contentKey(status);
-        fileService.get(key, out);
-        return out.toString();
+    private void log(final Article article, final Image image, final Throwable ex) {
+        addToLog(article);
+        addToLog(image);
+        log.log(ex);
     }
 }

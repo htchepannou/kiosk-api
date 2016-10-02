@@ -5,7 +5,6 @@ import com.tchepannou.kiosk.api.pipeline.publish.DownloadImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImagesActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.MainImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.PublishArticleGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,11 +18,6 @@ public class PipelineConfig {
     @Bean
     ProcessArticleActivity processArticleActivity(){
         return new ProcessArticleActivity();
-    }
-
-    @Bean
-    PublishArticleGateway publishedGateway(){
-        return new PublishArticleGateway();
     }
 
     @Bean

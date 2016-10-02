@@ -2,8 +2,10 @@ package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.ImageMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
@@ -40,6 +42,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,6 +67,9 @@ public class ArticleServiceTest {
     LogService logService;
 
     @Mock
+    FeedRepository feedRepository;
+
+    @Mock
     TransactionIdProvider transactionIdProvider;
 
     @Mock
@@ -82,7 +88,7 @@ public class ArticleServiceTest {
 
     //-- GetArticle
     @Test
-    public void getArticleShouldReturnArticle() throws Exception {
+    public void shouldReturnArticle() throws Exception {
         // Given
         final Article article = Fixture.createArticle();
         final String articleId = article.getId();
@@ -110,7 +116,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void getArticleShouldReturnArticleWithImage() throws Exception {
+    public void shouldReturnArticleWithImage() throws Exception {
         // Given
         final Article article = Fixture.createArticle();
         final String articleId = article.getId();
@@ -143,7 +149,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void getArticleShouldReturnErrorWhenArticleNotFound() throws Exception {
+    public void shouldReturnErrorWhenArticleNotFound() throws Exception {
         // When
         final GetArticleResponse response = service.get("???");
 
@@ -155,7 +161,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void getArticleShouldReturnErrorWhenContentNotFound() throws Exception {
+    public void shouldReturnErrorWhenContentNotFound() throws Exception {
         // Given
         final Article article = Fixture.createArticle();
         final String articleId = article.getId();
@@ -183,6 +189,10 @@ public class ArticleServiceTest {
         // Given
         final PublishRequest request = Fixture.createPublishRequest();
 
+        when(articleRepository.findOne(any())).thenReturn(null);
+
+        when(feedRepository.findOne(any())).thenReturn(new Feed());
+
         // When
         final PublishResponse response = service.publish(request);
 
@@ -195,6 +205,75 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isTrue();
+    }
+
+    @Test
+    public void shouldRePublishIfForceIsSet() throws Exception {
+        // Given
+        final PublishRequest request = Fixture.createPublishRequest();
+        request.setForce(true);
+
+        when(articleRepository.findOne(any())).thenReturn(new Article());
+
+        when(feedRepository.findOne(any())).thenReturn(new Feed());
+
+        // When
+        final PublishResponse response = service.publish(request);
+
+        // Then
+        final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
+        verify(publisher).publishEvent(event.capture());
+        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_SUBMITTED);
+        assertThat(event.getValue().getPayload()).isEqualTo(request);
+
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticleId()).isNotNull();
+        assertThat(response.isSuccess()).isTrue();
+    }
+
+    @Test
+    public void shouldNotRePublishIfForceIsSet() throws Exception {
+        // Given
+        final PublishRequest request = Fixture.createPublishRequest();
+        request.setForce(false);
+
+        when(articleRepository.findOne(any())).thenReturn(new Article());
+
+        when(feedRepository.findOne(any())).thenReturn(new Feed());
+
+        // When
+        final PublishResponse response = service.publish(request);
+
+        // Then
+        verify(publisher, never()).publishEvent(any());
+
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticleId()).isNotNull();
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
+    }
+
+
+    @Test
+    public void shouldNotPublishIfFeedIsInvalid() throws Exception {
+        // Given
+        final PublishRequest request = Fixture.createPublishRequest();
+        request.setForce(false);
+
+        when(articleRepository.findOne(any())).thenReturn(null);
+
+        when(feedRepository.findOne(any())).thenReturn(null);
+
+        // When
+        final PublishResponse response = service.publish(request);
+
+        // Then
+        verify(publisher, never()).publishEvent(any());
+
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticleId()).isNotNull();
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.FEED_INVALID);
     }
 
     //-- Private

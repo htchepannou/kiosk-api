@@ -3,9 +3,11 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Image;
+import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.pipeline.support.ArticleImageSet;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.junit.Test;
@@ -36,6 +38,9 @@ public class ExtractImagesActivityTest extends ActivityTestSupport {
     @Mock
     ImageService imageService;
 
+    @Mock
+    ImageRepository imageRepository;
+
     @InjectMocks
     ExtractImagesActivity activity;
 
@@ -49,17 +54,20 @@ public class ExtractImagesActivityTest extends ActivityTestSupport {
 
         doAnswer(articleContent("html")).when(fileService).get(any(), any());
 
-        Image img1 = Fixture.createImage();
-        Image img2 = Fixture.createImage();
+        final Image img1 = Fixture.createImage();
+        final Image img2 = Fixture.createImage();
         when(imageService.extractImages(anyString(), anyString()))
                 .thenReturn(Arrays.asList(img1, img2));
+
+        when (imageRepository.findOne(img1.getId())).thenReturn(null);
+        when (imageRepository.findOne(img2.getId())).thenReturn(null);
 
         // When
         final Article article = Fixture.createArticle();
         activity.doHandleEvent(new Event("foo", article));
 
         // Then
-        ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
+        final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
         verify(publisher, times(3)).publishEvent(event.capture());
 
         assertThat(event.getAllValues().get(0).getTopic()).isEqualTo(PipelineConstants.TOPIC_IMAGE_SUBMITTED);
@@ -69,16 +77,15 @@ public class ExtractImagesActivityTest extends ActivityTestSupport {
         assertThat(event.getAllValues().get(1).getPayload()).isEqualTo(img2);
 
         assertThat(event.getAllValues().get(2).getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_IMAGES_DOWNLOADED);
-        assertThat(event.getAllValues().get(2).getPayload()).isEqualTo(article);
-
+        assertThat(event.getAllValues().get(2).getPayload()).isEqualTo(new ArticleImageSet(article, Arrays.asList(img1, img2)));
 
     }
 
-    private Answer articleContent(final String html) throws Exception{
+    private Answer articleContent(final String html) throws Exception {
         return new Answer() {
             @Override
             public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                final OutputStream out = (OutputStream)invocationOnMock.getArguments()[1];
+                final OutputStream out = (OutputStream) invocationOnMock.getArguments()[1];
                 out.write(html.getBytes());
                 return null;
             }

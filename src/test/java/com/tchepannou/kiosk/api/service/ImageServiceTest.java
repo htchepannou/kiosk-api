@@ -114,6 +114,7 @@ public class ImageServiceTest {
         assertThat(img1.getUrl()).isNull();
     }
 
+
     //-- Downlaod
     @Test
     public void shouldDownloadFromUrl() throws Exception {
@@ -156,7 +157,6 @@ public class ImageServiceTest {
 
         doAnswer(image("/img/ionic.png")).when(fileService).get(any(), any());
 
-
         // When
         final Image result = service.download(img);
 
@@ -165,7 +165,7 @@ public class ImageServiceTest {
         assertThat(result.getContentType()).isEqualTo(img.getContentType());
         assertThat(result.getHeight()).isEqualTo(128);
         assertThat(result.getId()).isEqualTo(img.getId());
-        assertThat(result.getKey()).isEqualTo("/images/" + img.getId() + "/0.png");
+        assertThat(result.getKey()).isEqualTo("images/" + img.getId() + "/0.png");
         assertThat(result.getPublicUrl()).isEqualTo("http://img.com/asset/image/" + img.getId());
         assertThat(result.getTitle()).isEqualTo(img.getTitle());
         assertThat(result.getUrl()).isEqualTo(img.getUrl());
