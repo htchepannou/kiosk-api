@@ -165,7 +165,7 @@ public class ImageServiceTest {
         assertThat(result.getContentType()).isEqualTo(img.getContentType());
         assertThat(result.getHeight()).isEqualTo(128);
         assertThat(result.getId()).isEqualTo(img.getId());
-        assertThat(result.getKey()).isEqualTo("/images/" + img.getId() + "/0.png");
+        assertThat(result.getKey()).isEqualTo("images/" + img.getId() + "/0.png");
         assertThat(result.getPublicUrl()).isEqualTo("http://img.com/asset/image/" + img.getId());
         assertThat(result.getTitle()).isEqualTo(img.getTitle());
         assertThat(result.getUrl()).isEqualTo(img.getUrl());
