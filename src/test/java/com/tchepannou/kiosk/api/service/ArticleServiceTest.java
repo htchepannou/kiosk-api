@@ -110,7 +110,6 @@ public class ArticleServiceTest {
         assertThat(response.isSuccess()).isTrue();
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticle()).isEqualTo(articleDto);
-        assertThat(response.getWebsite()).isEqualTo(websiteDto);
 
         assertThat(articleDto.getContent()).isEqualTo("hello world");
     }
@@ -142,8 +141,6 @@ public class ArticleServiceTest {
         assertThat(response.isSuccess()).isTrue();
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticle()).isEqualTo(articleDto);
-        assertThat(response.getWebsite()).isEqualTo(websiteDto);
-        assertThat(response.getImage()).isEqualTo(imageDto);
 
         assertThat(articleDto.getContent()).isEqualTo("hello world");
     }

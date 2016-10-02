@@ -59,16 +59,16 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("article.publishedDate", startsWith("2013-11-15"))
                 .body("article.content", is(content))
 
-                .body("website.id", is(100))
-                .body("website.name", is("Mboa Football"))
-                .body("website.url", is("http://www.mboafootball.com"))
+                .body("article.website.id", is(100))
+                .body("article.website.name", is("Mboa Football"))
+                .body("article.website.url", is("http://www.mboafootball.com"))
 
-                .body("image.id", is("100"))
-                .body("image.title", is("sample image"))
-                .body("image.contentType", is("image/png"))
-                .body("image.width", is(128))
-                .body("image.height", is(256))
-                .body("image.publicUrl", is("http://public.x.com/11.png"))
+                .body("article.image.id", is("100"))
+                .body("article.image.title", is("sample image"))
+                .body("article.image.contentType", is("image/png"))
+                .body("article.image.width", is(128))
+                .body("article.image.height", is(256))
+                .body("article.image.publicUrl", is("http://public.x.com/11.png"))
         ;
 
         // @formatter:on

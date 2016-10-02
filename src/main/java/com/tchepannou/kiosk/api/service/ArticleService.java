@@ -28,6 +28,8 @@ import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
 
 import java.io.ByteArrayOutputStream;
@@ -67,44 +69,37 @@ public class ArticleService {
     @Autowired
     LogService logService;
 
-
     //-- Public
     public GetArticleResponse get(final String id) {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
-            return createGetArticleResponse(null, null, null, ErrorConstants.ARTICLE_NOT_FOUND);
+            return createGetArticleResponse(null, ErrorConstants.ARTICLE_NOT_FOUND);
         }
-        final ArticleDto articleDto = articleMapper.toArticleDto(article);
-
-        /* website */
-        final Website website = article.getFeed().getWebsite();
-        final WebsiteDto websiteDto = websiteMapper.toWebsiteDto(website);
-
-        /* image */
-        final Image image = article.getImage();
-        final ImageDto imageDto = image != null ? imageMapper.toImageDto(image) : null;
+        final ArticleDto articleDto = toArticleDto(article);
 
         /* Get the content */
         final String html = fetchContent(article, article.getStatus());
         if (html == null) {
-            return createGetArticleResponse(null, null, null, ErrorConstants.CONTENT_NOT_FOUND);
+            return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
         }
         articleDto.setContent(html);
 
         /* result */
-        return createGetArticleResponse(articleDto, websiteDto, imageDto, null);
+        return createGetArticleResponse(articleDto, null);
     }
 
     public GetArticleListResponse status(final String status) {
-        final List<Article> articles = articleRepository.findByStatusOrderByPublishedDateDesc(Article.Status.valueOf(status.toLowerCase()));
+        final PageRequest pagination = new PageRequest(0, 20, Sort.Direction.DESC, "publishedDate");
+        final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()), pagination);
+
         return createGetArticleListResponse(articles);
     }
 
     public PublishResponse publish(final PublishRequest request) throws IOException {
         final ArticleDataDto requestArticle = request.getArticle();
         final String articleId = Article.generateId(requestArticle.getUrl());
-        Article article = articleRepository.findOne(articleId);
+        final Article article = articleRepository.findOne(articleId);
         if (article != null && !request.isForce()) {
             return createPublishResponse(articleId, ErrorConstants.ALREADY_PUBLISHED);
         }
@@ -163,16 +158,9 @@ public class ArticleService {
         return response;
     }
 
-    private GetArticleResponse createGetArticleResponse(
-            final ArticleDto article,
-            final WebsiteDto website,
-            final ImageDto image,
-            final String code
-    ) {
+    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final String code) {
         final GetArticleResponse response = new GetArticleResponse();
         response.setArticle(article);
-        response.setWebsite(website);
-        response.setImage(image);
         response.setTransactionId(transactionIdProvider.get());
         if (code != null) {
             response.setError(new ErrorDto(code));
@@ -181,14 +169,32 @@ public class ArticleService {
     }
 
     private GetArticleListResponse createGetArticleListResponse(final List<Article> articles) {
-        final List<ArticleDto> dtos = articles
+        final List<ArticleDto> articleDtos = articles
                 .stream()
-                .map(a -> articleMapper.toArticleDto(a))
+                .map(a -> toArticleDto(a))
                 .collect(Collectors.toList());
 
         final GetArticleListResponse response = new GetArticleListResponse();
         response.setTransactionId(transactionIdProvider.get());
-        response.setArticles(dtos);
+        response.setArticles(articleDtos);
         return response;
+    }
+
+    private ArticleDto toArticleDto(final Article article) {
+        final ArticleDto articleDto = articleMapper.toArticleDto(article);
+
+        final Website website = article.getFeed().getWebsite();
+        final WebsiteDto websiteDto = website != null
+                ? websiteMapper.toWebsiteDto(website)
+                : null;
+        articleDto.setWebsite(websiteDto);
+
+        final Image image = article.getImage();
+        final ImageDto imageDto = image != null
+                ? imageMapper.toImageDto(image)
+                : null;
+        articleDto.setImage(imageDto);
+
+        return articleDto;
     }
 }
