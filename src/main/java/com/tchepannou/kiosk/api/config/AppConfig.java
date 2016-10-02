@@ -6,9 +6,11 @@ import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
+import com.tchepannou.kiosk.api.mapper.ImageMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.FeedService;
+import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
@@ -22,6 +24,7 @@ import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import com.tchepannou.kiosk.core.servlet.LogFilter;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -187,5 +190,20 @@ public class AppConfig {
         return new ArticleFilterSet(Arrays.asList(
                 new ArticleTitleFilter(titleMaxLength)
         ));
+    }
+
+    @Bean
+    Tika tika(){
+        return new Tika();
+    }
+
+    @Bean
+    ImageMapper imageMapper(){
+        return new ImageMapper();
+    }
+
+    @Bean
+    ImageService imageService(){
+        return new ImageService();
     }
 }

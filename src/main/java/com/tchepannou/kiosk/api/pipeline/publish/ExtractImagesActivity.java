@@ -5,20 +5,21 @@ import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.core.service.FileService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class ExtractImagesActivity extends Activity {
     @Autowired
     FileService fileService;
+
+    @Autowired
+    ImageService imageService;
 
     @Override
     protected String getTopic() {
@@ -27,32 +28,26 @@ public class ExtractImagesActivity extends Activity {
 
     @Override
     protected void doHandleEvent(final Event event) {
-        Elements img = null;
         final Article article = (Article) event.getPayload();
+        List<Image> images = Collections.emptyList();
         try {
+
             final String html = fetchContent(article, Article.Status.submitted);
+            final String baseUrl = article.getFeed().getWebsite().getUrl();
 
-            final Document doc = Jsoup.parse(html);
-            img = doc.body().select("img");
-            for (final Element elt : img) {
-                handleImage(elt);
+            images = imageService.extractImages(html, baseUrl);
+            for (final Image img : images){
+                publishEvent(new Event(PipelineConstants.TOPIC_IMAGE_SUBMITTED, img));
             }
-            log(article, img, null);
+            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_IMAGES_DOWNLOADED, article));
+
+            log(article, images, null);
+
         } catch (Exception ex){
-            log(article, img, ex);
+
+            log(article, images, ex);
+
         }
-    }
-
-    private void handleImage(final Element elt){
-        final String url = elt.attr("src");
-        final String id = Image.generateId(url);
-        final Image image = new Image();
-
-        image.setId(id);
-        image.setTitle(elt.attr("alt"));
-        image.setUrl(url);
-        image.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(url));
-        publishEvent(new Event(PipelineConstants.TOPIC_IMAGE_SUBMITTED, image));
     }
 
     private String fetchContent(final Article article, final Article.Status status) throws IOException {
@@ -62,20 +57,10 @@ public class ExtractImagesActivity extends Activity {
         return out.toString();
     }
 
-    private void log(final Article article, final Elements img, final Throwable ex){
-        log.add("Title", article.getTitle());
-        log.add("Url", article.getUrl());
-        log.add("Id", article.getId());
-        log.add("ImageCount", img.size());
-
-        if (ex != null) {
-            log.add("Success", false);
-            log.add("Exception", ex.getClass().getName());
-            log.add("ExceptionMessage", ex.getMessage());
-            log.log(ex);
-        } else {
-            log.add("Success", true);
-            log.log();
-        }
+    private void log(final Article article, final List<Image> images, final Throwable ex){
+        log.add("ImageCount", images.size());
+        addToLog(article);
+        addToLog(ex);
+        log.log(ex);
     }
 }

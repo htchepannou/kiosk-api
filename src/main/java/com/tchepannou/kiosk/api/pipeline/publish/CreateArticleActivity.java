@@ -17,11 +17,9 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-@Transactional
 public class CreateArticleActivity extends Activity{
     @Autowired
     ArticleMapper articleMapper;
@@ -89,18 +87,8 @@ public class CreateArticleActivity extends Activity{
     }
 
     protected void log(final Article article, final Throwable ex) {
-        log.add("Title", article.getTitle());
-        log.add("Url", article.getUrl());
-        log.add("Id", article.getId());
-
-        if (ex != null) {
-            log.add("Success", false);
-            log.add("Exception", ex.getClass().getName());
-            log.add("ExceptionMessage", ex.getMessage());
-            log.log(ex);
-        } else {
-            log.add("Success", true);
-            log.log();
-        }
+        addToLog(article);
+        addToLog(ex);
+        log.log(ex);
     }
 }

@@ -1,9 +1,12 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
+import com.tchepannou.kiosk.api.mapper.ImageMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
@@ -12,6 +15,7 @@ import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ErrorDto;
 import com.tchepannou.kiosk.client.dto.GetArticleListResponse;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
+import com.tchepannou.kiosk.client.dto.ImageDto;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.client.dto.WebsiteDto;
@@ -43,7 +47,13 @@ public class ArticleService {
     ArticleMapper articleMapper;
 
     @Autowired
+    ImageMapper imageMapper;
+
+    @Autowired
     WebsiteMapper websiteMapper;
+
+    @Autowired
+    ImageRepository imageRepository;
 
     @Autowired
     TransactionIdProvider transactionIdProvider;
@@ -57,7 +67,7 @@ public class ArticleService {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
-            return createGetArticleResponse(null, null, ErrorConstants.ARTICLE_NOT_FOUND);
+            return createGetArticleResponse(null, null, null, ErrorConstants.ARTICLE_NOT_FOUND);
         }
         final ArticleDto articleDto = articleMapper.toArticleDto(article);
 
@@ -65,15 +75,19 @@ public class ArticleService {
         final Website website = article.getFeed().getWebsite();
         final WebsiteDto websiteDto = websiteMapper.toWebsiteDto(website);
 
+        /* image */
+        final Image image = article.getImage();
+        final ImageDto imageDto = image != null ? imageMapper.toImageDto(image) : null;
+
         /* Get the content */
         final String html = fetchContent(article, article.getStatus());
         if (html == null) {
-            return createGetArticleResponse(null, null, ErrorConstants.CONTENT_NOT_FOUND);
+            return createGetArticleResponse(null, null, null, ErrorConstants.CONTENT_NOT_FOUND);
         }
         articleDto.setContent(html);
 
         /* result */
-        return createGetArticleResponse(articleDto, websiteDto, null);
+        return createGetArticleResponse(articleDto, websiteDto, imageDto, null);
     }
 
     public GetArticleListResponse status(final String status) {
@@ -125,10 +139,16 @@ public class ArticleService {
         return response;
     }
 
-    private GetArticleResponse createGetArticleResponse(final ArticleDto article, final WebsiteDto website, final String code) {
+    private GetArticleResponse createGetArticleResponse(
+            final ArticleDto article,
+            final WebsiteDto website,
+            final ImageDto image,
+            final String code
+    ) {
         final GetArticleResponse response = new GetArticleResponse();
         response.setArticle(article);
         response.setWebsite(website);
+        response.setImage(image);
         response.setTransactionId(transactionIdProvider.get());
         if (code != null) {
             response.setError(new ErrorDto(code));

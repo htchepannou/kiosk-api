@@ -50,16 +50,17 @@ public class Fixture {
 
     public static Image createImage(){
         final Image img = new Image();
-        final String url = "http://img.com/foo.jpeg";
+        final long id = ++uid;
+        final String url = "http://img.com/" + id + ".jpeg";
 
         img.setContentType("image/jpeg");
         img.setHeight(100);
         img.setId(Image.generateId(url));
-        img.setKey("images/121198/0.jpeg");
+        img.setKey("img/" + id + "/0.jpeg");
         img.setTitle("Test Image");
         img.setUrl(url);
         img.setWidth(120);
-
+        img.setPublicUrl("http://img.com/images/121198/0.jpeg");
         return img;
     }
 

@@ -11,12 +11,10 @@ import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-@Transactional
 public class ProcessArticleActivity extends Activity {
     @Autowired
     FileService fileService;
@@ -65,20 +63,10 @@ public class ProcessArticleActivity extends Activity {
     }
 
     protected void log(final Article article, final String validationReason, final Throwable ex) {
-        log.add("Title", article.getTitle());
-        log.add("Url", article.getUrl());
-        log.add("Id", article.getId());
-
-        if (ex != null) {
-            log.add("Success", false);
-            log.add("Exception", ex.getClass().getName());
-            log.add("ExceptionMessage", ex.getMessage());
-            log.log(ex);
-        } else {
-            log.add("Success", validationReason == null);
-            log.add("Reason", validationReason);
-            log.log();
-        }
+        log.add("Reason", validationReason);
+        addToLog(article);
+        addToLog(ex);
+        log.log(ex);
     }
 
     private String fetchContent(final Article article, final Article.Status status) throws IOException {

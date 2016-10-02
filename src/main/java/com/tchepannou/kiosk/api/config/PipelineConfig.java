@@ -3,6 +3,7 @@ package com.tchepannou.kiosk.api.config;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.DownloadImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImagesActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.MainImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.PublishArticleGateway;
 import org.springframework.context.annotation.Bean;
@@ -33,5 +34,10 @@ public class PipelineConfig {
     @Bean
     ExtractImagesActivity extractImagesActivity(){
         return new ExtractImagesActivity();
+    }
+
+    @Bean
+    MainImageActivity mainImageActivity() {
+        return new MainImageActivity();
     }
 }

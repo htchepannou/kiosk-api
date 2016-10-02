@@ -62,6 +62,13 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("website.id", is(100))
                 .body("website.name", is("Mboa Football"))
                 .body("website.url", is("http://www.mboafootball.com"))
+
+                .body("image.id", is("100"))
+                .body("image.title", is("sample image"))
+                .body("image.contentType", is("image/png"))
+                .body("image.width", is(128))
+                .body("image.height", is(256))
+                .body("image.publicUrl", is("http://public.x.com/11.png"))
         ;
 
         // @formatter:on

@@ -19,7 +19,6 @@
         <project.sourceEncoding>UTF-8</project.sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <activation.version>1.1.1</activation.version>
         <kiosk-core.version>1.0-SNAPSHOT</kiosk-core.version>
         <kiosk-client.version>1.0-SNAPSHOT</kiosk-client.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -31,6 +30,7 @@
         <assertj.version>3.0.0</assertj.version>
         <mockito.version>1.9.5</mockito.version>
         <restassured.version>2.4.0</restassured.version>
+        <tika-core.version>1.4</tika-core.version>
     </properties>
 
     <dependencies>
@@ -100,11 +100,6 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>${commons-codec.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>${activation.version}</version>
         </dependency>
 
 
