@@ -42,7 +42,7 @@ public class CreateArticleActivity extends Activity{
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_ACCEPTED;
+        return PipelineConstants.TOPIC_ARTICLE_SUBMITTED;
     }
 
     @Override

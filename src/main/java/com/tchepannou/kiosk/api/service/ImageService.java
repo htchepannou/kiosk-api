@@ -18,8 +18,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ImageService {
     @Autowired
@@ -34,20 +34,16 @@ public class ImageService {
     @Value("${kiosk.image.public.baseUrl}")
     String publicBaseUrl;
 
-    public Elements extractImageTags(final String html, final String baseUrl) {
-        final Document doc = parseHtml(html, baseUrl);
-        doc.select("iframe").remove();      // Remove all iframes that contains external images
-        return doc.body().select("img");
-    }
-
     public List<Image> extractImages(final String html, final String baseUrl) {
         final Elements elts = extractImageTags(html, baseUrl);
-
-        return elts.stream()
-                .map(elt -> toImage(elt))
-                .filter(img -> img != null)
-                .distinct()
-                .collect(Collectors.toList());
+        final List<Image> imgs = new ArrayList<>();
+        for (final Element elt : elts){
+            final Image img = toImage(elt);
+            if (img != null && !imgs.contains(img)){
+                imgs.add(img);
+            }
+        }
+        return imgs;
     }
 
     public Image download(final Image img) throws IOException {
@@ -67,6 +63,12 @@ public class ImageService {
             return img;
         }
         return null;
+    }
+
+    private Elements extractImageTags(final String html, final String baseUrl) {
+        final Document doc = parseHtml(html, baseUrl);
+        doc.body().select("iframe").remove();      // Remove all iframes that contains external images
+        return doc.body().select("img");
     }
 
     private String doDownload(final Image img) throws IOException {
@@ -99,7 +101,7 @@ public class ImageService {
     }
 
     private String keyPrefix(final Image img) {
-        return "/images/" + img.getId() + "/0";
+        return "images/" + img.getId() + "/0";
     }
 
     private String publicUrl(final Image img) {

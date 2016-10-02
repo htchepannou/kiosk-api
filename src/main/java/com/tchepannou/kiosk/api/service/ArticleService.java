@@ -1,15 +1,18 @@
 package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.ImageMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.client.dto.ArticleDataDto;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.ErrorDto;
@@ -56,6 +59,9 @@ public class ArticleService {
     ImageRepository imageRepository;
 
     @Autowired
+    FeedRepository feedRepository;
+
+    @Autowired
     TransactionIdProvider transactionIdProvider;
 
     @Autowired
@@ -96,10 +102,21 @@ public class ArticleService {
     }
 
     public PublishResponse publish(final PublishRequest request) throws IOException {
-        publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
+        final ArticleDataDto requestArticle = request.getArticle();
+        final String articleId = Article.generateId(requestArticle.getUrl());
+        Article article = articleRepository.findOne(articleId);
+        if (article != null && !request.isForce()) {
+            return createPublishResponse(articleId, ErrorConstants.ALREADY_PUBLISHED);
+        }
 
-        final String articleId = Article.generateId(request.getArticle().getUrl());
+        final Feed feed = feedRepository.findOne(request.getFeedId());
+        if (feed == null) {
+            return createPublishResponse(articleId, ErrorConstants.FEED_INVALID);
+        }
+
+        publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
         return createPublishResponse(articleId);
+
     }
 
     //-- Private
@@ -133,9 +150,16 @@ public class ArticleService {
     }
 
     private PublishResponse createPublishResponse(final String articleId) {
+        return createPublishResponse(articleId, null);
+    }
+
+    private PublishResponse createPublishResponse(final String articleId, final String code) {
         final PublishResponse response = new PublishResponse();
         response.setTransactionId(transactionIdProvider.get());
         response.setArticleId(articleId);
+        if (code != null) {
+            response.setError(new ErrorDto(code));
+        }
         return response;
     }
 

@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RestController
-@Api(basePath = "/kiosk/v1/asset", value = "Asset API")
-@RequestMapping(value = "/kiosk/v1/asset")
+@Api(basePath = "/kiosk/v1/assets", value = "Asset API")
+@RequestMapping(value = "/kiosk/v1/assets")
 public class AssetController {
     @Autowired
     ImageRepository imageRepository;
@@ -29,7 +29,7 @@ public class AssetController {
     @Autowired
     FileService fileService;
 
-    @RequestMapping(value = "/image/{imageId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/images/{imageId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<InputStreamResource> image(@PathVariable final String imageId) throws IOException {
         final Image img = imageRepository.findOne(imageId);

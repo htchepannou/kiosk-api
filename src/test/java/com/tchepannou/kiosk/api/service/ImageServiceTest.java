@@ -114,6 +114,7 @@ public class ImageServiceTest {
         assertThat(img1.getUrl()).isNull();
     }
 
+
     //-- Downlaod
     @Test
     public void shouldDownloadFromUrl() throws Exception {
@@ -155,7 +156,6 @@ public class ImageServiceTest {
         service.publicBaseUrl = "http://img.com/asset/image";
 
         doAnswer(image("/img/ionic.png")).when(fileService).get(any(), any());
-
 
         // When
         final Image result = service.download(img);

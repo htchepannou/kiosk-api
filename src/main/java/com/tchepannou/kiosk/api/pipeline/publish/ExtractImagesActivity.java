@@ -2,15 +2,18 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Image;
+import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.pipeline.support.ArticleImageSet;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +23,9 @@ public class ExtractImagesActivity extends Activity {
 
     @Autowired
     ImageService imageService;
+
+    @Autowired
+    ImageRepository imageRepository;
 
     @Override
     protected String getTopic() {
@@ -35,11 +41,21 @@ public class ExtractImagesActivity extends Activity {
             final String html = fetchContent(article, Article.Status.submitted);
             final String baseUrl = article.getFeed().getWebsite().getUrl();
 
+            /* extract images */
             images = imageService.extractImages(html, baseUrl);
+
+            /* merge with DB */
+            List<Image> merged = new ArrayList<>();
+            for (final Image img : images){
+                final Image ximg = imageRepository.findOne(img.getId());
+                merged.add(ximg == null ? img : ximg);
+            }
+
+            /* publish */
             for (final Image img : images){
                 publishEvent(new Event(PipelineConstants.TOPIC_IMAGE_SUBMITTED, img));
             }
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_IMAGES_DOWNLOADED, article));
+            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_IMAGES_DOWNLOADED, new ArticleImageSet(article, merged)));
 
             log(article, images, null);
 

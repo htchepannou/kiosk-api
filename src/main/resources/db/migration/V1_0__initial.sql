@@ -15,7 +15,7 @@ INSERT INTO website VALUES (1001, 'Mboa Football', 'http://www.mboafootball.com'
 INSERT INTO website VALUES (1002, 'Cameroon Post Online', 'http://www.cameroonpostline.com', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1003, 'Spark Cameroon', 'http://www.sparkcameroun.com/', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1004, 'Cameroon Post', 'http://www.cameroonpostline.com/', NULL, NULL, NULL, NULL, TRUE);
-INSERT INTO website VALUES (1005, 'camer.be', 'http://www.camer.be/rss.php', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1005, 'camer.be', 'http://www.camer.be', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1006, 'camer24.de', 'http://www.camer24.de', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1007, 'Culture Ebene', 'http://www.culturebene.com', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1008, 'Cameroun Sports', 'http://www.camerounsports.info', NULL, NULL, NULL, NULL, TRUE);
