@@ -7,8 +7,8 @@ import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.core.service.FileService;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +30,9 @@ public class MainImageActivity extends Activity {
 
     @Autowired
     FileService fileService;
+
+    @Autowired
+    ImageService imageService;
 
     @Value("${kiosk.image.minWidth}")
     int minWidth;
@@ -67,8 +70,8 @@ public class MainImageActivity extends Activity {
     }
 
     private Image selectMainImage(final String html, final Article article) {
-        final Document doc = parseHtml(html, article);
-        final Elements elts = doc.body().select("img");
+        final String baseUrl = article.getFeed().getWebsite().getUrl();
+        final Elements elts = imageService.extractImageTags(html, baseUrl);
         if (elts.isEmpty()) {
             return null;
         }

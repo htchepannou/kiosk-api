@@ -34,13 +34,19 @@ public class ImageService {
     @Value("${kiosk.image.public.baseUrl}")
     String publicBaseUrl;
 
-    public List<Image> extractImages(final String html, final String baseUrl) {
+    public Elements extractImageTags(final String html, final String baseUrl) {
         final Document doc = parseHtml(html, baseUrl);
-        final Elements elts = doc.body().select("img");
+        doc.select("iframe").remove();      // Remove all iframes that contains external images
+        return doc.body().select("img");
+    }
+
+    public List<Image> extractImages(final String html, final String baseUrl) {
+        final Elements elts = extractImageTags(html, baseUrl);
 
         return elts.stream()
                 .map(elt -> toImage(elt))
                 .filter(img -> img != null)
+                .distinct()
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +59,7 @@ public class ImageService {
             key = doStoreBase64Content(img);
         }
 
-        if (key != null){
+        if (key != null) {
             img.setKey(key);
             img.setPublicUrl(publicUrl(img));
             getDimension(img);
@@ -78,7 +84,7 @@ public class ImageService {
 
     private String doStoreBase64Content(final Image img) throws IOException {
         final byte[] bytes = DatatypeConverter.parseBase64Binary(img.getBase64Content());
-        try (final ByteArrayInputStream in = new ByteArrayInputStream(bytes)){
+        try (final ByteArrayInputStream in = new ByteArrayInputStream(bytes)) {
             final BufferedImage image = ImageIO.read(in);
 
             try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {

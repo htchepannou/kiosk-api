@@ -2,14 +2,17 @@ package com.tchepannou.kiosk.api.service;
 
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
+import com.tchepannou.kiosk.api.mapper.ImageMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
+import com.tchepannou.kiosk.client.dto.ImageDto;
 import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
@@ -63,6 +66,9 @@ public class ArticleServiceTest {
     @Mock
     TransactionIdProvider transactionIdProvider;
 
+    @Mock
+    ImageMapper imageMapper;
+
     @InjectMocks
     ArticleService service;
 
@@ -99,6 +105,39 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticle()).isEqualTo(articleDto);
         assertThat(response.getWebsite()).isEqualTo(websiteDto);
+
+        assertThat(articleDto.getContent()).isEqualTo("hello world");
+    }
+
+    @Test
+    public void getArticleShouldReturnArticleWithImage() throws Exception {
+        // Given
+        final Article article = Fixture.createArticle();
+        final String articleId = article.getId();
+        when(articleRepository.findOne(articleId)).thenReturn(article);
+
+        final ArticleDto articleDto = new ArticleDto();
+        when(articleMapper.toArticleDto(article)).thenReturn(articleDto);
+
+        final WebsiteDto websiteDto = new WebsiteDto();
+        when(websiteMapper.toWebsiteDto(any())).thenReturn(websiteDto);
+
+        article.setImage(new Image());
+        final ImageDto imageDto = new ImageDto();
+        when(imageMapper.toImageDto(any())).thenReturn(imageDto);
+
+        final String html = "hello world";
+        doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
+
+        // When
+        final GetArticleResponse response = service.get(articleId);
+
+        // Then
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticle()).isEqualTo(articleDto);
+        assertThat(response.getWebsite()).isEqualTo(websiteDto);
+        assertThat(response.getImage()).isEqualTo(imageDto);
 
         assertThat(articleDto.getContent()).isEqualTo("hello world");
     }
@@ -157,7 +196,6 @@ public class ArticleServiceTest {
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isTrue();
     }
-
 
     //-- Private
     private ProcessRequest createProcessRequest(final String articleId) {
