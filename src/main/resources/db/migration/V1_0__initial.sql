@@ -82,10 +82,15 @@ CREATE TABLE article (
   url            TEXT     NOT NULL,
   status_reason  VARCHAR(30),
   content_length INTEGER DEFAULT 0,
+  rank           INTEGER,
 
-  insertdatetime DATETIME DEFAULT now()
+  insertdatetime DATETIME DEFAULT now(),
+
+  KEY article_rank (rank),
+  KEY article_published_date (published_date)
 )
   ENGINE = InnoDB;
+
 
 -- images
 CREATE TABLE image(

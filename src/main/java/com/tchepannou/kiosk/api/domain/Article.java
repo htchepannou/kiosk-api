@@ -36,6 +36,7 @@ public class Article {
     private Status status;
     private String statusReason;
     private int contentLength;
+    private int rank;
 
     public Article() {
     }
@@ -139,6 +140,21 @@ public class Article {
         this.image = image;
     }
 
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(final int contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(final int rank) {
+        this.rank = rank;
+    }
 
     @Override
     public boolean equals(final Object obj){
@@ -155,11 +171,4 @@ public class Article {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public int getContentLength() {
-        return contentLength;
-    }
-
-    public void setContentLength(final int contentLength) {
-        this.contentLength = contentLength;
-    }
 }

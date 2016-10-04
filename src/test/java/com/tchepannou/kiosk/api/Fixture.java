@@ -77,6 +77,7 @@ public class Fixture {
         article.setStatus(Article.Status.submitted);
         article.setTitle("This is title");
         article.setUrl("http://article.com/" + id);
+        article.setContentLength(100);
 
         return article;
     }
