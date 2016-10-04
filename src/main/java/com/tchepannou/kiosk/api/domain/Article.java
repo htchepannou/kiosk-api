@@ -35,6 +35,7 @@ public class Article {
     private Date publishedDate;
     private Status status;
     private String statusReason;
+    private int contentLength;
 
     public Article() {
     }
@@ -154,4 +155,11 @@ public class Article {
         return ToStringBuilder.reflectionToString(this);
     }
 
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(final int contentLength) {
+        this.contentLength = contentLength;
+    }
 }

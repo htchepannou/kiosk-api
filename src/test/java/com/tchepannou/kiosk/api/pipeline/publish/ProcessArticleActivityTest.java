@@ -75,6 +75,7 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article);
 
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
+        assertThat(article.getContentLength()).isEqualTo(8);
         verify(articleRepository).save(article);
 
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);

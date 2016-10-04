@@ -81,6 +81,7 @@ CREATE TABLE article (
   status         INT,
   url            TEXT     NOT NULL,
   status_reason  VARCHAR(30),
+  content_length INTEGER DEFAULT 0,
 
   insertdatetime DATETIME DEFAULT now()
 )

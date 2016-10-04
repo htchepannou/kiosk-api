@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PipelineConfig {
+    //-- Pipeline Activities
     @Bean
     CreateArticleActivity createArticleActivity(){
         return new CreateArticleActivity();
