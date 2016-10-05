@@ -10,5 +10,5 @@ import java.util.List;
 public interface ArticleRepository extends CrudRepository<Article, String> {
     List<Article> findByStatus(Article.Status status, Pageable page);
 
-    List<Article> findByStatusByPublishedDateBetween(Article.Status status, Date start, Date end, Pageable page);
+    List<Article> findByStatusAndPublishedDateBetween(Article.Status status, Date start, Date end, Pageable page);
 }

@@ -35,8 +35,8 @@ public class Article {
     private Date publishedDate;
     private Status status;
     private String statusReason;
-    private int contentLength;
-    private int rank;
+    private Integer contentLength;
+    private Integer rank;
 
     public Article() {
     }
@@ -140,19 +140,19 @@ public class Article {
         this.image = image;
     }
 
-    public int getContentLength() {
+    public Integer getContentLength() {
         return contentLength;
     }
 
-    public void setContentLength(final int contentLength) {
+    public void setContentLength(final Integer contentLength) {
         this.contentLength = contentLength;
     }
 
-    public int getRank() {
+    public Integer getRank() {
         return rank;
     }
 
-    public void setRank(final int rank) {
+    public void setRank(final Integer rank) {
         this.rank = rank;
     }
 

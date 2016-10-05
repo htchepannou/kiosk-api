@@ -95,7 +95,7 @@ public class ArticleService {
     }
 
     public GetArticleListResponse findByStatus(final String status, final int page) {
-        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate");
+        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.ASC, "rank");
         final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()), pagination);
 
         return createGetArticleListResponse(articles);

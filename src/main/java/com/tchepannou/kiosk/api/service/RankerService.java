@@ -61,7 +61,7 @@ public class RankerService {
         final Date start = DateUtils.addDays(end, -1);
         for (int i=0 ; i<10 ; i++){
             final PageRequest page = new PageRequest(i, 1000);
-            List<Article> result = articleRepository.findByStatusByPublishedDateBetween(
+            List<Article> result = articleRepository.findByStatusAndPublishedDateBetween(
                     Article.Status.processed,
                     start,
                     end,

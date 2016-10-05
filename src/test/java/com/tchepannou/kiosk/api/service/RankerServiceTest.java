@@ -50,7 +50,7 @@ public class RankerServiceTest {
         final Article a1 = createArticle("1");
         final Article a2 = createArticle("2");
         final Article a3 = createArticle("3");
-        when(articleRepository.findByStatusByPublishedDateBetween(any(), any(), any(), any()))
+        when(articleRepository.findByStatusAndPublishedDateBetween(any(), any(), any(), any()))
                 .thenReturn(Arrays.asList(a1, a2, a3));
 
         final Rankable r1 = createRankable(a1);
