@@ -11,6 +11,7 @@ import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
+import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +45,9 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
     @Mock
     ArticleRepository articleRepository;
 
+    @Mock
+    TextFilterSet textFilterSet;
+
     @InjectMocks
     CreateArticleActivity activity;
 
@@ -62,6 +67,9 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
         final Feed feed = Fixture.createFeed();
         when(feedRepository.findOne(request.getFeedId())).thenReturn(feed);
 
+        final String content = "!!! content !!!";
+        when(textFilterSet.filter(any())).thenReturn(content);
+
         // When
         final Event event = new Event("foo", request);
         activity.doHandleEvent(event);
@@ -76,6 +84,6 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
         verify(fileService).put(key.capture(), in.capture());
 
         assertThat(key.getValue()).isEqualTo(article.contentKey(Article.Status.submitted));
-        assertThat(IOUtils.toString(in.getValue())).isEqualTo(request.getArticle().getContent());
+        assertThat(IOUtils.toString(in.getValue())).isEqualTo(content);
     }
 }
