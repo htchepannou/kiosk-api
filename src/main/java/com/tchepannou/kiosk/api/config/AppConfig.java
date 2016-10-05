@@ -2,8 +2,6 @@ package com.tchepannou.kiosk.api.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
-import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.mapper.FeedMapper;
 import com.tchepannou.kiosk.api.mapper.ImageMapper;
@@ -12,12 +10,6 @@ import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.FeedService;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.api.service.WebsiteService;
-import com.tchepannou.kiosk.core.filter.ContentFilter;
-import com.tchepannou.kiosk.core.filter.SanitizeFilter;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.filter.TrimFilter;
-import com.tchepannou.kiosk.core.rule.TextLengthRule;
-import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.HttpService;
 import com.tchepannou.kiosk.core.service.LogService;
@@ -41,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.TimeZone;
 
 /**
@@ -49,15 +40,6 @@ import java.util.TimeZone;
  */
 @Configuration
 public class AppConfig {
-    @Value("${kiosk.filters.ContentFilter.blocMinLength}")
-    int minBlocLength;
-
-    @Value("${kiosk.filters.ArticleTitleFilter.maxLength}")
-    int titleMaxLength;
-
-    @Value("${kiosk.rules.TextLengthRule.minLength}")
-    int minTextLength;
-
 
     @Bean
     public FilterRegistrationBean corsFilterRegistrationBean() {
@@ -167,29 +149,6 @@ public class AppConfig {
     @Bean
     HttpService httpService(){
         return new HttpService();
-    }
-
-    @Bean
-    TextFilterSet textFilterSet() {
-        return new TextFilterSet(Arrays.asList(
-                new SanitizeFilter(),
-                new ContentFilter(minBlocLength),
-                new TrimFilter()
-        ));
-    }
-
-    @Bean
-    TextRuleSet textRuleSet() {
-        return new TextRuleSet(Arrays.asList(
-                new TextLengthRule(minTextLength)
-        ));
-    }
-
-    @Bean
-    ArticleFilterSet articleFilterSet() {
-        return new ArticleFilterSet(Arrays.asList(
-                new ArticleTitleFilter(titleMaxLength)
-        ));
     }
 
     @Bean

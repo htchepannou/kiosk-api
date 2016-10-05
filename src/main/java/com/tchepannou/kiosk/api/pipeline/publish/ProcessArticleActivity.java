@@ -1,5 +1,6 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
+import com.tchepannou.kiosk.api.config.BeanConstants;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
@@ -11,6 +12,7 @@ import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,6 +23,7 @@ public class ProcessArticleActivity extends Activity {
     FileService fileService;
 
     @Autowired
+    @Qualifier(BeanConstants.BEAN_ARTICLE_PROCESSOR_FILTER_SET)
     TextFilterSet textFilters;
 
     @Autowired
