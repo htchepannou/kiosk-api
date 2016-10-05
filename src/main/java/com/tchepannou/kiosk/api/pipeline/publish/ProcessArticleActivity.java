@@ -11,6 +11,8 @@ import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -56,6 +58,7 @@ public class ProcessArticleActivity extends Activity {
             article.setStatus(status);
             article.setStatusReason(reason);
             article.setContentLength(length(xhtml));
+            article.setContentCssId(findContentCssId(xhtml));
             articleRepository.save(article);
 
             // Next
@@ -64,7 +67,7 @@ public class ProcessArticleActivity extends Activity {
                 publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article));
             }
 
-        } catch (Exception ex){
+        } catch (final Exception ex) {
             log(article, null, ex);
         }
     }
@@ -89,7 +92,16 @@ public class ProcessArticleActivity extends Activity {
         fileService.put(key, new ByteArrayInputStream(html.getBytes()));
     }
 
-    private int length(final String xhtml){
-        return xhtml != null ? Jsoup.parse(xhtml).text().length() : 0;
+    private int length(final String xhtml) {
+        return xhtml != null ? Jsoup.parse(xhtml).text().trim().length() : 0;
+    }
+
+    private String findContentCssId(final String html) {
+        final Element xelt = Jsoup.parse(html).body();
+        final Elements children = xelt.children();
+        if (children.isEmpty()){
+            return null;
+        }
+        return children.get(0).id();
     }
 }

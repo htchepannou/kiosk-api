@@ -83,6 +83,7 @@ CREATE TABLE article (
   status_reason  VARCHAR(30),
   content_length INTEGER  DEFAULT 0,
   rank           INTEGER  DEFAULT 99999999,
+  content_css_id VARCHAR(20),
 
   insertdatetime DATETIME DEFAULT now(),
 
