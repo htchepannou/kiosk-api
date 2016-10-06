@@ -45,21 +45,21 @@ public class ExtractImagesActivity extends Activity {
             images = imageService.extractImages(html, baseUrl);
 
             /* merge with DB */
-            List<Image> merged = new ArrayList<>();
-            for (final Image img : images){
+            final List<Image> merged = new ArrayList<>();
+            for (final Image img : images) {
                 final Image ximg = imageRepository.findOne(img.getId());
                 merged.add(ximg == null ? img : ximg);
             }
 
             /* publish */
-            for (final Image img : images){
+            for (final Image img : merged) {
                 publishEvent(new Event(PipelineConstants.TOPIC_IMAGE_SUBMITTED, img));
             }
             publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_IMAGES_DOWNLOADED, new ArticleImageSet(article, merged)));
 
             log(article, images, null);
 
-        } catch (Exception ex){
+        } catch (final Exception ex) {
 
             log(article, images, ex);
 
@@ -73,7 +73,7 @@ public class ExtractImagesActivity extends Activity {
         return out.toString();
     }
 
-    private void log(final Article article, final List<Image> images, final Throwable ex){
+    private void log(final Article article, final List<Image> images, final Throwable ex) {
         log.add("ImageCount", images.size());
         addToLog(article);
         addToLog(ex);

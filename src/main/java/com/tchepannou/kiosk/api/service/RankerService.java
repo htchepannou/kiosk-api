@@ -58,7 +58,7 @@ public class RankerService {
     private List<Article> getAllArticles() {
         final List<Article> articles = new ArrayList<>();
         final Date end = timeService.now();
-        final Date start = DateUtils.addDays(end, -1);
+        final Date start = DateUtils.addDays(end, -3);
         for (int i=0 ; i<10 ; i++){
             final PageRequest page = new PageRequest(i, 1000);
             List<Article> result = articleRepository.findByStatusAndPublishedDateBetween(
