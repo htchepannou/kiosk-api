@@ -5,8 +5,8 @@ CREATE TABLE website (
   url                VARCHAR(256),
   article_url_prefix VARCHAR(256),
   article_url_suffix VARCHAR(256),
-  title_css_selector VARCHAR(60),
-  slug_css_selector  VARCHAR(60),
+  title_css_selector VARCHAR(64),
+  slug_css_selector  VARCHAR(64),
   active             BOOL
 )
   ENGINE = InnoDB;
@@ -83,7 +83,7 @@ CREATE TABLE article (
   status_reason  VARCHAR(30),
   content_length INTEGER  DEFAULT 0,
   rank           INTEGER  DEFAULT 99999999,
-  content_css_id VARCHAR(60),
+  content_css_id VARCHAR(64),
 
   insertdatetime DATETIME DEFAULT now(),
 
