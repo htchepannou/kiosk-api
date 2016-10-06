@@ -37,6 +37,7 @@ public class Article {
     private String statusReason;
     private Integer contentLength;
     private Integer rank;
+    private String contentCssId;
 
     public Article() {
     }
@@ -154,6 +155,14 @@ public class Article {
 
     public void setRank(final Integer rank) {
         this.rank = rank;
+    }
+
+    public String getContentCssId() {
+        return contentCssId;
+    }
+
+    public void setContentCssId(final String contentCssId) {
+        this.contentCssId = contentCssId;
     }
 
     @Override

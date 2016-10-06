@@ -10,10 +10,13 @@ import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.ArticleImageSet;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.core.service.FileService;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,20 +63,27 @@ public class MainImageActivity extends Activity {
 
     }
 
-    private Image selectMainImage(final ArticleImageSet articleImageSet) {
+    private Image selectMainImage(final ArticleImageSet articleImageSet) throws IOException {
+
+        final Article article = articleImageSet.getArticle();
+        final String html = fetchContent(article, Article.Status.submitted);
+        final Element elt = Jsoup.parse(html).body().select('#' + article.getContentCssId()).first();
 
         // Collect the size of all images
-        final Map<Image, Integer> sizes = new HashMap<>();
+        final Map<Image, Integer> distances = new HashMap<>();
         for (final Image img : articleImageSet.getImages()) {
             if (accept(img)) {
-                sizes.put(img, img.getHeight() * img.getWidth());
+//                sizes.put(img, img.getHeight() * img.getWidth());
+                final String filename = filename(img.getUrl());
+                final int dist = distance(elt, filename, 0);
+                distances.put(img, dist);
             }
         }
 
         // Sort the images
-        if (!sizes.isEmpty()) {
-            final ArrayList<Image> lst = new ArrayList<>(sizes.keySet());
-            Collections.sort(lst, (u, v) -> sizes.get(v) - sizes.get(u));
+        if (!distances.isEmpty()) {
+            final ArrayList<Image> lst = new ArrayList<>(distances.keySet());
+            Collections.sort(lst, (u, v) -> distances.get(u) - distances.get(v));
 
             // return the 1st
             return lst.get(0);
@@ -85,14 +95,34 @@ public class MainImageActivity extends Activity {
         return img != null && img.getWidth() >= minWidth && img.getHeight() >= minHeidth;
     }
 
-    private String id(final Element elt) {
-        final String src = elt.attr("abs:src");
-        return Image.generateId(src);
-    }
-
     private void log(final Article article, final Image image, final Throwable ex) {
         addToLog(article);
         addToLog(image);
         log.log(ex);
     }
+
+    private int distance(final Element elt, final String filename, final int dist) {
+        if (elt == null) {
+            return Integer.MAX_VALUE;
+        }
+
+        if (!elt.select("img[src~=" + filename + "]").isEmpty()) {
+            return dist;
+        }
+
+        return distance(elt.parent(), filename, dist + 1);
+    }
+
+    private String filename(final String src) {
+        final int i = src.lastIndexOf('/');
+        return i > 0 ? src.substring(i + 1) : src;
+    }
+
+    private String fetchContent(final Article article, final Article.Status status) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final String key = article.contentKey(status);
+        fileService.get(key, out);
+        return out.toString();
+    }
+
 }

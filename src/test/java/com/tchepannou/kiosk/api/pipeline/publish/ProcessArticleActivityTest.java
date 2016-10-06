@@ -62,7 +62,7 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         final String html = "hello world";
         doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
 
-        final String xhtml = "!! hello";
+        final String xhtml = "<p id='item1'>!! hello</p><p id='item2'>world !!</p>";
         when(textFilters.filter(html)).thenReturn(xhtml);
 
         when(rules.validate(xhtml)).thenReturn(Validation.success());
@@ -75,7 +75,8 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article);
 
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
-        assertThat(article.getContentLength()).isEqualTo(8);
+        assertThat(article.getContentLength()).isEqualTo(17);
+        assertThat(article.getContentCssId()).isEqualTo("item1");
         verify(articleRepository).save(article);
 
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
