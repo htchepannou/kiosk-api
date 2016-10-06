@@ -9,6 +9,7 @@ import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -42,14 +43,17 @@ public class ProcessArticleActivity extends Activity {
             final String html = fetchContent(article, Article.Status.submitted);
             final String xhtml = textFilters.filter(html);
 
-            // Rules
+            // Process content
             final Validation validation = rules.validate(xhtml);
             final Article.Status status = validation.isSuccess() ? Article.Status.processed : Article.Status.rejected;
             final String reason = validation.isSuccess() ? null : validation.getReason();
-
-            // Save all
             storeContent(article, xhtml, status);
-            updateStatus(article, status, reason);
+
+            // Update article
+            article.setStatus(status);
+            article.setStatusReason(reason);
+            article.setContentLength(length(xhtml));
+            articleRepository.save(article);
 
             // Next
             log(article, reason, null);
@@ -82,9 +86,7 @@ public class ProcessArticleActivity extends Activity {
         fileService.put(key, new ByteArrayInputStream(html.getBytes()));
     }
 
-    private void updateStatus(final Article article, final Article.Status status, final String reason) {
-        article.setStatus(status);
-        article.setStatusReason(reason);
-        articleRepository.save(article);
+    private int length(final String xhtml){
+        return xhtml != null ? Jsoup.parse(xhtml).text().length() : 0;
     }
 }

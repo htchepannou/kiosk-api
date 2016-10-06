@@ -15,12 +15,12 @@ INSERT INTO website VALUES (1001, 'Mboa Football', 'http://www.mboafootball.com'
 INSERT INTO website VALUES (1002, 'Cameroon Post Online', 'http://www.cameroonpostline.com', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1003, 'Spark Cameroon', 'http://www.sparkcameroun.com/', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1004, 'Cameroon Post', 'http://www.cameroonpostline.com/', NULL, NULL, NULL, NULL, TRUE);
-INSERT INTO website VALUES (1005, 'camer.be', 'http://www.camer.be', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1005, 'camer.be', 'http://www.camer.be', NULL, '.html', NULL, NULL, TRUE);
 INSERT INTO website VALUES (1006, 'camer24.de', 'http://www.camer24.de', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1007, 'Culture Ebene', 'http://www.culturebene.com', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1008, 'Cameroun Sports', 'http://www.camerounsports.info', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1009, 'camerpost.com', 'http://www.camerpost.com', NULL, NULL, NULL, NULL, TRUE);
-INSERT INTO website VALUES (1010, 'Journal Du Cameroun', 'http://www.journalducameroun.com', NULL, NULL, NULL, NULL, TRUE);
+INSERT INTO website VALUES (1010, 'Journal Du Cameroun', 'http://www.journalducameroun.com', '/index.php', NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1011, 'newsducamer.com', 'https://www.newsducamer.com', '/index.php', NULL, '.ItemView .itemTitle', NULL, TRUE);
 INSERT INTO website VALUES (1012, 'La Nouvelle Expression', 'http://www.lanouvelleexpression.info', NULL, NULL, NULL, NULL, TRUE);
 INSERT INTO website VALUES (1013, 'JeWanda-Magazine', 'http://www.jewanda-magazine.com', NULL, NULL, NULL, NULL, TRUE);
@@ -48,12 +48,12 @@ INSERT INTO feed VALUES (1001, 1001, 'rss', 'CMR', 'Mboa Football', 'http://www.
 INSERT INTO feed VALUES (1002, 1002, 'rss', 'CMR', 'Cameroon Post Online', 'http://www.cameroonpostline.com/feed', TRUE);
 INSERT INTO feed VALUES (1003, 1003, 'rss', 'CMR', 'Spark Cameroon', 'http://www.sparkcameroun.com/feed', TRUE);
 INSERT INTO feed VALUES (1004, 1004, 'rss', 'CMR', 'Cameroon Post', 'http://www.cameroonpostline.com/feed', TRUE);
-INSERT INTO feed VALUES (1005, 1005, 'rss', 'CMR', 'camer.be', 'http://www.camer.be/rss.php', TRUE);
+INSERT INTO feed VALUES (1005, 1005, 'rss', 'CMR', 'camer.be', 's3://rss/1005.rss', TRUE);
 INSERT INTO feed VALUES (1006, 1006, 'rss', 'CMR', 'camer24.de', 'http://www.camer24.de/feed', TRUE);
 INSERT INTO feed VALUES (1007, 1007, 'rss', 'CMR', 'culturebene.com', 'http://www.culturebene.com/feed', TRUE);
 INSERT INTO feed VALUES (1008, 1008, 'rss', 'CMR', 'camerounsports.info', 'http://www.camerounsports.info/feed', TRUE);
 INSERT INTO feed VALUES (1009, 1009, 'rss', 'CMR', 'camerpost.com', 'http://www.camerpost.com/feed', TRUE);
-INSERT INTO feed VALUES (1010, 1010, 'rss', 'CMR', 'Journal Du Cameroun', 'http://www.journalducameroun.com/rss', TRUE);
+INSERT INTO feed VALUES (1010, 1010, 'rss', 'CMR', 'Journal Du Cameroun', 's3://rss/1010.xml', TRUE);
 INSERT INTO feed VALUES (1011, 1011, 'rss', 'CMR', 'CameroonOnline.org', 'http://www.cameroononline.org/feed', TRUE);
 INSERT INTO feed VALUES (1012, 1012, 'rss', 'CMR', 'La Nouvelle Expression',
                          'http://www.lanouvelleexpression.info/index.php?option=com_k2&view=itemlist&layout=category&task=category&id=92&Itemid=632&format=feed',
@@ -81,14 +81,20 @@ CREATE TABLE article (
   status         INT,
   url            TEXT     NOT NULL,
   status_reason  VARCHAR(30),
+  content_length INTEGER  DEFAULT 0,
+  rank           INTEGER  DEFAULT 99999999,
 
-  insertdatetime DATETIME DEFAULT now()
+  insertdatetime DATETIME DEFAULT now(),
+
+  KEY article_rank (rank),
+  KEY article_published_date (published_date)
 )
   ENGINE = InnoDB;
 
+
 -- images
-CREATE TABLE image(
-  id             CHAR(32) NOT NULL PRIMARY KEY,
+CREATE TABLE image (
+  id             CHAR(32)     NOT NULL PRIMARY KEY,
 
   url            TEXT,
   public_url     TEXT         NOT NULL,

@@ -35,6 +35,8 @@ public class Article {
     private Date publishedDate;
     private Status status;
     private String statusReason;
+    private Integer contentLength;
+    private Integer rank;
 
     public Article() {
     }
@@ -138,6 +140,21 @@ public class Article {
         this.image = image;
     }
 
+    public Integer getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(final Integer contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public Integer getRank() {
+        return rank;
+    }
+
+    public void setRank(final Integer rank) {
+        this.rank = rank;
+    }
 
     @Override
     public boolean equals(final Object obj){
