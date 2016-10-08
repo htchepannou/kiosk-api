@@ -39,7 +39,8 @@ deploy:
     secret_access_key: "$AWS_SECRET_KEY"
     region: us-east-1
     app: kiosk-prod
-    bucket_name: target/deploy/kiosk-api.jar
+    bucket_name: "repository.tchepannou"
+    bucket_path: kiosk-api/kiosk-api.jar
     on:
       branch: master
 
