@@ -67,11 +67,14 @@ public class MainImageActivityTest extends ActivityTestSupport {
 
         final String html = "<html><body>" +
                 "<div>" +
-                        "<img src='" + img1.getUrl() + ">" +
-                        "<p id='main-content'>Hello</p>" +
+                        "<div>" +
+                            "<img src='" + img1.getUrl() + "'>" +
+                            "<p id='main-content'>Hello</p>" +
+                        "</div>" +
                 "</div>" +
+                "<div>This is a bloc</div>" +
                 "<div>" +
-                        "<img src='" + img2.getUrl() + ">" +
+                        "<img src='" + img2.getUrl() + "'>" +
                 "</div>" +
                 "</body></html>"
         ;
