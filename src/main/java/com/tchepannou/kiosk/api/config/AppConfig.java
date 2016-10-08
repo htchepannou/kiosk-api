@@ -16,11 +16,15 @@ import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import com.tchepannou.kiosk.core.servlet.LogFilter;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -31,6 +35,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.TimeZone;
@@ -40,6 +45,50 @@ import java.util.TimeZone;
  */
 @Configuration
 public class AppConfig {
+
+    @Bean(destroyMethod = "close")
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Primary
+    DataSource dataSource() {
+        final HikariDataSource source = (HikariDataSource) DataSourceBuilder
+                .create()
+                .type(HikariDataSource.class)
+                .build();
+//        source.setMetricRegistry(metricRegistry);
+
+        return source;
+    }
+
+//    @Bean
+//    public EntityManagerFactory entityManagerFactory() {
+//
+//        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//        vendorAdapter.setGenerateDdl(false);
+//        vendorAdapter.setShowSql(true);
+//
+//        final LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+//        factory.setJpaVendorAdapter(vendorAdapter);
+//        factory.setPackagesToScan("com.tchepannou.kiosk.api");
+//        factory.setDataSource(dataSource());
+//        factory.afterPropertiesSet();
+//
+//        final Properties props = new Properties();
+//        props.setProperty("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
+//        props.setProperty("hibernate.show_sql", "true");
+//        props.setProperty("hibernate.hbm2ddl.auto", "validate");
+//
+//        factory.setJpaProperties(props);
+//
+//        return factory.getObject();
+//    }
+//
+//    @Bean
+//    public PlatformTransactionManager transactionManager() {
+//
+//        final JpaTransactionManager txManager = new JpaTransactionManager();
+//        txManager.setEntityManagerFactory(entityManagerFactory());
+//        return txManager;
+//    }
 
     @Bean
     public FilterRegistrationBean corsFilterRegistrationBean() {
@@ -147,22 +196,22 @@ public class AppConfig {
     }
 
     @Bean
-    HttpService httpService(){
+    HttpService httpService() {
         return new HttpService();
     }
 
     @Bean
-    Tika tika(){
+    Tika tika() {
         return new Tika();
     }
 
     @Bean
-    ImageMapper imageMapper(){
+    ImageMapper imageMapper() {
         return new ImageMapper();
     }
 
     @Bean
-    ImageService imageService(){
+    ImageService imageService() {
         return new ImageService();
     }
 }

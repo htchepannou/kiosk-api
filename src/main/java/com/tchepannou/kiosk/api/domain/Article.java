@@ -5,8 +5,10 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.Date;
 
@@ -19,24 +21,37 @@ public class Article {
     }
 
     @Id
+    @Column(columnDefinition = "char(32)")
     private String id;
 
     @ManyToOne
+    @JoinColumn(name="feed_id")
     private Feed feed;
 
     @ManyToOne
+    @JoinColumn(name="image_id", columnDefinition = "char(32)")
     private Image image;
 
+    @Column(columnDefinition = "text")
     private String url;
+
     private String title;
+
+    @Column(columnDefinition = "text")
     private String slug;
+
+    @Column(columnDefinition = "char(3)")
     private String countryCode;
+
+    @Column(columnDefinition = "char(2)")
     private String languageCode;
     private Date publishedDate;
     private Status status;
     private String statusReason;
     private Integer contentLength;
     private Integer rank;
+
+    @Column(length = 64)
     private String contentCssId;
 
     public Article() {

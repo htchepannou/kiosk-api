@@ -13,16 +13,24 @@ import javax.persistence.Transient;
 @Entity
 public class Image {
     @Id
+    @Column(columnDefinition = "char(32)")
     private String id;
 
-    @Column(name = "image_key")
+    @Column(name = "image_key", length = 100)
     private String key;
 
     private String title;
+
+    @Column(columnDefinition = "text")
     private String url;
+
+    @Column(length = 100)
     private String contentType;
+
     private int width;
     private int height;
+
+    @Column(columnDefinition = "text")
     private String publicUrl;
 
     @Transient
@@ -107,17 +115,17 @@ public class Image {
     }
 
     @Override
-    public boolean equals(final Object obj){
+    public boolean equals(final Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
-    public int hashCode (){
+    public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
 
