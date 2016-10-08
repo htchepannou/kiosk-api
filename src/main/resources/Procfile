@@ -1,0 +1,1 @@
+web: java -jar server.jar -Xms=256m -Xmx=768m
