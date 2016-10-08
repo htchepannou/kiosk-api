@@ -4,21 +4,32 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
 public class Feed {
     @Id
     private long id;
+
+    @Column(columnDefinition = "char(3)")
     private String countryCode;
+
+    @Column(columnDefinition = "char(3)")
     private String type;
+
+    @Column(length = 64)
     private String name;
+
+    @Column(columnDefinition = "text")
     private String url;
     private boolean active;
     
     @ManyToOne
+    @JoinColumn(name="website_id")
     private Website website;
 
     public long getId() {

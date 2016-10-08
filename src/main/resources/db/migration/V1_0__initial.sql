@@ -1,12 +1,12 @@
 -- website
 CREATE TABLE website (
   id                 BIGINT    NOT NULL PRIMARY KEY,
-  name               CHAR(100) NOT NULL,
-  url                VARCHAR(256),
-  article_url_prefix VARCHAR(256),
-  article_url_suffix VARCHAR(256),
-  title_css_selector VARCHAR(64),
-  slug_css_selector  VARCHAR(64),
+  name               VARCHAR(100) NOT NULL,
+  url                TEXT,
+  article_url_prefix VARCHAR(255),
+  article_url_suffix VARCHAR(255),
+  title_css_selector VARCHAR(255),
+  slug_css_selector  VARCHAR(255),
   active             BOOL
 )
   ENGINE = InnoDB;
@@ -73,10 +73,10 @@ CREATE TABLE article (
   feed_id        BIGINT   NOT NULL REFERENCES feed (id),
   image_id       CHAR(32),
 
-  title          VARCHAR(256),
+  title          VARCHAR(255),
   slug           TEXT,
   country_code   CHAR(3),
-  language_code  CHAR(3),
+  language_code  CHAR(2),
   published_date DATETIME DEFAULT now(),
   status         INT,
   url            TEXT     NOT NULL,

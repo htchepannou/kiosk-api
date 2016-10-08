@@ -4,6 +4,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -11,8 +12,13 @@ import javax.persistence.Id;
 public class Website {
     @Id
     private long id;
+
+    @Column(length = 100)
     private String name;
+
+    @Column(columnDefinition = "text")
     private String url;
+
     private String articleUrlPrefix;
     private String articleUrlSuffix;
     private String titleCssSelector;
