@@ -1,1 +1,1 @@
-web: java -jar kiosk-api.jar -Xms=256m -Xmx=768m -Dspring.profiles.active=prod
+web: java -jar kiosk-api.jar -Xms=256m -Xmx=768m
