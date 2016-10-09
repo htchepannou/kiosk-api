@@ -25,6 +25,8 @@ import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -73,7 +75,6 @@ public class ArticleService {
     @Value("${kiosk.article.page.size}")
     int pageSize = 20;
 
-
     //-- Public
     public GetArticleResponse get(final String id) {
         /* article */
@@ -119,6 +120,22 @@ public class ArticleService {
 
     }
 
+    public String fetchContent(final Article article, final Article.Status status) {
+        try {
+
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final String key = article.contentKey(status);
+            fileService.get(key, out);
+
+            return out.toString("utf-8");
+
+        } catch (final Exception e) {
+            logService.add("Exception", e.getClass().getName());
+            logService.add("ExceptionMessage", e.getMessage());
+            return null;
+        }
+    }
+
     //-- Private
     private Article findArticle(final String id) {
         return (Article) findById(id, articleRepository);
@@ -128,21 +145,6 @@ public class ArticleService {
         try {
             return repository.findOne(id);
         } catch (final DataAccessException e) {
-            logService.add("Exception", e.getClass().getName());
-            logService.add("ExceptionMessage", e.getMessage());
-            return null;
-        }
-    }
-
-    private String fetchContent(final Article article, final Article.Status status) {
-        try {
-
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            final String key = article.contentKey(status);
-            fileService.get(key, out);
-            return out.toString();
-
-        } catch (final Exception e) {
             logService.add("Exception", e.getClass().getName());
             logService.add("ExceptionMessage", e.getMessage());
             return null;

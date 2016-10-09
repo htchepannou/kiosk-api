@@ -10,6 +10,7 @@ import com.tchepannou.kiosk.api.pipeline.publish.MainImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
 import com.tchepannou.kiosk.core.filter.IdFilter;
+import com.tchepannou.kiosk.core.filter.HtmlEntityFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.filter.TrimFilter;
@@ -39,7 +40,8 @@ public class PipelineConfig {
         return new TextFilterSet(Arrays.asList(
                 new SanitizeFilter(),
                 new ContentFilter(minBlocLength),
-                new TrimFilter()
+                new TrimFilter(),
+                new HtmlEntityFilter()
         ));
     }
 
