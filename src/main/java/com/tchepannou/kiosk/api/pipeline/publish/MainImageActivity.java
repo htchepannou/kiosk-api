@@ -8,14 +8,13 @@ import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.ArticleImageSet;
+import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ImageService;
-import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,7 @@ public class MainImageActivity extends Activity {
     ArticleRepository articleRepository;
 
     @Autowired
-    FileService fileService;
+    ArticleService articleService;
 
     @Autowired
     ImageService imageService;
@@ -66,14 +65,13 @@ public class MainImageActivity extends Activity {
     private Image selectMainImage(final ArticleImageSet articleImageSet) throws IOException {
 
         final Article article = articleImageSet.getArticle();
-        final String html = fetchContent(article, Article.Status.submitted);
+        final String html = articleService.fetchContent(article, Article.Status.submitted);
         final Element elt = Jsoup.parse(html).body().select('#' + article.getContentCssId()).first();
 
         // Collect the size of all images
         final Map<Image, Integer> distances = new HashMap<>();
         for (final Image img : articleImageSet.getImages()) {
             if (accept(img)) {
-//                sizes.put(img, img.getHeight() * img.getWidth());
                 final String filename = filename(img.getUrl());
                 final int dist = distance(elt, filename, 0);
                 distances.put(img, dist);
@@ -117,12 +115,4 @@ public class MainImageActivity extends Activity {
         final int i = src.lastIndexOf('/');
         return i > 0 ? src.substring(i + 1) : src;
     }
-
-    private String fetchContent(final Article article, final Article.Status status) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final String key = article.contentKey(status);
-        fileService.get(key, out);
-        return out.toString();
-    }
-
 }

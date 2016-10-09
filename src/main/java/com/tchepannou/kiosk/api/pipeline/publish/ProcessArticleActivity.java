@@ -6,10 +6,13 @@ import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.rule.TextRuleSet;
 import com.tchepannou.kiosk.core.rule.Validation;
 import com.tchepannou.kiosk.core.service.FileService;
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -17,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class ProcessArticleActivity extends Activity {
@@ -34,6 +36,9 @@ public class ProcessArticleActivity extends Activity {
     @Autowired
     ArticleRepository articleRepository;
 
+    @Autowired
+    ArticleService articleService;
+
     @Override
     protected String getTopic() {
         return PipelineConstants.TOPIC_ARTICLE_CREATED;
@@ -45,7 +50,7 @@ public class ProcessArticleActivity extends Activity {
         try {
 
             // Process HTML
-            final String html = fetchContent(article, Article.Status.submitted);
+            final String html = articleService.fetchContent(article, Article.Status.submitted);
             final String xhtml = textFilters.filter(html);
 
             // Process content
@@ -79,17 +84,20 @@ public class ProcessArticleActivity extends Activity {
         log.log(ex);
     }
 
-    private String fetchContent(final Article article, final Article.Status status) throws IOException {
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final String key = article.contentKey(status);
-        fileService.get(key, out);
-        return out.toString();
-    }
-
     private void storeContent(final Article article, final String html, final Article.Status status) throws IOException {
         final String key = article.contentKey(status);
-        fileService.put(key, new ByteArrayInputStream(html.getBytes()));
+        final String charset = getCharset(html);
+        final byte[] bytes = charset == null || "utf-8".equalsIgnoreCase(charset)
+                ? html.getBytes()
+                : new String(html.getBytes(charset), "utf-8").getBytes();
+                fileService.put(key, new ByteArrayInputStream(bytes));
+    }
+
+    private String getCharset(final String str) {
+        final CharsetDetector detector = new CharsetDetector();
+        detector.setText(str.getBytes());
+        final CharsetMatch match = detector.detect();
+        return match != null ? match.getName() : null;
     }
 
     private int length(final String xhtml) {
@@ -99,7 +107,7 @@ public class ProcessArticleActivity extends Activity {
     private String findContentCssId(final String html) {
         final Element xelt = Jsoup.parse(html).body();
         final Elements children = xelt.children();
-        if (children.isEmpty()){
+        if (children.isEmpty()) {
             return null;
         }
         return children.get(0).id();

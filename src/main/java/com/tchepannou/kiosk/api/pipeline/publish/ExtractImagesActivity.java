@@ -7,25 +7,23 @@ import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.ArticleImageSet;
+import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ImageService;
-import com.tchepannou.kiosk.core.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class ExtractImagesActivity extends Activity {
     @Autowired
-    FileService fileService;
-
-    @Autowired
     ImageService imageService;
 
     @Autowired
     ImageRepository imageRepository;
+
+    @Autowired
+    ArticleService articleService;
 
     @Override
     protected String getTopic() {
@@ -38,7 +36,7 @@ public class ExtractImagesActivity extends Activity {
         List<Image> images = Collections.emptyList();
         try {
 
-            final String html = fetchContent(article, Article.Status.submitted);
+            final String html = articleService.fetchContent(article, Article.Status.submitted);
             final String baseUrl = article.getFeed().getWebsite().getUrl();
 
             /* extract images */
@@ -64,13 +62,6 @@ public class ExtractImagesActivity extends Activity {
             log(article, images, ex);
 
         }
-    }
-
-    private String fetchContent(final Article article, final Article.Status status) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final String key = article.contentKey(status);
-        fileService.get(key, out);
-        return out.toString();
     }
 
     private void log(final Article article, final List<Image> images, final Throwable ex) {

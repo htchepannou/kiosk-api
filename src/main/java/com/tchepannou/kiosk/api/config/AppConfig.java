@@ -1,5 +1,6 @@
 package com.tchepannou.kiosk.api.config;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
@@ -13,6 +14,7 @@ import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.HttpService;
 import com.tchepannou.kiosk.core.service.LogService;
+import com.tchepannou.kiosk.core.service.S3Service;
 import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import com.tchepannou.kiosk.core.servlet.LogFilter;
@@ -25,6 +27,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -58,37 +61,6 @@ public class AppConfig {
 
         return source;
     }
-
-//    @Bean
-//    public EntityManagerFactory entityManagerFactory() {
-//
-//        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-//        vendorAdapter.setGenerateDdl(false);
-//        vendorAdapter.setShowSql(true);
-//
-//        final LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-//        factory.setJpaVendorAdapter(vendorAdapter);
-//        factory.setPackagesToScan("com.tchepannou.kiosk.api");
-//        factory.setDataSource(dataSource());
-//        factory.afterPropertiesSet();
-//
-//        final Properties props = new Properties();
-//        props.setProperty("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
-//        props.setProperty("hibernate.show_sql", "true");
-//        props.setProperty("hibernate.hbm2ddl.auto", "validate");
-//
-//        factory.setJpaProperties(props);
-//
-//        return factory.getObject();
-//    }
-//
-//    @Bean
-//    public PlatformTransactionManager transactionManager() {
-//
-//        final JpaTransactionManager txManager = new JpaTransactionManager();
-//        txManager.setEntityManagerFactory(entityManagerFactory());
-//        return txManager;
-//    }
 
     @Bean
     public FilterRegistrationBean corsFilterRegistrationBean() {
@@ -189,10 +161,20 @@ public class AppConfig {
     }
 
     @Bean
-    FileService fileService(
+    @Profile("!prod")
+    FileService localFileService(
             @Value("${kiosk.repository.home}") final String repositoryHome
     ) {
         return new FileService(new File(repositoryHome));
+    }
+
+    @Bean
+    @Profile("prod")
+    FileService s3FileService(
+            @Value("${kiosk.aws.s3.bucket}") final String bucket,
+            final AmazonS3 s3
+    ) {
+        return new S3Service(bucket, s3);
     }
 
     @Bean
