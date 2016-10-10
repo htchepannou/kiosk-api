@@ -48,7 +48,8 @@ public class PipelineConfig {
     @Bean(name=BeanConstants.BEAN_ARTICLE_CREATOR_FILTER_SET)
     TextFilterSet createFilterSet() {
         return new TextFilterSet(Arrays.asList(
-                new IdFilter()
+                new IdFilter(),
+                new HtmlEntityFilter()
         ));
     }
 
