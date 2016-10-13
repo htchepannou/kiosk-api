@@ -3,8 +3,6 @@ package com.tchepannou.kiosk.api.pipeline;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.core.service.LogService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -22,7 +20,7 @@ public abstract class Activity {
             return;
         }
 
-        log.add("Activity", getName());
+        log.add("Step", getName());
         log.add("Topic", event.getTopic());
         log.add("Success", true);
 
@@ -36,12 +34,6 @@ public abstract class Activity {
     protected abstract String getTopic();
 
     protected abstract void doHandleEvent(final Event event);
-
-    protected Document parseHtml(final String html, final Article article) {
-        Document doc = Jsoup.parse(html);
-        doc.setBaseUri(article.getFeed().getWebsite().getUrl());
-        return doc;
-    }
 
     protected String getName() {
         return getClass().getSimpleName();
