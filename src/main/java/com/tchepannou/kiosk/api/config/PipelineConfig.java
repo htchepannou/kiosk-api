@@ -9,7 +9,6 @@ import com.tchepannou.kiosk.api.pipeline.publish.ExtractImagesActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.MainImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
 import com.tchepannou.kiosk.core.filter.ContentFilter;
-import com.tchepannou.kiosk.core.filter.IdFilter;
 import com.tchepannou.kiosk.core.filter.HtmlEntityFilter;
 import com.tchepannou.kiosk.core.filter.SanitizeFilter;
 import com.tchepannou.kiosk.core.filter.TextFilterSet;
@@ -41,14 +40,6 @@ public class PipelineConfig {
                 new SanitizeFilter(),
                 new ContentFilter(minBlocLength),
                 new TrimFilter(),
-                new HtmlEntityFilter()
-        ));
-    }
-
-    @Bean(name=BeanConstants.BEAN_ARTICLE_CREATOR_FILTER_SET)
-    TextFilterSet createFilterSet() {
-        return new TextFilterSet(Arrays.asList(
-                new IdFilter(),
                 new HtmlEntityFilter()
         ));
     }

@@ -1,7 +1,6 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.google.common.base.Strings;
-import com.tchepannou.kiosk.api.config.BeanConstants;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
@@ -12,12 +11,10 @@ import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.ByteArrayInputStream;
@@ -39,10 +36,6 @@ public class CreateArticleActivity extends Activity{
     @Autowired
     FileService fileService;
 
-    @Autowired
-    @Qualifier(BeanConstants.BEAN_ARTICLE_CREATOR_FILTER_SET)
-    TextFilterSet textFilterSet;
-
     @Value("${kiosk.article.slug.maxLength}")
     int slugMaxLength;
 
@@ -55,23 +48,13 @@ public class CreateArticleActivity extends Activity{
     @Override
     protected void doHandleEvent(final Event event) {
         final PublishRequest request = (PublishRequest)event.getPayload();
-        final Feed feed = feedRepository.findOne(request.getFeedId());
-
-        Article article = articleMapper.toArticle(request);
-        article.setStatus(Article.Status.submitted);
-        article.setFeed(feed);
-
-        if (Strings.isNullOrEmpty(article.getSlug())) {
-            article.setSlug(defaultSlug(request));
-        }
-        articleFilters.filter(article);
+        Article article = toArticle(request);
 
         /* process content */
         final String html = request.getArticle().getContent();
-        final String xhtml = textFilterSet.filter(html);
 
         /* store the content */
-        try (final InputStream in = new ByteArrayInputStream(xhtml.getBytes())) {
+        try (final InputStream in = new ByteArrayInputStream(html.getBytes())) {
             // Save the article
             articleRepository.save(article);
 
@@ -87,6 +70,20 @@ public class CreateArticleActivity extends Activity{
             log(article, ex);
         }
 
+    }
+
+    private Article toArticle (final PublishRequest request){
+        final Feed feed = feedRepository.findOne(request.getFeedId());
+        final Article article = articleMapper.toArticle(request);
+        article.setStatus(Article.Status.submitted);
+        article.setFeed(feed);
+
+        if (Strings.isNullOrEmpty(article.getSlug())) {
+            article.setSlug(defaultSlug(request));
+        }
+        articleFilters.filter(article);
+
+        return article;
     }
 
     private String defaultSlug(final PublishRequest request) {
