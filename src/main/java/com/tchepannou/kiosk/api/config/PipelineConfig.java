@@ -8,13 +8,9 @@ import com.tchepannou.kiosk.api.pipeline.publish.DownloadImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImagesActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.MainImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
-import com.tchepannou.kiosk.core.filter.ContentFilter;
-import com.tchepannou.kiosk.core.filter.HtmlEntityFilter;
-import com.tchepannou.kiosk.core.filter.SanitizeFilter;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.filter.TrimFilter;
-import com.tchepannou.kiosk.core.rule.TextLengthRule;
-import com.tchepannou.kiosk.core.rule.TextRuleSet;
+import com.tchepannou.kiosk.content.ContentExtractor;
+import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
+import com.tchepannou.kiosk.content.FilterSetProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,21 +30,14 @@ public class PipelineConfig {
 
 
     //-- Commons
-    @Bean(name=BeanConstants.BEAN_ARTICLE_PROCESSOR_FILTER_SET)
-    TextFilterSet processFilterSet() {
-        return new TextFilterSet(Arrays.asList(
-                new SanitizeFilter(),
-                new ContentFilter(minBlocLength),
-                new TrimFilter(),
-                new HtmlEntityFilter()
-        ));
+    @Bean
+    ContentExtractor contentExtractor(){
+        return new ContentExtractor();
     }
 
     @Bean
-    TextRuleSet textRuleSet() {
-        return new TextRuleSet(Arrays.asList(
-                new TextLengthRule(minTextLength)
-        ));
+    FilterSetProvider filterSetProvider(){
+        return new DefaultFilterSetProvider(minTextLength);
     }
 
     @Bean

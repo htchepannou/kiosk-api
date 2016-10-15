@@ -10,6 +10,7 @@ import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
@@ -18,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 
 public class CreateArticleActivity extends Activity{
     @Autowired
@@ -47,29 +48,22 @@ public class CreateArticleActivity extends Activity{
 
     @Override
     protected void doHandleEvent(final Event event) {
-        final PublishRequest request = (PublishRequest)event.getPayload();
-        Article article = toArticle(request);
+        try {
 
-        /* process content */
-        final String html = request.getArticle().getContent();
+            final PublishRequest request = (PublishRequest) event.getPayload();
 
-        /* store the content */
-        try (final InputStream in = new ByteArrayInputStream(html.getBytes())) {
-            // Save the article
-            articleRepository.save(article);
+            final Article article = toArticle(request);
+            final String html = request.getArticle().getContent();
+            store(article, html);
 
-            // Store the content
-            final String key = article.contentKey(article.getStatus());
-            fileService.put(key, in);
-
-            // next
-            log(article, null);
+            log(article);
             publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_CREATED, article));
 
-        } catch(Exception ex){
-            log(article, ex);
-        }
+        } catch (Exception e){
 
+            throw new PipelineException(e);
+
+        }
     }
 
     private Article toArticle (final PublishRequest request){
@@ -86,6 +80,16 @@ public class CreateArticleActivity extends Activity{
         return article;
     }
 
+    private void store(final Article article, final String html) throws IOException {
+        // Save the article
+        articleRepository.save(article);
+
+        // Store the content
+        final String key = article.contentKey(article.getStatus());
+        fileService.put(key, new ByteArrayInputStream(html.getBytes("utf-8")));
+
+    }
+
     private String defaultSlug(final PublishRequest request) {
         final Document doc = Jsoup.parse(request.getArticle().getContent());
         final String text = doc.text();
@@ -94,9 +98,8 @@ public class CreateArticleActivity extends Activity{
                 : text;
     }
 
-    protected void log(final Article article, final Throwable ex) {
+    protected void log(final Article article) {
         addToLog(article);
-        addToLog(ex);
-        log.log(ex);
+        log.log();
     }
 }

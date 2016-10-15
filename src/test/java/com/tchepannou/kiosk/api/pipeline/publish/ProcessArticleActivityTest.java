@@ -7,9 +7,8 @@ import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.service.ArticleService;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.rule.TextRuleSet;
-import com.tchepannou.kiosk.core.rule.Validation;
+import com.tchepannou.kiosk.content.ContentExtractor;
+import com.tchepannou.kiosk.content.FilterSetProvider;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -35,10 +34,10 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
     ArticleService articleService;
 
     @Mock
-    TextFilterSet textFilters;
+    ContentExtractor extractor;
 
     @Mock
-    TextRuleSet rules;
+    FilterSetProvider filterSetProvider;
 
     @Mock
     ArticleRepository articleRepository;
@@ -62,9 +61,7 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         when(articleService.fetchContent(any(), any())).thenReturn(html);
 
         final String xhtml = "<p id='item1'>!! hello</p><p id='item2'>world !!</p>";
-        when(textFilters.filter(html)).thenReturn(xhtml);
-
-        when(rules.validate(xhtml)).thenReturn(Validation.success());
+        when(extractor.extract(any(), any())).thenReturn(xhtml);
 
         // When
         final Event event = new Event("foo", article);
@@ -82,39 +79,6 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
         verify(fileService).put(key.capture(), in.capture());
         assertThat(key.getValue()).isEqualTo(article.contentKey(Article.Status.processed));
-        assertThat(IOUtils.toString(in.getValue())).isEqualTo(xhtml);
-    }
-
-
-    @Test
-    public void shouldRejectInvalidArticle() throws Exception {
-        // Given
-        final Article article = Fixture.createArticle();
-        final String articleId = article.getId();
-        when(articleRepository.findOne(articleId)).thenReturn(article);
-
-        final String html = "hello world";
-        when(articleService.fetchContent(any(), any())).thenReturn(html);
-
-        final String xhtml = "!! hello";
-        when(textFilters.filter(html)).thenReturn(xhtml);
-
-        when(rules.validate(xhtml)).thenReturn(Validation.failure("failed"));
-
-        // When
-        final Event event = new Event("foo", article);
-        activity.doHandleEvent(event);
-
-        // Then
-        assertThatNoEventPublished();
-
-        assertThat(article.getStatus()).isEqualTo(Article.Status.rejected);
-        verify(articleRepository).save(article);
-
-        final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
-        verify(fileService).put(key.capture(), in.capture());
-        assertThat(key.getValue()).isEqualTo(article.contentKey(Article.Status.rejected));
         assertThat(IOUtils.toString(in.getValue())).isEqualTo(xhtml);
     }
 }
