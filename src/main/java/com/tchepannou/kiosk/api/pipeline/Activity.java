@@ -22,9 +22,15 @@ public abstract class Activity {
 
         log.add("Step", getName());
         log.add("Topic", event.getTopic());
-        log.add("Success", true);
+        try {
 
-        doHandleEvent(event);
+            doHandleEvent(event);
+            log.add("Success", true);
+
+        } catch (RuntimeException e){
+            addToLog(e);
+            log.log(e);
+        }
     }
 
     public void publishEvent(final Event event) {

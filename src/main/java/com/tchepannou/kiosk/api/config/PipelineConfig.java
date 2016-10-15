@@ -4,18 +4,15 @@ import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.filter.ArticleLanguageFilter;
 import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.DownloadImageActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.ExtractImagesActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.MainImageActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
-import com.tchepannou.kiosk.core.filter.ContentFilter;
-import com.tchepannou.kiosk.core.filter.IdFilter;
-import com.tchepannou.kiosk.core.filter.HtmlEntityFilter;
-import com.tchepannou.kiosk.core.filter.SanitizeFilter;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.filter.TrimFilter;
-import com.tchepannou.kiosk.core.rule.TextLengthRule;
-import com.tchepannou.kiosk.core.rule.TextRuleSet;
+import com.tchepannou.kiosk.api.service.ImageService;
+import com.tchepannou.kiosk.content.ContentExtractor;
+import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
+import com.tchepannou.kiosk.content.FilterSetProvider;
+import com.tchepannou.kiosk.content.TitleSanitizer;
+import com.tchepannou.kiosk.image.ImageExtractor;
+import com.tchepannou.kiosk.image.support.ImageGrabber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,31 +30,20 @@ public class PipelineConfig {
     @Value("${kiosk.rules.TextLengthRule.minLength}")
     int minTextLength;
 
-
     //-- Commons
-    @Bean(name=BeanConstants.BEAN_ARTICLE_PROCESSOR_FILTER_SET)
-    TextFilterSet processFilterSet() {
-        return new TextFilterSet(Arrays.asList(
-                new SanitizeFilter(),
-                new ContentFilter(minBlocLength),
-                new TrimFilter(),
-                new HtmlEntityFilter()
-        ));
-    }
-
-    @Bean(name=BeanConstants.BEAN_ARTICLE_CREATOR_FILTER_SET)
-    TextFilterSet createFilterSet() {
-        return new TextFilterSet(Arrays.asList(
-                new IdFilter(),
-                new HtmlEntityFilter()
-        ));
+    @Bean
+    ContentExtractor contentExtractor() {
+        return new ContentExtractor();
     }
 
     @Bean
-    TextRuleSet textRuleSet() {
-        return new TextRuleSet(Arrays.asList(
-                new TextLengthRule(minTextLength)
-        ));
+    FilterSetProvider filterSetProvider() {
+        return new DefaultFilterSetProvider(minTextLength);
+    }
+
+    @Bean
+    TitleSanitizer titleSanitizer(){
+        return new TitleSanitizer();
     }
 
     @Bean
@@ -68,30 +54,34 @@ public class PipelineConfig {
         ));
     }
 
+    @Bean
+    ImageExtractor imageExtractor() {
+        return new ImageExtractor();
+    }
+
+    @Bean
+    ImageService imageService () {
+        return new ImageService();
+    }
+
+    @Bean
+    ImageGrabber imageGrabber() {
+        return new ImageGrabber();
+    }
 
     //-- Activities
     @Bean
-    CreateArticleActivity createArticleActivity(){
+    CreateArticleActivity createArticleActivity() {
         return new CreateArticleActivity();
     }
 
     @Bean
-    ProcessArticleActivity processArticleActivity(){
+    ProcessArticleActivity processArticleActivity() {
         return new ProcessArticleActivity();
     }
 
     @Bean
-    DownloadImageActivity downloadImageActivity(){
-        return new DownloadImageActivity();
-    }
-
-    @Bean
-    ExtractImagesActivity extractImagesActivity(){
-        return new ExtractImagesActivity();
-    }
-
-    @Bean
-    MainImageActivity mainImageActivity() {
-        return new MainImageActivity();
+    ExtractImageActivity extractImageActivity() {
+        return new ExtractImageActivity();
     }
 }

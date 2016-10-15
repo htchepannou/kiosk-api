@@ -1,7 +1,6 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.google.common.base.Strings;
-import com.tchepannou.kiosk.api.config.BeanConstants;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
@@ -11,17 +10,16 @@ import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 
 public class CreateArticleActivity extends Activity{
     @Autowired
@@ -39,10 +37,6 @@ public class CreateArticleActivity extends Activity{
     @Autowired
     FileService fileService;
 
-    @Autowired
-    @Qualifier(BeanConstants.BEAN_ARTICLE_CREATOR_FILTER_SET)
-    TextFilterSet textFilterSet;
-
     @Value("${kiosk.article.slug.maxLength}")
     int slugMaxLength;
 
@@ -54,10 +48,27 @@ public class CreateArticleActivity extends Activity{
 
     @Override
     protected void doHandleEvent(final Event event) {
-        final PublishRequest request = (PublishRequest)event.getPayload();
-        final Feed feed = feedRepository.findOne(request.getFeedId());
+        try {
 
-        Article article = articleMapper.toArticle(request);
+            final PublishRequest request = (PublishRequest) event.getPayload();
+
+            final Article article = toArticle(request);
+            final String html = request.getArticle().getContent();
+            store(article, html);
+
+            log(article);
+            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_CREATED, article));
+
+        } catch (Exception e){
+
+            throw new PipelineException(e);
+
+        }
+    }
+
+    private Article toArticle (final PublishRequest request){
+        final Feed feed = feedRepository.findOne(request.getFeedId());
+        final Article article = articleMapper.toArticle(request);
         article.setStatus(Article.Status.submitted);
         article.setFeed(feed);
 
@@ -66,26 +77,16 @@ public class CreateArticleActivity extends Activity{
         }
         articleFilters.filter(article);
 
-        /* process content */
-        final String html = request.getArticle().getContent();
-        final String xhtml = textFilterSet.filter(html);
+        return article;
+    }
 
-        /* store the content */
-        try (final InputStream in = new ByteArrayInputStream(xhtml.getBytes())) {
-            // Save the article
-            articleRepository.save(article);
+    private void store(final Article article, final String html) throws IOException {
+        // Save the article
+        articleRepository.save(article);
 
-            // Store the content
-            final String key = article.contentKey(article.getStatus());
-            fileService.put(key, in);
-
-            // next
-            log(article, null);
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_CREATED, article));
-
-        } catch(Exception ex){
-            log(article, ex);
-        }
+        // Store the content
+        final String key = article.contentKey(article.getStatus());
+        fileService.put(key, new ByteArrayInputStream(html.getBytes("utf-8")));
 
     }
 
@@ -97,9 +98,8 @@ public class CreateArticleActivity extends Activity{
                 : text;
     }
 
-    protected void log(final Article article, final Throwable ex) {
+    protected void log(final Article article) {
         addToLog(article);
-        addToLog(ex);
-        log.log(ex);
+        log.log();
     }
 }

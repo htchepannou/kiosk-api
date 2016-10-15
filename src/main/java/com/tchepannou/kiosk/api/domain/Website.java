@@ -23,6 +23,8 @@ public class Website {
     private String articleUrlSuffix;
     private String titleCssSelector;
     private String slugCssSelector;
+    private String imageCssSelector;
+    private String titleSanitizeRegex;
     private boolean active;
 
     public long getId() {
@@ -89,6 +91,21 @@ public class Website {
         this.slugCssSelector = slugCssSelector;
     }
 
+    public String getImageCssSelector() {
+        return imageCssSelector;
+    }
+
+    public void setImageCssSelector(final String imageCssSelector) {
+        this.imageCssSelector = imageCssSelector;
+    }
+
+    public String getTitleSanitizeRegex() {
+        return titleSanitizeRegex;
+    }
+
+    public void setTitleSanitizeRegex(final String titleSanitizeRegex) {
+        this.titleSanitizeRegex = titleSanitizeRegex;
+    }
 
     @Override
     public boolean equals(final Object obj){

@@ -1,37 +1,31 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
-import com.tchepannou.kiosk.api.config.BeanConstants;
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
+import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.api.service.ArticleService;
-import com.tchepannou.kiosk.core.filter.TextFilterSet;
-import com.tchepannou.kiosk.core.rule.TextRuleSet;
-import com.tchepannou.kiosk.core.rule.Validation;
+import com.tchepannou.kiosk.content.ContentExtractor;
+import com.tchepannou.kiosk.content.ExtractorContext;
+import com.tchepannou.kiosk.content.FilterSetProvider;
+import com.tchepannou.kiosk.content.TitleSanitizer;
 import com.tchepannou.kiosk.core.service.FileService;
-import org.apache.tika.parser.txt.CharsetDetector;
-import org.apache.tika.parser.txt.CharsetMatch;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class ProcessArticleActivity extends Activity {
     @Autowired
     FileService fileService;
-
-    @Autowired
-    @Qualifier(BeanConstants.BEAN_ARTICLE_PROCESSOR_FILTER_SET)
-    TextFilterSet textFilters;
-
-    @Autowired
-    TextRuleSet rules;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -39,6 +33,17 @@ public class ProcessArticleActivity extends Activity {
     @Autowired
     ArticleService articleService;
 
+    @Autowired
+    ContentExtractor extractor;
+
+    @Autowired
+    TitleSanitizer titleSanitizer;
+
+    @Autowired
+    FilterSetProvider filterSetProvider;
+
+
+    //-- Activity overrides
     @Override
     protected String getTopic() {
         return PipelineConstants.TOPIC_ARTICLE_CREATED;
@@ -49,55 +54,57 @@ public class ProcessArticleActivity extends Activity {
         final Article article = (Article) event.getPayload();
         try {
 
-            // Process HTML
+            final Website website = article.getFeed().getWebsite();
+            final ExtractorContext ctx = createExtractorContext(website);
             final String html = articleService.fetchContent(article, Article.Status.submitted);
-            final String xhtml = textFilters.filter(html);
+            final String xhtml = extractor.extract(html, ctx);
 
-            // Process content
-            final Validation validation = rules.validate(xhtml);
-            final Article.Status status = validation.isSuccess() ? Article.Status.processed : Article.Status.rejected;
-            final String reason = validation.isSuccess() ? null : validation.getReason();
-            storeContent(article, xhtml, status);
+            store(article, xhtml, ctx);
 
-            // Update article
-            article.setStatus(status);
-            article.setStatusReason(reason);
-            article.setContentLength(length(xhtml));
-            article.setContentCssId(findContentCssId(xhtml));
-            articleRepository.save(article);
+            log(article);
+            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article));
 
-            // Next
-            log(article, reason, null);
-            if (reason == null) {
-                publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article));
-            }
-
-        } catch (final Exception ex) {
-            log(article, null, ex);
+        } catch (final IOException ex) {
+            throw new PipelineException(ex);
         }
     }
 
-    protected void log(final Article article, final String validationReason, final Throwable ex) {
-        log.add("Reason", validationReason);
-        addToLog(article);
-        addToLog(ex);
-        log.log(ex);
+
+    //-- Private
+    private ExtractorContext createExtractorContext(final Website website){
+        return new ExtractorContext() {
+            @Override
+            public FilterSetProvider getFilterSetProvider() {
+                return filterSetProvider;
+            }
+
+            @Override
+            public Pattern getTitlePattern() {
+                final String regex = website.getTitleSanitizeRegex();
+                return !StringUtil.isBlank(regex) ? null : Pattern.compile(regex);
+            }
+        };
     }
 
-    private void storeContent(final Article article, final String html, final Article.Status status) throws IOException {
+    private void store (final Article article, final String xhtml, final ExtractorContext ctx) throws IOException {
+        // Store content
+        final Article.Status status = Article.Status.processed;
         final String key = article.contentKey(status);
-        final String charset = getCharset(html);
-        final byte[] bytes = charset == null || "utf-8".equalsIgnoreCase(charset)
-                ? html.getBytes()
-                : new String(html.getBytes(charset), "utf-8").getBytes();
-                fileService.put(key, new ByteArrayInputStream(bytes));
+        fileService.put(key, new ByteArrayInputStream(xhtml.getBytes("utf-8")));
+
+        // Update article
+        final String title = titleSanitizer.sanitize(article.getTitle(), ctx);
+        article.setTitle(title);
+        article.setStatus(status);
+        article.setContentLength(length(xhtml));
+        article.setContentCssId(findContentCssId(xhtml));
+        articleRepository.save(article);
+
     }
 
-    private String getCharset(final String str) {
-        final CharsetDetector detector = new CharsetDetector();
-        detector.setText(str.getBytes());
-        final CharsetMatch match = detector.detect();
-        return match != null ? match.getName() : null;
+    private void log(final Article article) {
+        addToLog(article);
+        log.log();
     }
 
     private int length(final String xhtml) {

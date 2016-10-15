@@ -10,6 +10,7 @@ import com.tchepannou.kiosk.core.service.TimeService;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class RankerService {
     TimeService timeService;
 
     @Transactional
+    @Scheduled(cron="${kiosk.ranker.cron}")
     public void rank() {
         final List<Article> articles = getAllArticles();
 
