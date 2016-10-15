@@ -1,6 +1,7 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.domain.Website;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
@@ -10,16 +11,19 @@ import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.ExtractorContext;
 import com.tchepannou.kiosk.content.FilterSetProvider;
+import com.tchepannou.kiosk.content.TitleSanitizer;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
-public class ProcessArticleActivity extends Activity implements ExtractorContext {
+public class ProcessArticleActivity extends Activity {
     @Autowired
     FileService fileService;
 
@@ -31,6 +35,9 @@ public class ProcessArticleActivity extends Activity implements ExtractorContext
 
     @Autowired
     ContentExtractor extractor;
+
+    @Autowired
+    TitleSanitizer titleSanitizer;
 
     @Autowired
     FilterSetProvider filterSetProvider;
@@ -47,10 +54,12 @@ public class ProcessArticleActivity extends Activity implements ExtractorContext
         final Article article = (Article) event.getPayload();
         try {
 
+            final Website website = article.getFeed().getWebsite();
+            final ExtractorContext ctx = createExtractorContext(website);
             final String html = articleService.fetchContent(article, Article.Status.submitted);
-            final String xhtml = extractor.extract(html, this);
+            final String xhtml = extractor.extract(html, ctx);
 
-            store(article, xhtml);
+            store(article, xhtml, ctx);
 
             log(article);
             publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article));
@@ -61,20 +70,31 @@ public class ProcessArticleActivity extends Activity implements ExtractorContext
     }
 
 
-    //-- ExtractorContext overrides
-    @Override
-    public FilterSetProvider getFilterSetProvider() {
-        return filterSetProvider;
+    //-- Private
+    private ExtractorContext createExtractorContext(final Website website){
+        return new ExtractorContext() {
+            @Override
+            public FilterSetProvider getFilterSetProvider() {
+                return filterSetProvider;
+            }
+
+            @Override
+            public Pattern getTitlePattern() {
+                final String regex = website.getTitleSanitizeRegex();
+                return !StringUtil.isBlank(regex) ? null : Pattern.compile(regex);
+            }
+        };
     }
 
-    //-- Private
-    private void store (final Article article, final String xhtml) throws IOException {
+    private void store (final Article article, final String xhtml, final ExtractorContext ctx) throws IOException {
         // Store content
         final Article.Status status = Article.Status.processed;
         final String key = article.contentKey(status);
         fileService.put(key, new ByteArrayInputStream(xhtml.getBytes("utf-8")));
 
         // Update article
+        final String title = titleSanitizer.sanitize(article.getTitle(), ctx);
+        article.setTitle(title);
         article.setStatus(status);
         article.setContentLength(length(xhtml));
         article.setContentCssId(findContentCssId(xhtml));

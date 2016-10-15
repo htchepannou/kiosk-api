@@ -9,6 +9,7 @@ import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.FilterSetProvider;
+import com.tchepannou.kiosk.content.TitleSanitizer;
 import com.tchepannou.kiosk.core.service.FileService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -40,6 +41,9 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
     FilterSetProvider filterSetProvider;
 
     @Mock
+    TitleSanitizer titleSanitizer;
+
+    @Mock
     ArticleRepository articleRepository;
 
     @InjectMocks
@@ -63,6 +67,8 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         final String xhtml = "<p id='item1'>!! hello</p><p id='item2'>world !!</p>";
         when(extractor.extract(any(), any())).thenReturn(xhtml);
 
+        when(titleSanitizer.sanitize(any(), any())).thenReturn("!!! Title");
+
         // When
         final Event event = new Event("foo", article);
         activity.doHandleEvent(event);
@@ -70,6 +76,7 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
         // Then
         assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article);
 
+        assertThat(article.getTitle()).isEqualTo("!!! Title");
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
         assertThat(article.getContentLength()).isEqualTo(17);
         assertThat(article.getContentCssId()).isEqualTo("item1");

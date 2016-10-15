@@ -1,5 +1,6 @@
 package com.tchepannou.kiosk.api.domain;
 
+import com.tchepannou.kiosk.image.Dimension;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -8,10 +9,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 @Entity
-public class Image {
+public class Image implements Dimension {
     @Id
     @Column(columnDefinition = "char(32)")
     private String id;
@@ -32,9 +32,6 @@ public class Image {
 
     @Column(columnDefinition = "text")
     private String publicUrl;
-
-    @Transient
-    private String base64Content;
 
     public static String generateId(final String url) {
         return url == null
@@ -104,14 +101,6 @@ public class Image {
 
     public void setPublicUrl(final String publicUrl) {
         this.publicUrl = publicUrl;
-    }
-
-    public String getBase64Content() {
-        return base64Content;
-    }
-
-    public void setBase64Content(final String base64Content) {
-        this.base64Content = base64Content;
     }
 
     @Override

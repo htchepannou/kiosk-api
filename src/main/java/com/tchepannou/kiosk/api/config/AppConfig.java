@@ -9,7 +9,6 @@ import com.tchepannou.kiosk.api.mapper.ImageMapper;
 import com.tchepannou.kiosk.api.mapper.WebsiteMapper;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.FeedService;
-import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.api.service.WebsiteService;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.HttpService;
@@ -190,10 +189,5 @@ public class AppConfig {
     @Bean
     ImageMapper imageMapper() {
         return new ImageMapper();
-    }
-
-    @Bean
-    ImageService imageService() {
-        return new ImageService();
     }
 }

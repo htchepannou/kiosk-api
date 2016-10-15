@@ -1,160 +1,98 @@
 package com.tchepannou.kiosk.api.service;
 
-import com.google.common.base.Strings;
 import com.tchepannou.kiosk.api.domain.Image;
+import com.tchepannou.kiosk.api.jpa.ImageRepository;
+import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.core.service.FileService;
-import com.tchepannou.kiosk.core.service.HttpService;
-import org.apache.tika.Tika;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.tchepannou.kiosk.image.Dimension;
+import com.tchepannou.kiosk.image.DimensionProvider;
+import com.tchepannou.kiosk.image.support.ImageData;
+import com.tchepannou.kiosk.image.support.ImageGrabber;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.imageio.ImageIO;
-import javax.xml.bind.DatatypeConverter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ImageService {
+public class ImageService implements DimensionProvider {
     @Autowired
-    Tika tika;
+    ImageRepository imageRepository;
 
     @Autowired
     FileService fileService;
 
     @Autowired
-    HttpService httpService;
+    ImageGrabber grabber;
 
-    @Value("${kiosk.image.public.baseUrl}")
+    @Value("${kiosk.image.public.baseUri}")
     String publicBaseUrl;
 
-    public List<Image> extractImages(final String html, final String baseUrl) {
-        final Elements elts = extractImageTags(html, baseUrl);
-        final List<Image> imgs = new ArrayList<>();
-        for (final Element elt : elts){
-            final Image img = toImage(elt);
-            if (img != null && !imgs.contains(img)){
-                imgs.add(img);
+    public Image createImage(final String url) throws IOException, MimeTypeException {
+        final ImageData data = grabber.grab(url);
+        final String id = Image.generateId(url);
+        final Image image = toImage(id, url, data);
+        store(image, data);
+
+        return image;
+    }
+
+    @Override
+    public Dimension getDimension(final String url) {
+        try {
+
+            final String id = Image.generateId(url);
+            Image image = imageRepository.findOne(id);
+            if (image == null) {
+                image = createImage(url);
             }
-        }
-        return imgs;
-    }
 
-    public Image download(final Image img) throws IOException {
-        String key = null;
+            return image;
 
-        if (img.getUrl() != null) {
-            key = doDownload(img);
-        } else if (img.getBase64Content() != null) {
-            key = doStoreBase64Content(img);
-        }
-
-        if (key != null) {
-            img.setKey(key);
-            img.setPublicUrl(publicUrl(img));
-            getDimension(img);
-
-            return img;
-        }
-        return null;
-    }
-
-    private Elements extractImageTags(final String html, final String baseUrl) {
-        final Document doc = parseHtml(html, baseUrl);
-        doc.body().select("iframe").remove();      // Remove all iframes that contains external images
-        return doc.body().select("img");
-    }
-
-    private String doDownload(final Image img) throws IOException {
-        final String url = img.getUrl();
-        final String keyPrefix = keyPrefix(img);
-        final String key = httpService.get(url, keyPrefix, fileService);
-        final String contentType = tika.detect(key);
-
-        if (contentType != null && contentType.startsWith("image/")) {
-            img.setContentType(contentType);
-        }
-
-        return key;
-    }
-
-    private String doStoreBase64Content(final Image img) throws IOException {
-        final byte[] bytes = DatatypeConverter.parseBase64Binary(img.getBase64Content());
-        try (final ByteArrayInputStream in = new ByteArrayInputStream(bytes)) {
-            final BufferedImage image = ImageIO.read(in);
-
-            try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                ImageIO.write(image, "png", out);
-
-                final String key = keyPrefix(img) + ".png";
-                fileService.put(key, new ByteArrayInputStream(out.toByteArray()));
-
-                return key;
-            }
+        } catch (IOException | MimeTypeException ex) {
+            throw new PipelineException(ex);
         }
     }
 
-    private String keyPrefix(final Image img) {
-        return "images/" + img.getId() + "/0";
+    private void store(final Image image, final ImageData data) throws IOException {
+        fileService.put(image.getKey(), new ByteArrayInputStream(data.getContent()));
+
+        imageRepository.save(image);
     }
 
-    private String publicUrl(final Image img) {
-        return publicBaseUrl + "/" + img.getId();
-    }
+    private Image toImage(
+            final String id,
+            final String url,
+            final ImageData data
+    ) throws IOException, MimeTypeException {
 
-    private Image toImage(final Element elt) {
-        String src = elt.attr("src");
-        if (Strings.isNullOrEmpty(src)) {
-            return null;
-        }
-
+        final String key = key(id, data);
         final Image img = new Image();
-        if (src.startsWith("data:image/")) {
+        img.setId(id);
+        img.setContentType(data.getContentType());
+        img.setKey(key);
+        img.setUrl(url);
+        img.setPublicUrl(publicBaseUrl + "/" + id);
 
-            final int i = src.indexOf(';');
-            final int j = src.indexOf(',');
-            img.setContentType(src.substring("data:".length(), i));
-            img.setBase64Content(src.substring(j + 1));
-
+        final BufferedImage bimg = ImageIO.read(new ByteArrayInputStream(data.getContent()));
+        if (bimg != null) {
+            img.setWidth(bimg.getWidth());
+            img.setHeight(bimg.getHeight());
         } else {
-
-            src = elt.attr("abs:src");
-
-            img.setUrl(src);
-            img.setContentType(tika.detect(src));
-
+            img.setWidth(0);
+            img.setHeight(0);
         }
-
-        img.setId(Image.generateId(src));
-        img.setTitle(elt.attr("alt"));
 
         return img;
     }
 
-    private Document parseHtml(final String html, final String baseUrl) {
-        final Document doc = Jsoup.parse(html);
-        doc.setBaseUri(baseUrl);
-        return doc;
+    private String key(final String id, final ImageData data) throws MimeTypeException {
+        final MimeType mime = MimeTypes.getDefaultMimeTypes().forName(data.getContentType());
+        return "images/" + id + "/0." + mime.getExtension();
     }
-
-    private void getDimension(final Image image) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        fileService.get(image.getKey(), out);
-
-        final BufferedImage bimg = ImageIO.read(new ByteArrayInputStream(out.toByteArray()));
-        if (bimg != null) {
-            image.setWidth(bimg.getWidth());
-            image.setHeight(bimg.getHeight());
-        } else {
-            image.setWidth(0);
-            image.setHeight(0);
-        }
-    }
-
 }
+
