@@ -81,7 +81,7 @@ public class ProcessArticleActivity extends Activity {
             @Override
             public Pattern getTitlePattern() {
                 final String regex = website.getTitleSanitizeRegex();
-                return !StringUtil.isBlank(regex) ? null : Pattern.compile(regex);
+                return StringUtil.isBlank(regex) ? null : Pattern.compile(regex);
             }
         };
     }
