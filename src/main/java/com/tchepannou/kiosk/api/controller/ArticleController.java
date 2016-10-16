@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Api(basePath = "/kiosk/v1/articles", value = "Article API")
@@ -54,7 +56,7 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Return 1 article")
+    @ApiOperation("Return an article by its ID")
     @RequestMapping(value = "/{articleId}", method = RequestMethod.GET)
     @ApiResponses(
             {
@@ -65,7 +67,24 @@ public class ArticleController {
     public ResponseEntity<GetArticleResponse> getById(
             @PathVariable final String articleId
     ) {
-        final GetArticleResponse response = service.get(articleId);
+        final GetArticleResponse response = service.get(articleId, true);
+        return toResponseEntity(response);
+    }
+
+    @ApiOperation("Return an article by its URL")
+    @RequestMapping(value = "/find", method = RequestMethod.GET, params = {"url", "includeContent"})
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Success"),
+                    @ApiResponse(code = 404, message = "Article not found")
+            }
+    )
+    public ResponseEntity<GetArticleResponse> find(
+            @ApiParam(required = true) final String url,
+            @ApiParam(defaultValue = "false", allowableValues = "true,false") final String includeContent
+    ) {
+        final String articleId = Article.generateId(url);
+        final GetArticleResponse response = service.get(articleId, "true".equalsIgnoreCase(includeContent));
         return toResponseEntity(response);
     }
 
@@ -90,7 +109,7 @@ public class ArticleController {
                     @ApiResponse(code = 200, message = "Success"),
             }
     )
-    public void rank () {
+    public void rank() {
         rankerService.rank();
     }
 
@@ -106,6 +125,8 @@ public class ArticleController {
             }
         }
 
-        return (ResponseEntity<T>) new ResponseEntity<>(response, status);
+        return (ResponseEntity<T>) ResponseEntity.status(status)
+                .cacheControl(CacheControl.maxAge(15, TimeUnit.MINUTES))
+                .body(response);
     }
 }

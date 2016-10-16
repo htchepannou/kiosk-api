@@ -88,7 +88,7 @@ public class ArticleServiceTest {
 
     //-- GetArticle
     @Test
-    public void shouldReturnArticle() throws Exception {
+    public void shouldReturnArticleWithContent() throws Exception {
         // Given
         final Article article = Fixture.createArticle();
         final String articleId = article.getId();
@@ -104,7 +104,7 @@ public class ArticleServiceTest {
         doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
 
         // When
-        final GetArticleResponse response = service.get(articleId);
+        final GetArticleResponse response = service.get(articleId, true);
 
         // Then
         assertThat(response.isSuccess()).isTrue();
@@ -112,6 +112,32 @@ public class ArticleServiceTest {
         assertThat(response.getArticle()).isEqualTo(articleDto);
 
         assertThat(articleDto.getContent()).isEqualTo("hello world");
+    }
+
+    @Test
+    public void shouldReturnArticleWithoutContent() throws Exception {
+        // Given
+        final Article article = Fixture.createArticle();
+        final String articleId = article.getId();
+        when(articleRepository.findOne(articleId)).thenReturn(article);
+
+        final ArticleDto articleDto = new ArticleDto();
+        when(articleMapper.toArticleDto(article)).thenReturn(articleDto);
+
+        final WebsiteDto websiteDto = new WebsiteDto();
+        when(websiteMapper.toWebsiteDto(any())).thenReturn(websiteDto);
+
+        // When
+        final GetArticleResponse response = service.get(articleId, false);
+
+        // Then
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getTransactionId()).isEqualTo(transactionId);
+        assertThat(response.getArticle()).isEqualTo(articleDto);
+
+        verify(fileService, never()).get(anyString(), any(OutputStream.class));
+
+        assertThat(articleDto.getContent()).isNull();
     }
 
     @Test
@@ -135,7 +161,7 @@ public class ArticleServiceTest {
         doAnswer(read(html)).when(fileService).get(anyString(), any(OutputStream.class));
 
         // When
-        final GetArticleResponse response = service.get(articleId);
+        final GetArticleResponse response = service.get(articleId, true);
 
         // Then
         assertThat(response.isSuccess()).isTrue();
@@ -148,7 +174,7 @@ public class ArticleServiceTest {
     @Test
     public void shouldReturnErrorWhenArticleNotFound() throws Exception {
         // When
-        final GetArticleResponse response = service.get("???");
+        final GetArticleResponse response = service.get("???", false);
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
@@ -171,7 +197,7 @@ public class ArticleServiceTest {
         doThrow(ex).when(fileService).get(anyString(), any(OutputStream.class));
 
         // When
-        final GetArticleResponse response = service.get(articleId);
+        final GetArticleResponse response = service.get(articleId, true);
 
         // Then
         assertThat(response.getTransactionId()).isEqualTo(transactionId);

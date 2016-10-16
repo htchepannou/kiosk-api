@@ -25,8 +25,6 @@ import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
-import org.apache.tika.parser.txt.CharsetDetector;
-import org.apache.tika.parser.txt.CharsetMatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -76,7 +74,7 @@ public class ArticleService {
     int pageSize = 20;
 
     //-- Public
-    public GetArticleResponse get(final String id) {
+    public GetArticleResponse get(final String id, final boolean withContent) {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
@@ -85,18 +83,20 @@ public class ArticleService {
         final ArticleDto articleDto = toArticleDto(article);
 
         /* Get the content */
-        final String html = fetchContent(article, article.getStatus());
-        if (html == null) {
-            return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
+        if (withContent) {
+            final String html = fetchContent(article, article.getStatus());
+            if (html == null) {
+                return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
+            }
+            articleDto.setContent(html);
         }
-        articleDto.setContent(html);
 
         /* result */
         return createGetArticleResponse(articleDto, null);
     }
 
     public GetArticleListResponse findByStatus(final String status, final int page) {
-        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.ASC, "rank");
+        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate", "rank");
         final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()), pagination);
 
         return createGetArticleListResponse(articles);
