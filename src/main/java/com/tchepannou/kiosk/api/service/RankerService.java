@@ -35,7 +35,7 @@ public class RankerService {
     TimeService timeService;
 
     @Transactional
-    @Scheduled(cron="${kiosk.ranker.cron}")
+    @Scheduled(cron = "${kiosk.ranker.cron}")
     public void rank() {
         final List<Article> articles = getAllArticles();
 
@@ -47,9 +47,9 @@ public class RankerService {
         final Map<String, Article> articleMap = articles.stream()
                 .collect(Collectors.toMap(Article::getId, Function.identity()));
 
-        for (final RankEntry<Rankable> entry : entries){
-            Article article = articleMap.get(entry.getRankable().getId());
-            article.setRank((int)(entry.getFinalRank()*100));
+        for (final RankEntry<Rankable> entry : entries) {
+            final Article article = articleMap.get(entry.getRankable().getId());
+            article.setRank((int) (entry.getFinalRank() * 100));
         }
 
         Collections.sort(articles, (a1, a2) -> a1.getRank() - a2.getRank());
@@ -61,9 +61,9 @@ public class RankerService {
         final List<Article> articles = new ArrayList<>();
         final Date end = timeService.now();
         final Date start = DateUtils.addDays(end, -1);
-        for (int i=0 ; i<10 ; i++){
+        for (int i = 0; i < 10; i++) {
             final PageRequest page = new PageRequest(i, 1000);
-            List<Article> result = articleRepository.findByStatusAndPublishedDateBetween(
+            final List<Article> result = articleRepository.findByStatusAndPublishedDateBetween(
                     Article.Status.processed,
                     start,
                     end,
@@ -71,7 +71,7 @@ public class RankerService {
             );
 
             articles.addAll(result);
-            if (result.size() < page.getPageSize()){
+            if (result.size() < page.getPageSize()) {
                 break;
             }
         }
