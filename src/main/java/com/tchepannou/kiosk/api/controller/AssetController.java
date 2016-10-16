@@ -6,6 +6,7 @@ import com.tchepannou.kiosk.core.service.FileService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Api(basePath = "/kiosk/v1/assets", value = "Asset API")
@@ -44,6 +46,7 @@ public class AssetController {
 
                 try (final InputStream in = new ByteArrayInputStream(out.toByteArray())) {
                     return ResponseEntity.ok()
+                            .cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
                             .contentType(MediaType.parseMediaType(img.getContentType()))
                             .body(new InputStreamResource(in));
                 }
