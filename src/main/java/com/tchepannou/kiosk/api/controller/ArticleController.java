@@ -56,7 +56,7 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Return 1 article")
+    @ApiOperation("Return an article by its ID")
     @RequestMapping(value = "/{articleId}", method = RequestMethod.GET)
     @ApiResponses(
             {
@@ -67,7 +67,24 @@ public class ArticleController {
     public ResponseEntity<GetArticleResponse> getById(
             @PathVariable final String articleId
     ) {
-        final GetArticleResponse response = service.get(articleId);
+        final GetArticleResponse response = service.get(articleId, true);
+        return toResponseEntity(response);
+    }
+
+    @ApiOperation("Return an article by its URL")
+    @RequestMapping(value = "/find", method = RequestMethod.GET, params = {"url", "includeContent"})
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Success"),
+                    @ApiResponse(code = 404, message = "Article not found")
+            }
+    )
+    public ResponseEntity<GetArticleResponse> find(
+            @ApiParam(required = true) final String url,
+            @ApiParam(defaultValue = "false", allowableValues = "true,false") final String includeContent
+    ) {
+        final String articleId = Article.generateId(url);
+        final GetArticleResponse response = service.get(articleId, "true".equalsIgnoreCase(includeContent));
         return toResponseEntity(response);
     }
 

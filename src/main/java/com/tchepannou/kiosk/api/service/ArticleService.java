@@ -74,7 +74,7 @@ public class ArticleService {
     int pageSize = 20;
 
     //-- Public
-    public GetArticleResponse get(final String id) {
+    public GetArticleResponse get(final String id, final boolean withContent) {
         /* article */
         final Article article = findArticle(id);
         if (article == null) {
@@ -83,11 +83,13 @@ public class ArticleService {
         final ArticleDto articleDto = toArticleDto(article);
 
         /* Get the content */
-        final String html = fetchContent(article, article.getStatus());
-        if (html == null) {
-            return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
+        if (withContent) {
+            final String html = fetchContent(article, article.getStatus());
+            if (html == null) {
+                return createGetArticleResponse(null, ErrorConstants.CONTENT_NOT_FOUND);
+            }
+            articleDto.setContent(html);
         }
-        articleDto.setContent(html);
 
         /* result */
         return createGetArticleResponse(articleDto, null);
