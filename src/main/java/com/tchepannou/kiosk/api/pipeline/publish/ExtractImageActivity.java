@@ -44,7 +44,7 @@ public class ExtractImageActivity extends Activity {
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_PROCESSED;
+        return PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED;
     }
 
     @Override

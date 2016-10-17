@@ -62,7 +62,7 @@ public class ExtractContentActivity extends Activity {
             store(article, xhtml, ctx);
 
             log(article);
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article));
+            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED, article));
 
         } catch (final IOException ex) {
             throw new PipelineException(ex);

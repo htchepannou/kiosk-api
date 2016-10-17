@@ -53,7 +53,7 @@ public class ExtractImageActivityTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_PROCESSED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED);
     }
 
     @Test

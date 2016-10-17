@@ -74,7 +74,7 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
         activity.doHandleEvent(event);
 
         // Then
-        assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_PROCESSED, article);
+        assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED, article);
 
         assertThat(article.getTitle()).isEqualTo("!!! Title");
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
