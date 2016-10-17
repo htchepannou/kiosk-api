@@ -20,19 +20,16 @@ before_script:
 #script:
 #  - mvn clean install
 
-after_success:
-  - ./after_success.sh
-
-deploy:
-  - provider: s3
-    access_key_id: "$AWS_ACCESS_KEY"
-    secret_access_key: "$AWS_SECRET_KEY"
-    bucket: "repository.tchepannou"
-    skip_cleanup: true
-    upload-dir: kiosk-api/$TRAVIS_COMMIT
-    local_dir: target/deploy
-    on:
-      branch: master
+#deploy:
+#  - provider: s3
+#    access_key_id: "$AWS_ACCESS_KEY"
+#    secret_access_key: "$AWS_SECRET_KEY"
+#    bucket: "repository.tchepannou"
+#    skip_cleanup: true
+#    upload-dir: kiosk-api/$TRAVIS_COMMIT
+#    local_dir: target/deploy
+#    on:
+#      branch: master
 
 notifications:
   email:

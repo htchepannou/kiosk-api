@@ -17,7 +17,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @Api(basePath = "/kiosk/v1/articles", value = "Article API")
@@ -126,7 +124,6 @@ public class ArticleController {
         }
 
         return (ResponseEntity<T>) ResponseEntity.status(status)
-                .cacheControl(CacheControl.maxAge(15, TimeUnit.MINUTES))
                 .body(response);
     }
 }

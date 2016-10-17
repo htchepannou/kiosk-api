@@ -39,7 +39,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.tchepanou.kiosk</groupId>
+            <groupId>com.tchepannou.kiosk</groupId>
             <artifactId>context-extractor</artifactId>
             <version>${content-extractor.version}</version>
         </dependency>
@@ -408,17 +408,25 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-snapshots</id>
-            <name>Sonatype Nexus snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-
+    <repositories>
         <repository>
-            <id>sonatype-release-staging</id>
-            <name>Sonatype Nexus release repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>maven-central</id>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
-    </distributionManagement>
+        <repository>
+            <id>oss-jfrog-artifactory</id>
+            <name>oss-jfrog-artifactory-releases</name>
+            <url>http://oss.jfrog.org/artifactory/oss-release-local</url>
+        </repository>
+        <repository>
+            <id>bintray-readytalk</id>
+            <name>bintray readytalk</name>
+            <url>http://dl.bintray.com/readytalk/maven</url>
+        </repository>
+        <repository>
+            <id>maven-s3-release-repo</id>
+            <name>S3 Release Repository</name>
+            <url>s3://repository.tchepannou/release</url>
+        </repository>
+    </repositories>
 </project>
