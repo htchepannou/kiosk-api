@@ -24,7 +24,9 @@ import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
+import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +38,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,6 +71,9 @@ public class ArticleService {
     TransactionIdProvider transactionIdProvider;
 
     @Autowired
+    TimeService timeService;
+
+    @Autowired
     LogService logService;
 
     @Value("${kiosk.article.page.size}")
@@ -96,8 +102,10 @@ public class ArticleService {
     }
 
     public GetArticleListResponse findByStatus(final String status, final int page) {
-        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate", "rank");
-        final List<Article> articles = articleRepository.findByStatus(Article.Status.valueOf(status.toLowerCase()), pagination);
+        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "rank");
+        final Date endDate = timeService.now();
+        final Date startDate = DateUtils.addDays(endDate, -1);
+        final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.valueOf(status.toLowerCase()), startDate, endDate, pagination);
 
         return createGetArticleListResponse(articles);
     }

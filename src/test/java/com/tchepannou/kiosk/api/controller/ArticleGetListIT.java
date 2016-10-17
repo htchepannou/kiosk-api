@@ -13,7 +13,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Starter.class)
@@ -43,7 +42,6 @@ public class ArticleGetListIT extends RestAssuredSupport {
                 .body("articles[0].slug", is("Slug #200"))
                 .body("articles[0].countryCode", is("CMR"))
                 .body("articles[0].languageCode", is("FR"))
-                .body("articles[0].publishedDate", startsWith("2013-11-15"))
                 .body("articles[0].website.id", is(100))
                 .body("articles[0].website.name", is("Mboa Football"))
                 .body("articles[0].website.url", is("http://www.mboafootball.com"))
@@ -55,7 +53,6 @@ public class ArticleGetListIT extends RestAssuredSupport {
                 .body("articles[1].slug", is("Slug #102"))
                 .body("articles[1].countryCode", is("CMR"))
                 .body("articles[1].languageCode", is("FR"))
-                .body("articles[1].publishedDate", startsWith("2013-11-15"))
                 .body("articles[1].website.id", is(100))
                 .body("articles[1].website.name", is("Mboa Football"))
                 .body("articles[1].website.url", is("http://www.mboafootball.com"))
@@ -67,7 +64,6 @@ public class ArticleGetListIT extends RestAssuredSupport {
                 .body("articles[2].slug", is("Slug #101"))
                 .body("articles[2].countryCode", is("CMR"))
                 .body("articles[2].languageCode", is("FR"))
-                .body("articles[2].publishedDate", startsWith("2013-11-15"))
                 .body("articles[2].website.id", is(100))
                 .body("articles[2].website.name", is("Mboa Football"))
                 .body("articles[2].website.url", is("http://www.mboafootball.com"))

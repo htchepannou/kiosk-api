@@ -21,6 +21,7 @@ import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.client.dto.WebsiteDto;
 import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
+import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,6 +75,9 @@ public class ArticleServiceTest {
 
     @Mock
     ImageMapper imageMapper;
+
+    @Mock
+    TimeService timeService;
 
     @InjectMocks
     ArticleService service;
