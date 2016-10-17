@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProcessArticleActivityTest extends ActivityTestSupport {
+public class ExtractContentActivityTest extends ActivityTestSupport {
     @Mock
     FileService fileService;
 
@@ -47,7 +47,7 @@ public class ProcessArticleActivityTest extends ActivityTestSupport {
     ArticleRepository articleRepository;
 
     @InjectMocks
-    ProcessArticleActivity activity;
+    ExtractContentActivity activity;
 
     @Test
     public void testGetTopic() throws Exception {

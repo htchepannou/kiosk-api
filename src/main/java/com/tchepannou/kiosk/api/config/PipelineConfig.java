@@ -5,7 +5,7 @@ import com.tchepannou.kiosk.api.filter.ArticleLanguageFilter;
 import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.ProcessArticleActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
@@ -13,11 +13,18 @@ import com.tchepannou.kiosk.content.FilterSetProvider;
 import com.tchepannou.kiosk.content.TitleSanitizer;
 import com.tchepannou.kiosk.image.ImageExtractor;
 import com.tchepannou.kiosk.image.support.ImageGrabber;
+import com.tchepannou.kiosk.ranker.Dimension;
+import com.tchepannou.kiosk.ranker.DimensionSetProvider;
+import com.tchepannou.kiosk.ranker.Rankable;
+import com.tchepannou.kiosk.ranker.Ranker;
+import com.tchepannou.kiosk.ranker.comparator.ContentLengthComparator;
+import com.tchepannou.kiosk.ranker.comparator.ImageComparator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 @Configuration
 public class PipelineConfig {
@@ -30,7 +37,18 @@ public class PipelineConfig {
     @Value("${kiosk.rules.TextLengthRule.minLength}")
     int minTextLength;
 
-    //-- Commons
+    //-- Create
+    @Bean
+    CreateArticleActivity createArticleActivity() {
+        return new CreateArticleActivity();
+    }
+
+    //-- Process
+    @Bean
+    ExtractContentActivity processArticleActivity() {
+        return new ExtractContentActivity();
+    }
+
     @Bean
     ContentExtractor contentExtractor() {
         return new ContentExtractor();
@@ -42,7 +60,7 @@ public class PipelineConfig {
     }
 
     @Bean
-    TitleSanitizer titleSanitizer(){
+    TitleSanitizer titleSanitizer() {
         return new TitleSanitizer();
     }
 
@@ -54,13 +72,19 @@ public class PipelineConfig {
         ));
     }
 
+    //-- Image
+    @Bean
+    ExtractImageActivity extractImageActivity() {
+        return new ExtractImageActivity();
+    }
+
     @Bean
     ImageExtractor imageExtractor() {
         return new ImageExtractor();
     }
 
     @Bean
-    ImageService imageService () {
+    ImageService imageService() {
         return new ImageService();
     }
 
@@ -69,19 +93,36 @@ public class PipelineConfig {
         return new ImageGrabber();
     }
 
-    //-- Activities
+    //-- Rank
     @Bean
-    CreateArticleActivity createArticleActivity() {
-        return new CreateArticleActivity();
+    Ranker ranker() {
+        return new Ranker();
     }
 
     @Bean
-    ProcessArticleActivity processArticleActivity() {
-        return new ProcessArticleActivity();
+    DimensionSetProvider dimensionSetProvider() {
+        return () -> Arrays.asList(
+                createDimension("image", .6, new ImageComparator()),
+                createDimension("content-length", .4, new ContentLengthComparator())
+        );
     }
 
-    @Bean
-    ExtractImageActivity extractImageActivity() {
-        return new ExtractImageActivity();
+    Dimension createDimension(final String name, final double weight, final Comparator<Rankable> comparator) {
+        return new Dimension() {
+            @Override
+            public double getWeight() {
+                return weight;
+            }
+
+            @Override
+            public Comparator<Rankable> getComparator() {
+                return comparator;
+            }
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        };
     }
 }

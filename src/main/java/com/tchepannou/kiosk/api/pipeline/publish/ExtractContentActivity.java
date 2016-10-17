@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-public class ProcessArticleActivity extends Activity {
+public class ExtractContentActivity extends Activity {
     @Autowired
     FileService fileService;
 

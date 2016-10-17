@@ -20,7 +20,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <content-extractor.version>1.0.0</content-extractor.version>
+        <content-ranker.version>1.0.0</content-ranker.version>
         <image-extractor.version>1.0.0</image-extractor.version>
+
         <kiosk-core.version>1.0-SNAPSHOT</kiosk-core.version>
         <kiosk-client.version>1.0-SNAPSHOT</kiosk-client.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -47,6 +49,11 @@
             <groupId>com.tchepannou.kiosk</groupId>
             <artifactId>image-extractor</artifactId>
             <version>${image-extractor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tchepannou.kiosk</groupId>
+            <artifactId>content-ranker</artifactId>
+            <version>${content-ranker.version}</version>
         </dependency>
 
         <dependency>

@@ -34,7 +34,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -104,12 +106,13 @@ public class ArticleService {
     public GetArticleListResponse findByStatus(final String status, final int page) {
         final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "rank");
         final Date endDate = timeService.now();
-        final Date startDate = DateUtils.addDays(endDate, -2);
+        final Date startDate = DateUtils.addDays(endDate, -1);
         final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.valueOf(status.toLowerCase()), startDate, endDate, pagination);
 
         return createGetArticleListResponse(articles);
     }
 
+    @Transactional
     public PublishResponse publish(final PublishRequest request) throws IOException {
         final ArticleDataDto requestArticle = request.getArticle();
         final String articleId = Article.generateId(requestArticle.getUrl());
@@ -126,6 +129,19 @@ public class ArticleService {
         publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
         return createPublishResponse(articleId);
 
+    }
+
+    @Transactional
+    @Scheduled(cron = "${kiosk.process.cron}")
+    public void process(){
+        // Get the articles
+        final PageRequest pagination = new PageRequest(0, 10000);
+        final Date endDate = timeService.now();
+        final Date startDate = DateUtils.addDays(endDate, -7);
+        final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.processed, startDate, endDate, pagination);
+
+        // Go
+        publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESS, articles));
     }
 
     public String fetchContent(final Article article, final Article.Status status) {

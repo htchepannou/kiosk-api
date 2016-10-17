@@ -3,7 +3,6 @@ package com.tchepannou.kiosk.api.controller;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.service.ArticleService;
-import com.tchepannou.kiosk.api.service.RankerService;
 import com.tchepannou.kiosk.client.dto.AbstractResponse;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleListResponse;
@@ -41,9 +40,6 @@ public class ArticleController {
 
     @Autowired
     LogService logService;
-
-    @Autowired
-    RankerService rankerService;
 
     @ApiOperation("Publish an article")
     @RequestMapping(method = RequestMethod.POST)
@@ -107,8 +103,8 @@ public class ArticleController {
                     @ApiResponse(code = 200, message = "Success"),
             }
     )
-    public void rank() {
-        rankerService.rank();
+    public void process() {
+        service.process();
     }
 
     private <T> ResponseEntity<T> toResponseEntity(final AbstractResponse response) {
