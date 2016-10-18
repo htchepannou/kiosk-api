@@ -5,9 +5,9 @@ import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.RankableArticle;
-import com.tchepannou.kiosk.ranker.DimensionSetProvider;
-import com.tchepannou.kiosk.ranker.RankEntry;
+import com.tchepannou.kiosk.image.Dimension;
 import com.tchepannou.kiosk.ranker.Ranker;
+import com.tchepannou.kiosk.ranker.Score;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -30,7 +30,7 @@ public class RankActitivyTest {
     Ranker ranker;
 
     @Mock
-    DimensionSetProvider dimensionSetProvider;
+    List<Dimension> dimensions;
 
     @Mock
     ArticleRepository articleRepository;
@@ -50,26 +50,31 @@ public class RankActitivyTest {
         final Article a3 = createArticle();
         final List<Article> articles = Arrays.asList(a1, a2, a3);
 
-        final RankEntry re1 = createRankEntry(a1, 5);
-        final RankEntry re2 = createRankEntry(a2, 10);
-        final RankEntry re3 = createRankEntry(a3, 15);
+        final Score re1 = createSore(a1, 5);
+        final Score re2 = createSore(a2, 10);
+        final Score re3 = createSore(a3, 15);
         when(ranker.rank(any(), any())).thenReturn(Arrays.asList(re1, re2, re3));
 
         // When
         actitivy.doHandleEvent(new Event("foo", articles));
 
         // Then
-        assertThat(a1.getRank()).isEqualTo(5);
-        assertThat(a2.getRank()).isEqualTo(10);
-        assertThat(a3.getRank()).isEqualTo(15);
+        assertThat(a1.getScore()).isEqualTo(5);
+        assertThat(a1.getRank()).isEqualTo(3);
+
+        assertThat(a2.getScore()).isEqualTo(10);
+        assertThat(a2.getRank()).isEqualTo(2);
+
+        assertThat(a3.getScore()).isEqualTo(15);
+        assertThat(a3.getRank()).isEqualTo(1);
 
         verify(articleRepository).save(articles);
     }
 
-    private RankEntry createRankEntry(final Article article, final double finalRank){
+    private Score createSore(final Article article, final int value){
         final RankableArticle ra = new RankableArticle(article);
-        final RankEntry entry = mock(RankEntry.class);
-        when(entry.getFinalRank()).thenReturn(finalRank);
+        final Score entry = mock(Score.class);
+        when(entry.getValue()).thenReturn(value);
         when(entry.getRankable()).thenReturn(ra);
 
         return entry;

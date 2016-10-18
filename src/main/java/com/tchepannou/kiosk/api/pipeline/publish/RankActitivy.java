@@ -6,11 +6,12 @@ import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.RankableArticle;
-import com.tchepannou.kiosk.ranker.DimensionSetProvider;
-import com.tchepannou.kiosk.ranker.RankEntry;
+import com.tchepannou.kiosk.ranker.Dimension;
 import com.tchepannou.kiosk.ranker.Ranker;
 import com.tchepannou.kiosk.ranker.RankerContext;
+import com.tchepannou.kiosk.ranker.Score;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,8 @@ public class RankActitivy extends Activity {
     Ranker ranker;
 
     @Autowired
-    DimensionSetProvider dimensionSetProvider;
+    @Qualifier(PipelineConstants.RANKER_DIMENSIONS)
+    List<Dimension> dimensions;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -39,12 +41,16 @@ public class RankActitivy extends Activity {
                 .map(a -> new RankableArticle(a))
                 .collect(Collectors.toList());
 
-        final List<RankEntry> entries = ranker.rank((List) rankables, ctx);
+        final List<Score> scores = ranker.rank((List) rankables, ctx);
 
         // Update the articles
-        for (RankEntry entry : entries){
-            RankableArticle rankableArticle = (RankableArticle)entry.getRankable();
-            rankableArticle.getArticle().setRank((int)(100d*entry.getFinalRank()));
+        int rank = scores.size();
+        for (Score score : scores){
+            final RankableArticle rankableArticle = (RankableArticle)score.getRankable();
+            final Article article = rankableArticle.getArticle();
+
+            article.setScore(score.getValue());
+            article.setRank(rank--);
         }
 
         // Save
@@ -54,8 +60,8 @@ public class RankActitivy extends Activity {
     private RankerContext createRankerContext() {
         return new RankerContext() {
             @Override
-            public DimensionSetProvider getDimensionSetProvider() {
-                return dimensionSetProvider;
+            public List<com.tchepannou.kiosk.ranker.Dimension> getDimensions() {
+                return dimensions;
             }
         };
     }

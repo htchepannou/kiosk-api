@@ -3,8 +3,6 @@ package com.tchepannou.kiosk.api.pipeline.support;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.ranker.Rankable;
 
-import java.util.Date;
-
 public class RankableArticle implements Rankable {
     private final Article article;
 
@@ -14,11 +12,6 @@ public class RankableArticle implements Rankable {
 
     public Article getArticle() {
         return article;
-    }
-
-    @Override
-    public Date getPublishedDate() {
-        return article.getPublishedDate();
     }
 
     @Override

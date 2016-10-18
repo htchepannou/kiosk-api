@@ -7,4 +7,5 @@ public interface PipelineConstants {
 
     String TOPIC_ARTICLE_PROCESS = "ARTICLE_PROCESS";
 
+    String RANKER_DIMENSIONS = "RANKER_DIMENSION";
 }

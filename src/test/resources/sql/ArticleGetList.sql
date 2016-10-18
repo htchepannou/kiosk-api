@@ -12,15 +12,15 @@ VALUES ('100', 'http://x.com/1.png', 'http://public.x.com/11.png', 'images/11/0.
 
 
 -- Articles
-INSERT INTO article (id, feed_id, image_id, status, title, slug, country_code, language_code, published_date, url, rank)
+INSERT INTO article (id, feed_id, image_id, status, title, slug, country_code, language_code, published_date, url, score)
 VALUES ('100', 100, '100', 0, 'Article #100', 'Slug #100', 'CMR', 'FR', now(), 'http://feed100/100', 10);
 
-INSERT INTO article (id, feed_id, image_id, status, title, slug, country_code, language_code, published_date, url, rank)
+INSERT INTO article (id, feed_id, image_id, status, title, slug, country_code, language_code, published_date, url, score)
 VALUES ('101', 100, '100', 1, 'Article #101', 'Slug #101', 'CMR', 'FR', now(), 'http://feed100/101', 3);
 
-INSERT INTO article (id, feed_id, status, title, slug, country_code, language_code, published_date, url, rank)
+INSERT INTO article (id, feed_id, status, title, slug, country_code, language_code, published_date, url, score)
 VALUES ('102', 100, 1, 'Article #102', 'Slug #102', 'CMR', 'FR', now(), 'http://feed100/102', 7);
 
 
-INSERT INTO article (id, feed_id, status, title, slug, country_code, language_code, published_date, url, rank)
+INSERT INTO article (id, feed_id, status, title, slug, country_code, language_code, published_date, url, score)
 VALUES ('200', 200, 1, 'Article #200', 'Slug #200', 'CMR', 'FR', now(), 'http://feed200/200', 10);

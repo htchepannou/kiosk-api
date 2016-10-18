@@ -50,6 +50,7 @@ public class Article {
     private String statusReason;
     private Integer contentLength;
     private Integer rank;
+    private Integer score;
 
     @Column(length = 64)
     private String contentCssId;
@@ -178,6 +179,14 @@ public class Article {
 
     public void setContentCssId(final String contentCssId) {
         this.contentCssId = contentCssId;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(final Integer score) {
+        this.score = score;
     }
 
     @Override

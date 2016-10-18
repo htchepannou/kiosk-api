@@ -3,9 +3,10 @@ package com.tchepannou.kiosk.api.config;
 import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.filter.ArticleLanguageFilter;
 import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
+import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
@@ -14,17 +15,16 @@ import com.tchepannou.kiosk.content.TitleSanitizer;
 import com.tchepannou.kiosk.image.ImageExtractor;
 import com.tchepannou.kiosk.image.support.ImageGrabber;
 import com.tchepannou.kiosk.ranker.Dimension;
-import com.tchepannou.kiosk.ranker.DimensionSetProvider;
-import com.tchepannou.kiosk.ranker.Rankable;
 import com.tchepannou.kiosk.ranker.Ranker;
-import com.tchepannou.kiosk.ranker.comparator.ContentLengthComparator;
-import com.tchepannou.kiosk.ranker.comparator.ImageComparator;
+import com.tchepannou.kiosk.ranker.ScoreProvider;
+import com.tchepannou.kiosk.ranker.score.ContentLengthScoreProvider;
+import com.tchepannou.kiosk.ranker.score.ImageScoreProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.List;
 
 @Configuration
 public class PipelineConfig {
@@ -99,15 +99,15 @@ public class PipelineConfig {
         return new Ranker();
     }
 
-    @Bean
-    DimensionSetProvider dimensionSetProvider() {
-        return () -> Arrays.asList(
-                createDimension("image", .6, new ImageComparator()),
-                createDimension("content-length", .4, new ContentLengthComparator())
+    @Bean(name=PipelineConstants.RANKER_DIMENSIONS)
+    List<Dimension> dimensionSetProvider() {
+        return Arrays.asList(
+                createDimension("image", .6, new ImageScoreProvider()),
+                createDimension("content-length", .4, new ContentLengthScoreProvider())
         );
     }
 
-    Dimension createDimension(final String name, final double weight, final Comparator<Rankable> comparator) {
+    Dimension createDimension(final String name, final double weight, final ScoreProvider score) {
         return new Dimension() {
             @Override
             public double getWeight() {
@@ -115,8 +115,8 @@ public class PipelineConfig {
             }
 
             @Override
-            public Comparator<Rankable> getComparator() {
-                return comparator;
+            public ScoreProvider getScoreProvider() {
+                return score;
             }
 
             @Override
