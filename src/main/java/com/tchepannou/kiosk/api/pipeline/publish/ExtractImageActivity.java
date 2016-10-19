@@ -72,6 +72,7 @@ public class ExtractImageActivity extends Activity {
         }
 
         log(article);
+        publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_IMAGE_EXTRACTED, article));
     }
 
     private void log(final Article article) {

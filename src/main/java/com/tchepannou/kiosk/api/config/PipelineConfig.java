@@ -19,6 +19,9 @@ import com.tchepannou.kiosk.ranker.Ranker;
 import com.tchepannou.kiosk.ranker.ScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ContentLengthScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ImageScoreProvider;
+import com.tchepannou.kiosk.validator.Rule;
+import com.tchepannou.kiosk.validator.Validator;
+import com.tchepannou.kiosk.validator.rules.ContentLengthRule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -93,17 +96,29 @@ public class PipelineConfig {
         return new ImageGrabber();
     }
 
+    //-- Validation
+    @Bean
+    Validator validator(){
+        return new Validator();
+    }
+
+    @Bean(name=PipelineConstants.BEAN_VALIDATOR_RULES)
+    List<Rule> rules(){
+        return Arrays.asList(
+            new ContentLengthRule(minTextLength)
+        );
+    }
     //-- Rank
     @Bean
     Ranker ranker() {
         return new Ranker();
     }
 
-    @Bean(name=PipelineConstants.RANKER_DIMENSIONS)
+    @Bean(name=PipelineConstants.BEAN_RANKER_DIMENSIONS)
     List<Dimension> dimensionSetProvider() {
         return Arrays.asList(
-                createDimension("image", .6, new ImageScoreProvider()),
-                createDimension("content-length", .4, new ContentLengthScoreProvider())
+                createDimension("image", .75, new ImageScoreProvider()),
+                createDimension("content-length", .25, new ContentLengthScoreProvider())
         );
     }
 

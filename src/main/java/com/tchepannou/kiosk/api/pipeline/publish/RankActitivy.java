@@ -21,7 +21,7 @@ public class RankActitivy extends Activity {
     Ranker ranker;
 
     @Autowired
-    @Qualifier(PipelineConstants.RANKER_DIMENSIONS)
+    @Qualifier(PipelineConstants.BEAN_RANKER_DIMENSIONS)
     List<Dimension> dimensions;
 
     @Autowired

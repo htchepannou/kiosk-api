@@ -21,6 +21,7 @@
 
         <content-extractor.version>1.0.0</content-extractor.version>
         <content-ranker.version>1.0.0</content-ranker.version>
+        <content-validator.version>1.0.0</content-validator.version>
         <image-extractor.version>1.0.0</image-extractor.version>
 
         <kiosk-core.version>1.0-SNAPSHOT</kiosk-core.version>
@@ -47,13 +48,18 @@
         </dependency>
         <dependency>
             <groupId>com.tchepannou.kiosk</groupId>
-            <artifactId>image-extractor</artifactId>
-            <version>${image-extractor.version}</version>
+            <artifactId>content-validator</artifactId>
+            <version>${content-validator.version}</version>
         </dependency>
         <dependency>
             <groupId>com.tchepannou.kiosk</groupId>
             <artifactId>content-ranker</artifactId>
             <version>${content-ranker.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tchepannou.kiosk</groupId>
+            <artifactId>image-extractor</artifactId>
+            <version>${image-extractor.version}</version>
         </dependency>
 
         <dependency>
