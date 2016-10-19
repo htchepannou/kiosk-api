@@ -17,8 +17,8 @@ addons:
 before_script:
   - mysql -e 'DROP DATABASE IF EXISTS kiosk; CREATE DATABASE kiosk;' -uroot
 
-#script:
-#  - mvn clean install
+script:
+  - mvn clean install --settings settings.xml
 
 #deploy:
 #  - provider: s3
