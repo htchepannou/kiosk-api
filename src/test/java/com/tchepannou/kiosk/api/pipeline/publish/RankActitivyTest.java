@@ -2,6 +2,7 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.RankableArticle;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RankActitivyTest {
+public class RankActitivyTest extends ActivityTestSupport {
     @Mock
     Ranker ranker;
 
