@@ -18,6 +18,8 @@ before_script:
   - mysql -e 'DROP DATABASE IF EXISTS kiosk; CREATE DATABASE kiosk;' -uroot
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V  --settings settings.xml
 
+install: true
+
 script:
   - mvn clean install --settings settings.xml
 
