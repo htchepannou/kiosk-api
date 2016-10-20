@@ -6,22 +6,17 @@ import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.ValidableArticle;
-import com.tchepannou.kiosk.validator.Rule;
 import com.tchepannou.kiosk.validator.Validation;
 import com.tchepannou.kiosk.validator.Validator;
 import com.tchepannou.kiosk.validator.ValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.util.List;
 
 public class ValidateActivity extends Activity {
     @Autowired
     Validator validator;
 
     @Autowired
-    @Qualifier(PipelineConstants.BEAN_VALIDATOR_RULES)
-    List<Rule> rules;
+    ValidatorContext context;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -35,9 +30,9 @@ public class ValidateActivity extends Activity {
     protected void doHandleEvent(final Event event) {
         final Article article = (Article) event.getPayload();
         final ValidableArticle varticle = new ValidableArticle(article);
-        final ValidatorContext ctx = createValidatorContext();
 
-        final Validation validation = validator.validate(varticle, ctx);
+        final Validation validation = validator.validate(varticle, context);
+        log(article, validation);
         if (validation.isSuccess()) {
             publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_VALIDATED, article));
         } else {
@@ -49,7 +44,10 @@ public class ValidateActivity extends Activity {
         }
     }
 
-    private ValidatorContext createValidatorContext() {
-        return () -> rules;
+    private void log(final Article article, final Validation validation){
+        super.addToLog(article);
+
+        log.add("Success", validation.isSuccess());
+        log.add("ValidationReason", validation.getReason());
     }
 }

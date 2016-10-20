@@ -97,7 +97,7 @@ public class ArticleController {
     }
 
     @ApiOperation("Sort the articles")
-    @RequestMapping(value = "/rank", method = RequestMethod.GET)
+    @RequestMapping(value = "/process", method = RequestMethod.GET)
     @ApiResponses(
             {
                     @ApiResponse(code = 200, message = "Success"),

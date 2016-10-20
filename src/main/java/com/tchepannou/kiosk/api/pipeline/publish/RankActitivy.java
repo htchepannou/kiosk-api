@@ -6,12 +6,10 @@ import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.RankableArticle;
-import com.tchepannou.kiosk.ranker.Dimension;
 import com.tchepannou.kiosk.ranker.Ranker;
 import com.tchepannou.kiosk.ranker.RankerContext;
 import com.tchepannou.kiosk.ranker.Score;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +19,7 @@ public class RankActitivy extends Activity {
     Ranker ranker;
 
     @Autowired
-    @Qualifier(PipelineConstants.BEAN_RANKER_DIMENSIONS)
-    List<Dimension> dimensions;
+    RankerContext context;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -36,12 +33,11 @@ public class RankActitivy extends Activity {
     protected void doHandleEvent(final Event event) {
         // Rank
         final List<Article> articles = (List) event.getPayload();
-        final RankerContext ctx = createRankerContext();
         final List<RankableArticle> rankables = articles.stream()
                 .map(a -> new RankableArticle(a))
                 .collect(Collectors.toList());
 
-        final List<Score> scores = ranker.rank((List) rankables, ctx);
+        final List<Score> scores = ranker.rank((List) rankables, context);
 
         // Update the articles
         int rank = scores.size();
@@ -57,12 +53,4 @@ public class RankActitivy extends Activity {
         articleRepository.save(articles);
     }
 
-    private RankerContext createRankerContext() {
-        return new RankerContext() {
-            @Override
-            public List<com.tchepannou.kiosk.ranker.Dimension> getDimensions() {
-                return dimensions;
-            }
-        };
-    }
 }

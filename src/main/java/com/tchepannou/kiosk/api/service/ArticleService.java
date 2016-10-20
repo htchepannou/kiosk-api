@@ -40,11 +40,14 @@ import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArticleService {
+    public static final int NEWS_WINDOW_HOURS = 3*24;
+
     @Autowired
     protected ApplicationEventPublisher publisher;
 
@@ -106,7 +109,7 @@ public class ArticleService {
     public GetArticleListResponse findByStatus(final String status, final int page) {
         final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "score");
         final Date endDate = timeService.now();
-        final Date startDate = DateUtils.addDays(endDate, -1);
+        final Date startDate = DateUtils.addHours(endDate, -NEWS_WINDOW_HOURS);
         final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.valueOf(status.toLowerCase()), startDate, endDate, pagination);
 
         return createGetArticleListResponse(articles);
@@ -135,10 +138,9 @@ public class ArticleService {
     @Scheduled(cron = "${kiosk.process.cron}")
     public void process(){
         // Get the articles
-        final PageRequest pagination = new PageRequest(0, 10000);
         final Date endDate = timeService.now();
-        final Date startDate = DateUtils.addDays(endDate, -7);
-        final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.processed, startDate, endDate, pagination);
+        final Date startDate = DateUtils.addHours(endDate, -NEWS_WINDOW_HOURS);
+        final List<Article> articles = findAllArticles(startDate, endDate, 100, 10);
 
         // Go
         publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESS, articles));
@@ -161,6 +163,19 @@ public class ArticleService {
     }
 
     //-- Private
+    private List<Article> findAllArticles(final Date start, final Date end, final int limit, final int maxIterations){
+        final List<Article> articles = new ArrayList<>();
+        for (int i=0 ; i<maxIterations ; i++){
+            final PageRequest pagination = new PageRequest(i, limit);
+            final List<Article> tmp = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.processed, start, end, pagination);
+            articles.addAll(tmp);
+            if (tmp.size() < limit){
+                break;
+            }
+        }
+        return articles;
+    }
+
     private Article findArticle(final String id) {
         return (Article) findById(id, articleRepository);
     }

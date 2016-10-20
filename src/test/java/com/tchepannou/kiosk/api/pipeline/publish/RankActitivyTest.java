@@ -5,8 +5,8 @@ import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.support.RankableArticle;
-import com.tchepannou.kiosk.image.Dimension;
 import com.tchepannou.kiosk.ranker.Ranker;
+import com.tchepannou.kiosk.ranker.RankerContext;
 import com.tchepannou.kiosk.ranker.Score;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +30,7 @@ public class RankActitivyTest {
     Ranker ranker;
 
     @Mock
-    List<Dimension> dimensions;
+    RankerContext context;
 
     @Mock
     ArticleRepository articleRepository;

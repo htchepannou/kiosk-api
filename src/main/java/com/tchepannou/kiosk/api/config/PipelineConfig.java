@@ -3,10 +3,11 @@ package com.tchepannou.kiosk.api.config;
 import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
 import com.tchepannou.kiosk.api.filter.ArticleLanguageFilter;
 import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
-import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.RankActitivy;
+import com.tchepannou.kiosk.api.pipeline.publish.ValidateActivity;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
@@ -16,12 +17,15 @@ import com.tchepannou.kiosk.image.ImageExtractor;
 import com.tchepannou.kiosk.image.support.ImageGrabber;
 import com.tchepannou.kiosk.ranker.Dimension;
 import com.tchepannou.kiosk.ranker.Ranker;
+import com.tchepannou.kiosk.ranker.RankerContext;
 import com.tchepannou.kiosk.ranker.ScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ContentLengthScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ImageScoreProvider;
 import com.tchepannou.kiosk.validator.Rule;
 import com.tchepannou.kiosk.validator.Validator;
+import com.tchepannou.kiosk.validator.ValidatorContext;
 import com.tchepannou.kiosk.validator.rules.ContentLengthRule;
+import com.tchepannou.kiosk.validator.rules.TitleLengthRule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -98,28 +102,50 @@ public class PipelineConfig {
 
     //-- Validation
     @Bean
-    Validator validator(){
+    ValidateActivity validateActivity(){
+        return new ValidateActivity();
+    }
+
+    @Bean
+    Validator validator() {
         return new Validator();
     }
 
-    @Bean(name=PipelineConstants.BEAN_VALIDATOR_RULES)
-    List<Rule> rules(){
-        return Arrays.asList(
-            new ContentLengthRule(minTextLength)
-        );
+    @Bean
+    ValidatorContext validatorContext(){
+        return new ValidatorContext() {
+            @Override
+            public List<Rule> getRules() {
+                return Arrays.asList(
+                        new ContentLengthRule(minTextLength),
+                        new TitleLengthRule()
+                );
+            }
+        };
     }
+
     //-- Rank
+    @Bean
+    RankActitivy rankActitivy(){
+        return new RankActitivy();
+    }
+
     @Bean
     Ranker ranker() {
         return new Ranker();
     }
 
-    @Bean(name=PipelineConstants.BEAN_RANKER_DIMENSIONS)
-    List<Dimension> dimensionSetProvider() {
-        return Arrays.asList(
-                createDimension("image", .75, new ImageScoreProvider()),
-                createDimension("content-length", .25, new ContentLengthScoreProvider())
-        );
+    @Bean
+    RankerContext rankerContext(){
+        return new RankerContext() {
+            @Override
+            public List<Dimension> getDimensions() {
+                return Arrays.asList(
+                        createDimension("image", .75, new ImageScoreProvider()),
+                        createDimension("content-length", .25, new ContentLengthScoreProvider())
+                );
+            }
+        };
     }
 
     Dimension createDimension(final String name, final double weight, final ScoreProvider score) {

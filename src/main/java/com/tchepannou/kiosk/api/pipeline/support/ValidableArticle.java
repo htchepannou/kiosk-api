@@ -14,4 +14,9 @@ public class ValidableArticle implements Validable {
     public int getContentLength() {
         return article.getContentLength();
     }
+
+    @Override
+    public String getTitle() {
+        return article.getTitle();
+    }
 }
