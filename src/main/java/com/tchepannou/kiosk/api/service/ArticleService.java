@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArticleService {
-    public static final int NEWS_WINDOW_HOURS = 3*24;
+    public static final int NEWS_WINDOW_HOURS = 1*24;
 
     @Autowired
     protected ApplicationEventPublisher publisher;
