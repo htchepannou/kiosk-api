@@ -3,7 +3,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.domain.Website;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
@@ -23,9 +22,6 @@ import java.io.IOException;
 public class ExtractImageActivity extends Activity {
     @Autowired
     ImageRepository imageRepository;
-
-    @Autowired
-    ArticleRepository articleRepository;
 
     @Autowired
     ArticleService articleService;
@@ -68,7 +64,6 @@ public class ExtractImageActivity extends Activity {
             }
 
             article.setImage(image);
-            articleRepository.save(article);
         }
 
         log(article);

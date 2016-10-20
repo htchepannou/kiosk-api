@@ -1,7 +1,6 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
@@ -17,9 +16,6 @@ public class ValidateActivity extends Activity {
 
     @Autowired
     ValidatorContext context;
-
-    @Autowired
-    ArticleRepository articleRepository;
 
     @Override
     protected String getTopic() {
@@ -38,13 +34,12 @@ public class ValidateActivity extends Activity {
         } else {
             article.setStatus(Article.Status.rejected);
             article.setStatusReason(validation.getReason());
-            articleRepository.save(article);
 
             publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_REJECTED, article));
         }
     }
 
-    private void log(final Article article, final Validation validation){
+    private void log(final Article article, final Validation validation) {
         super.addToLog(article);
 
         log.add("Success", validation.isSuccess());

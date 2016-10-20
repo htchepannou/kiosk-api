@@ -2,7 +2,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Website;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
@@ -26,9 +25,6 @@ import java.util.regex.Pattern;
 public class ExtractContentActivity extends Activity {
     @Autowired
     FileService fileService;
-
-    @Autowired
-    ArticleRepository articleRepository;
 
     @Autowired
     ArticleService articleService;
@@ -98,8 +94,6 @@ public class ExtractContentActivity extends Activity {
         article.setStatus(status);
         article.setContentLength(length(xhtml));
         article.setContentCssId(findContentCssId(xhtml));
-        articleRepository.save(article);
-
     }
 
     private void log(final Article article) {

@@ -1,8 +1,5 @@
 package com.tchepannou.kiosk.api.config;
 
-import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
-import com.tchepannou.kiosk.api.filter.ArticleLanguageFilter;
-import com.tchepannou.kiosk.api.filter.ArticleTitleFilter;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
@@ -69,14 +66,6 @@ public class PipelineConfig {
     @Bean
     TitleSanitizer titleSanitizer() {
         return new TitleSanitizer();
-    }
-
-    @Bean
-    ArticleFilterSet articleFilterSet() {
-        return new ArticleFilterSet(Arrays.asList(
-                new ArticleLanguageFilter(),
-                new ArticleTitleFilter(titleMaxLength)
-        ));
     }
 
     //-- Image

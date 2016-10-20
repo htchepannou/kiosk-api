@@ -15,7 +15,6 @@ import com.tchepannou.kiosk.client.dto.ArticleDto;
 import com.tchepannou.kiosk.client.dto.ErrorConstants;
 import com.tchepannou.kiosk.client.dto.GetArticleResponse;
 import com.tchepannou.kiosk.client.dto.ImageDto;
-import com.tchepannou.kiosk.client.dto.ProcessRequest;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.client.dto.PublishResponse;
 import com.tchepannou.kiosk.client.dto.WebsiteDto;
@@ -36,8 +35,12 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import static com.tchepannou.kiosk.api.Fixture.createArticle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -84,17 +87,22 @@ public class ArticleServiceTest {
 
     String transactionId;
 
+    Date now;
+
     @Before
     public void setUp() {
         transactionId = UUID.randomUUID().toString();
         when(transactionIdProvider.get()).thenReturn(transactionId);
+
+        now = new Date();
+        when(timeService.now()).thenReturn(now);
     }
 
     //-- GetArticle
     @Test
     public void shouldReturnArticleWithContent() throws Exception {
         // Given
-        final Article article = Fixture.createArticle();
+        final Article article = createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -121,7 +129,7 @@ public class ArticleServiceTest {
     @Test
     public void shouldReturnArticleWithoutContent() throws Exception {
         // Given
-        final Article article = Fixture.createArticle();
+        final Article article = createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -147,7 +155,7 @@ public class ArticleServiceTest {
     @Test
     public void shouldReturnArticleWithImage() throws Exception {
         // Given
-        final Article article = Fixture.createArticle();
+        final Article article = createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -190,7 +198,7 @@ public class ArticleServiceTest {
     @Test
     public void shouldReturnErrorWhenContentNotFound() throws Exception {
         // Given
-        final Article article = Fixture.createArticle();
+        final Article article = createArticle();
         final String articleId = article.getId();
         when(articleRepository.findOne(articleId)).thenReturn(article);
 
@@ -232,6 +240,8 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isTrue();
+
+        verify(articleRepository).save(any(Article.class));
     }
 
     @Test
@@ -256,6 +266,8 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isTrue();
+
+        verify(articleRepository).save(any(Article.class));
     }
 
     @Test
@@ -278,8 +290,9 @@ public class ArticleServiceTest {
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.ALREADY_PUBLISHED);
-    }
 
+        verify(articleRepository, never()).save(any(Article.class));
+    }
 
     @Test
     public void shouldNotPublishIfFeedIsInvalid() throws Exception {
@@ -303,13 +316,30 @@ public class ArticleServiceTest {
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.FEED_INVALID);
     }
 
-    //-- Private
-    private ProcessRequest createProcessRequest(final String articleId) {
-        final ProcessRequest request = new ProcessRequest();
-        request.setArticleId(articleId);
-        return request;
+    //-- Process
+    @Test
+    public void shouldProcess(){
+        // Given
+        final Article a1 = createArticle();
+        final Article a2 = createArticle();
+        final Article a3 = createArticle();
+        final List<Article> artickes = Arrays.asList(a1, a2, a3);
+        when(articleRepository.findByStatusAndPublishedDateBetween(any(), any(), any(), any()))
+                .thenReturn(artickes);
+
+        // When
+        service.process();
+
+        // Then
+        final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
+        verify(publisher).publishEvent(event.capture());
+        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_PROCESS);
+        assertThat(event.getValue().getPayload()).isEqualTo(artickes);
+
+        verify(articleRepository).save(artickes);
     }
 
+    //-- Private
     private Answer read(final String html) {
         return new Answer() {
             @Override

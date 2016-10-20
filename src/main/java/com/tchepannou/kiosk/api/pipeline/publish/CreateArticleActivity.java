@@ -3,8 +3,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 import com.google.common.base.Strings;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.pipeline.Activity;
@@ -27,12 +25,6 @@ public class CreateArticleActivity extends Activity{
 
     @Autowired
     FeedRepository feedRepository;
-
-    @Autowired
-    ArticleFilterSet articleFilters;
-
-    @Autowired
-    ArticleRepository articleRepository;
 
     @Autowired
     FileService fileService;
@@ -75,16 +67,11 @@ public class CreateArticleActivity extends Activity{
         if (Strings.isNullOrEmpty(article.getSlug())) {
             article.setSlug(defaultSlug(request));
         }
-        articleFilters.filter(article);
 
         return article;
     }
 
     private void store(final Article article, final String html) throws IOException {
-        // Save the article
-        articleRepository.save(article);
-
-        // Store the content
         final String key = article.contentKey(article.getStatus());
         fileService.put(key, new ByteArrayInputStream(html.getBytes("utf-8")));
 

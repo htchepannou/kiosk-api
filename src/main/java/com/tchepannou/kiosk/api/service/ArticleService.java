@@ -129,9 +129,13 @@ public class ArticleService {
             return createPublishResponse(articleId, ErrorConstants.FEED_INVALID);
         }
 
+        // Publish
         publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
-        return createPublishResponse(articleId);
+        final PublishResponse response = createPublishResponse(articleId);
 
+        // Save
+        articleRepository.save(article);
+        return response;
     }
 
     @Transactional
@@ -142,8 +146,11 @@ public class ArticleService {
         final Date startDate = DateUtils.addHours(endDate, -NEWS_WINDOW_HOURS);
         final List<Article> articles = findAllArticles(startDate, endDate, 100, 10);
 
-        // Go
+        // Process
         publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESS, articles));
+
+        // Save
+        articleRepository.save(articles);
     }
 
     public String fetchContent(final Article article, final Article.Status status) {

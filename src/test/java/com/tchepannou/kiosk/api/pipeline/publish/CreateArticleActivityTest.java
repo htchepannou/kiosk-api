@@ -3,8 +3,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
-import com.tchepannou.kiosk.api.filter.ArticleFilterSet;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.FeedRepository;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
@@ -35,13 +33,7 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
     FeedRepository feedRepository;
 
     @Mock
-    ArticleFilterSet articleFilters;
-
-    @Mock
     FileService fileService;
-
-    @Mock
-    ArticleRepository articleRepository;
 
     @InjectMocks
     CreateArticleActivity activity;
@@ -68,8 +60,6 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
 
         // Then
         assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_CREATED, article);
-
-        verify(articleRepository).save(article);
 
         final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);

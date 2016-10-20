@@ -3,7 +3,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Image;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.Event;
@@ -28,9 +27,6 @@ import static org.mockito.Mockito.when;
 public class ExtractImageActivityTest extends ActivityTestSupport {
     @Mock
     ImageRepository imageRepository;
-
-    @Mock
-    ArticleRepository articleRepository;
 
     @Mock
     ArticleService articleService;
@@ -82,7 +78,6 @@ public class ExtractImageActivityTest extends ActivityTestSupport {
         activity.doHandleEvent(new Event("foo", article));
 
         // Then
-        assertThat(articleRepository.save(article));
         assertThat(article.getImage()).isEqualTo(img1);
     }
 

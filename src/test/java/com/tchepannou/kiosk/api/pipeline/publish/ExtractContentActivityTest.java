@@ -2,7 +2,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
@@ -43,9 +42,6 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
     @Mock
     TitleSanitizer titleSanitizer;
 
-    @Mock
-    ArticleRepository articleRepository;
-
     @InjectMocks
     ExtractContentActivity activity;
 
@@ -58,8 +54,6 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
     public void shouldProcessArticle() throws Exception {
         // Given
         final Article article = Fixture.createArticle();
-        final String articleId = article.getId();
-        when(articleRepository.findOne(articleId)).thenReturn(article);
 
         final String html = "hello world";
         when(articleService.fetchContent(any(), any())).thenReturn(html);
@@ -80,7 +74,6 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
         assertThat(article.getContentLength()).isEqualTo(17);
         assertThat(article.getContentCssId()).isEqualTo("item1");
-        verify(articleRepository).save(article);
 
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
