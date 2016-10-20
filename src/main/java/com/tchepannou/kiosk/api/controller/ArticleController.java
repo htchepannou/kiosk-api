@@ -96,7 +96,7 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Sort the articles")
+    @ApiOperation("Process the articles")
     @RequestMapping(value = "/process", method = RequestMethod.GET)
     @ApiResponses(
             {
