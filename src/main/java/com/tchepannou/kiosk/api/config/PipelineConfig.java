@@ -160,6 +160,7 @@ public class PipelineConfig {
     }
 
     //-- End
+    @Bean
     EndActivity endActivity(){
         return new EndActivity();
     }
