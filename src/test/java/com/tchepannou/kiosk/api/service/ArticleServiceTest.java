@@ -240,8 +240,6 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isTrue();
-
-        verify(articleRepository).save(any(Article.class));
     }
 
     @Test
@@ -266,8 +264,6 @@ public class ArticleServiceTest {
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isTrue();
-
-        verify(articleRepository).save(any(Article.class));
     }
 
     @Test
@@ -335,8 +331,6 @@ public class ArticleServiceTest {
         verify(publisher).publishEvent(event.capture());
         assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_PROCESS);
         assertThat(event.getValue().getPayload()).isEqualTo(artickes);
-
-        verify(articleRepository).save(artickes);
     }
 
     //-- Private

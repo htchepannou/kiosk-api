@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.pipeline;
 
+import com.codahale.metrics.MetricRegistry;
 import com.tchepannou.kiosk.api.domain.Article;
-import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.core.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,6 +14,9 @@ public abstract class Activity {
     @Autowired
     protected LogService log;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @EventListener
     public void handleEvent(final Event event) {
         if (!event.getTopic().equalsIgnoreCase(getTopic())) {
@@ -22,12 +25,13 @@ public abstract class Activity {
 
         log.add("Step", getName());
         log.add("Topic", event.getTopic());
+        log.add("Success", true);
         try {
 
             doHandleEvent(event);
-            log.add("Success", true);
+            markMeter("Article");
 
-        } catch (RuntimeException e){
+        } catch (final RuntimeException e) {
             addToLog(e);
             log.log(e);
         }
@@ -54,16 +58,6 @@ public abstract class Activity {
         log.add("ArticleId", article.getId());
     }
 
-    protected void addToLog(final Image image) {
-        if (image == null) {
-            return;
-        }
-        log.add("ImageUrl", image.getUrl());
-        log.add("ImageTitle", image.getTitle());
-        log.add("ImageWidth", image.getWidth());
-        log.add("ImageHeight", image.getHeight());
-    }
-
     protected void addToLog(final Throwable ex) {
         if (ex == null) {
             return;
@@ -72,5 +66,13 @@ public abstract class Activity {
         log.add("Success", false);
         log.add("Exception", ex.getClass().getName());
         log.add("ExceptionMessage", ex.getMessage());
+    }
+
+    protected void markMeter(final String name) {
+        metricRegistry.meter(MetricRegistry.name("Kiosk.Pippeline.Publish", name)).mark();
+    }
+
+    protected void markMeter(final String name, final int value) {
+        metricRegistry.meter(MetricRegistry.name("Kiosk.Pippeline.Publish", name)).mark(value);
     }
 }

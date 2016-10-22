@@ -1,5 +1,6 @@
 package com.tchepannou.kiosk.api.service;
 
+import com.codahale.metrics.MetricRegistry;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Feed;
 import com.tchepannou.kiosk.api.domain.Image;
@@ -38,7 +39,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -81,6 +81,9 @@ public class ArticleService {
     @Autowired
     LogService logService;
 
+    @Autowired
+    MetricRegistry metricRegistry;
+
     @Value("${kiosk.article.page.size}")
     int pageSize = 20;
 
@@ -116,7 +119,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public PublishResponse publish(final PublishRequest request) throws IOException {
+    public PublishResponse publish(final PublishRequest request) {
         final ArticleDataDto requestArticle = request.getArticle();
         final String articleId = Article.generateId(requestArticle.getUrl());
         final Article article = articleRepository.findOne(articleId);
@@ -131,11 +134,7 @@ public class ArticleService {
 
         // Publish
         publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
-        final PublishResponse response = createPublishResponse(articleId);
-
-        // Save
-        articleRepository.save(article);
-        return response;
+        return createPublishResponse(articleId);
     }
 
     @Transactional
@@ -148,9 +147,6 @@ public class ArticleService {
 
         // Process
         publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESS, articles));
-
-        // Save
-        articleRepository.save(articles);
     }
 
     public String fetchContent(final Article article, final Article.Status status) {

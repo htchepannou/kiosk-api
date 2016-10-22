@@ -1,6 +1,7 @@
 package com.tchepannou.kiosk.api.config;
 
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.EndActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.RankActitivy;
@@ -18,6 +19,7 @@ import com.tchepannou.kiosk.ranker.RankerContext;
 import com.tchepannou.kiosk.ranker.ScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ContentLengthScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ImageScoreProvider;
+import com.tchepannou.kiosk.ranker.score.PublishedDateScoreProvider;
 import com.tchepannou.kiosk.validator.Rule;
 import com.tchepannou.kiosk.validator.Validator;
 import com.tchepannou.kiosk.validator.ValidatorContext;
@@ -91,7 +93,7 @@ public class PipelineConfig {
 
     //-- Validation
     @Bean
-    ValidateActivity validateActivity(){
+    ValidateActivity validateActivity() {
         return new ValidateActivity();
     }
 
@@ -101,7 +103,7 @@ public class PipelineConfig {
     }
 
     @Bean
-    ValidatorContext validatorContext(){
+    ValidatorContext validatorContext() {
         return new ValidatorContext() {
             @Override
             public List<Rule> getRules() {
@@ -115,7 +117,7 @@ public class PipelineConfig {
 
     //-- Rank
     @Bean
-    RankActitivy rankActitivy(){
+    RankActitivy rankActitivy() {
         return new RankActitivy();
     }
 
@@ -125,13 +127,14 @@ public class PipelineConfig {
     }
 
     @Bean
-    RankerContext rankerContext(){
+    RankerContext rankerContext() {
         return new RankerContext() {
             @Override
             public List<Dimension> getDimensions() {
                 return Arrays.asList(
-                        createDimension("image", .75, new ImageScoreProvider()),
-                        createDimension("content-length", .25, new ContentLengthScoreProvider())
+                        createDimension("published-date", .50, new PublishedDateScoreProvider()),
+                        createDimension("image", .35, new ImageScoreProvider()),
+                        createDimension("content-length", .15, new ContentLengthScoreProvider())
                 );
             }
         };
@@ -154,5 +157,10 @@ public class PipelineConfig {
                 return name;
             }
         };
+    }
+
+    //-- End
+    EndActivity endActivity(){
+        return new EndActivity();
     }
 }

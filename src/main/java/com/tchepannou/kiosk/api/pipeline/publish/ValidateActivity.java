@@ -29,14 +29,12 @@ public class ValidateActivity extends Activity {
 
         final Validation validation = validator.validate(varticle, context);
         log(article, validation);
-        if (validation.isSuccess()) {
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_VALIDATED, article));
-        } else {
+        if (!validation.isSuccess()) {
             article.setStatus(Article.Status.rejected);
             article.setStatusReason(validation.getReason());
-
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_REJECTED, article));
         }
+
+        publishEvent(new Event(PipelineConstants.TOPIC_END, article));
     }
 
     private void log(final Article article, final Validation validation) {

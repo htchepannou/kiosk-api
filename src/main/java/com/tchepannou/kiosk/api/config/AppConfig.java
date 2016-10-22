@@ -1,6 +1,7 @@
 package com.tchepannou.kiosk.api.config;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
