@@ -234,7 +234,7 @@ public class ArticleServiceTest {
         // Then
         final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
         verify(publisher).publishEvent(event.capture());
-        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_SUBMITTED);
+        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.EVENT_CREATE_ARTICLE);
         assertThat(event.getValue().getPayload()).isEqualTo(request);
 
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
@@ -258,7 +258,7 @@ public class ArticleServiceTest {
         // Then
         final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
         verify(publisher).publishEvent(event.capture());
-        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_SUBMITTED);
+        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.EVENT_CREATE_ARTICLE);
         assertThat(event.getValue().getPayload()).isEqualTo(request);
 
         assertThat(response.getTransactionId()).isEqualTo(transactionId);
@@ -329,7 +329,7 @@ public class ArticleServiceTest {
         // Then
         final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
         verify(publisher).publishEvent(event.capture());
-        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_PROCESS);
+        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.EVENT_RANK);
         assertThat(event.getValue().getPayload()).isEqualTo(artickes);
     }
 

@@ -19,4 +19,9 @@ public class ValidableArticle implements Validable {
     public String getTitle() {
         return article.getTitle();
     }
+
+    @Override
+    public String getLanguage() {
+        return article.getLanguageCode();
+    }
 }

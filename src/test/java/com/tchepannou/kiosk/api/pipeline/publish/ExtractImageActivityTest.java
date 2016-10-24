@@ -49,7 +49,7 @@ public class ExtractImageActivityTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.EVENT_EXTRACT_IMAGE);
     }
 
     @Test
@@ -79,6 +79,8 @@ public class ExtractImageActivityTest extends ActivityTestSupport {
 
         // Then
         assertThat(article.getImage()).isEqualTo(img1);
+
+        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_LANGUAGE, article);
     }
 
     private Image createImage(final int w, final int h) {

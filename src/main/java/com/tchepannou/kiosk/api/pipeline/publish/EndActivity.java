@@ -13,7 +13,7 @@ public class EndActivity extends Activity{
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_END;
+        return PipelineConstants.EVENT_END;
     }
 
     @Override

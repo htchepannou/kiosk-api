@@ -31,7 +31,7 @@ public class ValidateActivityTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_IMAGE_EXTRACTED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.EVENT_VALIDATE);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ValidateActivityTest extends ActivityTestSupport {
         // Then
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
 
-        assertThatEventPublished(PipelineConstants.TOPIC_END, article);
+        assertThatEventPublished(PipelineConstants.EVENT_END, article);
     }
 
     @Test
@@ -64,6 +64,6 @@ public class ValidateActivityTest extends ActivityTestSupport {
         assertThat(article.getStatus()).isEqualTo(Article.Status.rejected);
         assertThat(article.getStatusReason()).isEqualTo("err");
 
-        assertThatEventPublished(PipelineConstants.TOPIC_END, article);
+        assertThatEventPublished(PipelineConstants.EVENT_END, article);
     }
 }

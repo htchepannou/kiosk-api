@@ -133,7 +133,7 @@ public class ArticleService {
         }
 
         // Publish
-        publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_SUBMITTED, request));
+        publisher.publishEvent(new Event(PipelineConstants.EVENT_CREATE_ARTICLE, request));
         return createPublishResponse(articleId);
     }
 
@@ -146,7 +146,7 @@ public class ArticleService {
         final List<Article> articles = findAllArticles(startDate, endDate, 100, 10);
 
         // Process
-        publisher.publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_PROCESS, articles));
+        publisher.publishEvent(new Event(PipelineConstants.EVENT_RANK, articles));
     }
 
     public String fetchContent(final Article article, final Article.Status status) {

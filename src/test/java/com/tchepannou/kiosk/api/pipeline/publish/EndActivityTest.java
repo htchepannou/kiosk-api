@@ -27,7 +27,7 @@ public class EndActivityTest {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_END);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.EVENT_END);
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.EndActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.ExtractLanguageActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.RankActitivy;
 import com.tchepannou.kiosk.api.pipeline.publish.ValidateActivity;
 import com.tchepannou.kiosk.api.service.ImageService;
@@ -24,6 +25,7 @@ import com.tchepannou.kiosk.validator.Rule;
 import com.tchepannou.kiosk.validator.Validator;
 import com.tchepannou.kiosk.validator.ValidatorContext;
 import com.tchepannou.kiosk.validator.rules.ContentLengthRule;
+import com.tchepannou.kiosk.validator.rules.LanguageRule;
 import com.tchepannou.kiosk.validator.rules.TitleLengthRule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +44,9 @@ public class PipelineConfig {
 
     @Value("${kiosk.rules.TextLengthRule.minLength}")
     int minTextLength;
+
+    @Value("${kiosk.rules.LanguageRule.whiteList}")
+    String languageWhiteList;
 
     //-- Create
     @Bean
@@ -91,6 +96,12 @@ public class PipelineConfig {
         return new ImageGrabber();
     }
 
+    //-- Language
+    @Bean
+    ExtractLanguageActivity extractLanguageActivity(){
+        return new ExtractLanguageActivity();
+    }
+
     //-- Validation
     @Bean
     ValidateActivity validateActivity() {
@@ -109,7 +120,8 @@ public class PipelineConfig {
             public List<Rule> getRules() {
                 return Arrays.asList(
                         new ContentLengthRule(minTextLength),
-                        new TitleLengthRule()
+                        new TitleLengthRule(),
+                        new LanguageRule(Arrays.asList(languageWhiteList.split(",")))
                 );
             }
         };

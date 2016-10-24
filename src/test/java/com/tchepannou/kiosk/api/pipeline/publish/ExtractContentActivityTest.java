@@ -47,7 +47,7 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_CREATED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.EVENT_EXTRACT_CONTENT);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
         activity.doHandleEvent(event);
 
         // Then
-        assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED, article);
+        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_IMAGE, article);
 
         assertThat(article.getTitle()).isEqualTo("!!! Title");
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);

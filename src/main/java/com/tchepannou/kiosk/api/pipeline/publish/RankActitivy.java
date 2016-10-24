@@ -26,7 +26,7 @@ public class RankActitivy extends Activity {
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_PROCESS;
+        return PipelineConstants.EVENT_RANK;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RankActitivy extends Activity {
 
         // Save
         articleRepository.save(articles);
-        publishEvent(new Event(PipelineConstants.TOPIC_END, articles));
+        publishEvent(new Event(PipelineConstants.EVENT_END, articles));
     }
 
 }

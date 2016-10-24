@@ -7,17 +7,13 @@ import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.Activity;
 import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
-import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.image.DimensionProvider;
 import com.tchepannou.kiosk.image.ImageContext;
 import com.tchepannou.kiosk.image.ImageExtractor;
-import org.apache.tika.mime.MimeTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.io.IOException;
 
 public class ExtractImageActivity extends Activity {
     @Autowired
@@ -40,7 +36,7 @@ public class ExtractImageActivity extends Activity {
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED;
+        return PipelineConstants.EVENT_EXTRACT_IMAGE;
     }
 
     @Override
@@ -51,31 +47,32 @@ public class ExtractImageActivity extends Activity {
         final Website website = article.getFeed().getWebsite();
 
         final ImageContext ctx = createImageContext(website);
-        final String url = extractor.extract(html, ctx);
-
-        if (url != null) {
-            Image image = imageRepository.findOne(Image.generateId(url));
-            if (image == null){
-                try {
+        Throwable ex = null;
+        try {
+            final String url = extractor.extract(html, ctx);
+            if (url != null) {
+                Image image = imageRepository.findOne(Image.generateId(url));
+                if (image == null) {
                     image = imageService.createImage(url);
-                } catch (IOException | MimeTypeException ex){
-                    throw new PipelineException(ex);
                 }
-            }
 
-            article.setImage(image);
+                article.setImage(image);
+            }
+        } catch(Exception e){
+            ex = e;
         }
 
-        log(article);
-        publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_IMAGE_EXTRACTED, article));
+        log(article, ex);
+        publishEvent(new Event(PipelineConstants.EVENT_EXTRACT_LANGUAGE, article));
     }
 
-    private void log(final Article article) {
+    private void log(final Article article, final Throwable ex) {
         final Image image = article.getImage();
         if (image != null) {
             log.add("Image", image.getUrl());
         }
         addToLog(article);
+        addToLog(ex);
         log.log();
     }
 

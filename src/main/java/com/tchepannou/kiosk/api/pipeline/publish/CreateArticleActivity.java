@@ -35,7 +35,7 @@ public class CreateArticleActivity extends Activity{
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_SUBMITTED;
+        return PipelineConstants.EVENT_CREATE_ARTICLE;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CreateArticleActivity extends Activity{
             store(article, html);
 
             log(article);
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_CREATED, article));
+            publishEvent(new Event(PipelineConstants.EVENT_EXTRACT_CONTENT, article));
 
         } catch (Exception e){
 

@@ -40,7 +40,7 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_SUBMITTED);
+        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.EVENT_CREATE_ARTICLE);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class CreateArticleActivityTest extends ActivityTestSupport {
         activity.doHandleEvent(event);
 
         // Then
-        assertThatEventPublished(PipelineConstants.TOPIC_ARTICLE_CREATED, article);
+        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_CONTENT, article);
 
         final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
         final ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);

@@ -19,7 +19,7 @@ public class ValidateActivity extends Activity {
 
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_IMAGE_EXTRACTED;
+        return PipelineConstants.EVENT_VALIDATE;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ValidateActivity extends Activity {
             article.setStatusReason(validation.getReason());
         }
 
-        publishEvent(new Event(PipelineConstants.TOPIC_END, article));
+        publishEvent(new Event(PipelineConstants.EVENT_END, article));
     }
 
     private void log(final Article article, final Validation validation) {

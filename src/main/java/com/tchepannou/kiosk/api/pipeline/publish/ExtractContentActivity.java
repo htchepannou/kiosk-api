@@ -42,7 +42,7 @@ public class ExtractContentActivity extends Activity {
     //-- Activity overrides
     @Override
     protected String getTopic() {
-        return PipelineConstants.TOPIC_ARTICLE_CREATED;
+        return PipelineConstants.EVENT_EXTRACT_CONTENT;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ExtractContentActivity extends Activity {
             store(article, xhtml, ctx);
 
             log(article);
-            publishEvent(new Event(PipelineConstants.TOPIC_ARTICLE_CONTENT_EXTRACTED, article));
+            publishEvent(new Event(PipelineConstants.EVENT_EXTRACT_IMAGE, article));
 
         } catch (final IOException ex) {
             throw new PipelineException(ex);

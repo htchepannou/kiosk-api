@@ -41,7 +41,7 @@ public class RankActitivyTest extends ActivityTestSupport {
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(actitivy.getTopic()).isEqualTo(PipelineConstants.TOPIC_ARTICLE_PROCESS);
+        assertThat(actitivy.getTopic()).isEqualTo(PipelineConstants.EVENT_RANK);
     }
 
     @Test
