@@ -34,7 +34,7 @@ public class ValidateActivity extends Activity {
             article.setStatusReason(validation.getReason());
         }
 
-        publishEvent(new Event(PipelineConstants.EVENT_EXTRACT_KEYWORDS, article));
+        publishEvent(new Event(PipelineConstants.EVENT_END, article));
     }
 
     private void log(final Article article, final Validation validation) {

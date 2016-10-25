@@ -1,7 +1,6 @@
 package com.tchepannou.kiosk.api.config;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.tchepannou.kiosk.api.mapper.ArticleMapper;
@@ -95,7 +94,7 @@ public class AppConfig {
     @Bean
     public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
         return new Jackson2ObjectMapperBuilder()
-                .simpleDateFormat("yyyy-MM-dd HH:mm:ss Z")
+                .simpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z")
                 .timeZone(TimeZone.getTimeZone("GMT"))
                 .serializationInclusion(JsonInclude.Include.NON_NULL)
                 .featuresToDisable(

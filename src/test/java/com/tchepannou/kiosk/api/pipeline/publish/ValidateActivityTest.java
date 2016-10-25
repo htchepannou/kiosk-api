@@ -47,7 +47,7 @@ public class ValidateActivityTest extends ActivityTestSupport {
         // Then
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
 
-        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_KEYWORDS, article);
+        assertThatEventPublished(PipelineConstants.EVENT_END, article);
     }
 
     @Test
@@ -64,6 +64,6 @@ public class ValidateActivityTest extends ActivityTestSupport {
         assertThat(article.getStatus()).isEqualTo(Article.Status.rejected);
         assertThat(article.getStatusReason()).isEqualTo("err");
 
-        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_KEYWORDS, article);
+        assertThatEventPublished(PipelineConstants.EVENT_END, article);
     }
 }

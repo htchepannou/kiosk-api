@@ -80,7 +80,6 @@ public class PublishPipelineIT {
             PipelineConstants.EVENT_EXTRACT_IMAGE,
             PipelineConstants.EVENT_EXTRACT_LANGUAGE,
             PipelineConstants.EVENT_VALIDATE,
-            PipelineConstants.EVENT_EXTRACT_KEYWORDS,
             PipelineConstants.EVENT_END
         );
 
