@@ -6,6 +6,7 @@ public interface PipelineConstants {
     String EVENT_EXTRACT_IMAGE = "EXTRACT_IMAGE";
     String EVENT_EXTRACT_LANGUAGE = "EXTRACT_LANGUAGE";
     String EVENT_VALIDATE = "VALIDATE";
+    String EVENT_EXTRACT_KEYWORDS = "EXTRACT_KEYWORDS";
     String EVENT_RANK = "RANK";
     String EVENT_END = "END";
 }

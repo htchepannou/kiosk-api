@@ -27,7 +27,7 @@ import com.tchepannou.kiosk.core.service.FileService;
 import com.tchepannou.kiosk.core.service.LogService;
 import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.service.TransactionIdProvider;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -110,7 +110,7 @@ public class ArticleService {
     }
 
     public GetArticleListResponse findByStatus(final String status, final int page) {
-        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "score");
+        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate");
         final Date endDate = timeService.now();
         final Date startDate = DateUtils.addHours(endDate, -NEWS_WINDOW_HOURS);
         final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.valueOf(status.toLowerCase()), startDate, endDate, pagination);

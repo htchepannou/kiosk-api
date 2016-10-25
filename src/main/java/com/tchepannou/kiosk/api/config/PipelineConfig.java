@@ -1,5 +1,6 @@
 package com.tchepannou.kiosk.api.config;
 
+import com.tchepannou.kiosk.api.pipeline.ExtractKeywordsActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.EndActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
@@ -12,6 +13,7 @@ import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
 import com.tchepannou.kiosk.content.FilterSetProvider;
 import com.tchepannou.kiosk.content.TitleSanitizer;
+import com.tchepannou.kiosk.core.text.TextKitProvider;
 import com.tchepannou.kiosk.image.ImageExtractor;
 import com.tchepannou.kiosk.image.support.ImageGrabber;
 import com.tchepannou.kiosk.ranker.Dimension;
@@ -126,6 +128,18 @@ public class PipelineConfig {
             }
         };
     }
+
+    //-- Keywords
+    @Bean
+    TextKitProvider textKitProvider(){
+        return new TextKitProvider();
+    }
+
+    @Bean
+    ExtractKeywordsActivity extractKeywordsActivity(){
+        return new ExtractKeywordsActivity();
+    }
+
 
     //-- Rank
     @Bean

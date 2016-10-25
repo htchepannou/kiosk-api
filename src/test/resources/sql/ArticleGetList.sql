@@ -1,5 +1,5 @@
 -- Website
-INSERT INTO website(id, name, url, active)
+INSERT INTO website (id, name, url, active)
 VALUES (100, 'Mboa Football', 'http://www.mboafootball.com', TRUE);
 
 -- Feeds
@@ -16,10 +16,10 @@ INSERT INTO article (id, feed_id, image_id, status, title, slug, country_code, l
 VALUES ('100', 100, '100', 0, 'Article #100', 'Slug #100', 'CMR', 'FR', now(), 'http://feed100/100', 10);
 
 INSERT INTO article (id, feed_id, image_id, status, title, slug, country_code, language_code, published_date, url, score)
-VALUES ('101', 100, '100', 1, 'Article #101', 'Slug #101', 'CMR', 'FR', now(), 'http://feed100/101', 3);
+VALUES ('101', 100, '100', 1, 'Article #101', 'Slug #101', 'CMR', 'FR', date_add(now(), INTERVAL -10 MINUTE), 'http://feed100/101', 3);
 
 INSERT INTO article (id, feed_id, status, title, slug, country_code, language_code, published_date, url, score)
-VALUES ('102', 100, 1, 'Article #102', 'Slug #102', 'CMR', 'FR', now(), 'http://feed100/102', 7);
+VALUES ('102', 100, 1, 'Article #102', 'Slug #102', 'CMR', 'FR', date_add(now(), INTERVAL -8 MINUTE), 'http://feed100/102', 7);
 
 
 INSERT INTO article (id, feed_id, status, title, slug, country_code, language_code, published_date, url, score)

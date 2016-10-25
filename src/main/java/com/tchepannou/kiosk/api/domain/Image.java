@@ -2,9 +2,9 @@ package com.tchepannou.kiosk.api.domain;
 
 import com.tchepannou.kiosk.image.Dimension;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

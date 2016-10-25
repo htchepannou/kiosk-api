@@ -1,9 +1,9 @@
 package com.tchepannou.kiosk.api.domain;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -66,6 +66,10 @@ public class Article {
 
     public String contentKey(final Status status) {
         return "/articles/" + getId() + "/" + status.name() + ".html";
+    }
+
+    public String keywordKey(){
+        return "/articles/" + getId() + "/keyword.csv";
     }
 
     public String getId() {
