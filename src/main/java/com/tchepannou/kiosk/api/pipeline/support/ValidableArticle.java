@@ -11,6 +11,11 @@ public class ValidableArticle implements Validable {
     }
 
     @Override
+    public String getId() {
+        return article.getId();
+    }
+
+    @Override
     public int getContentLength() {
         return article.getContentLength();
     }

@@ -1,5 +1,7 @@
 package com.tchepannou.kiosk.api.config;
 
+import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.api.pipeline.ExtractKeywordsActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.EndActivity;
@@ -13,6 +15,7 @@ import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.DefaultFilterSetProvider;
 import com.tchepannou.kiosk.content.FilterSetProvider;
 import com.tchepannou.kiosk.content.TitleSanitizer;
+import com.tchepannou.kiosk.core.service.TimeService;
 import com.tchepannou.kiosk.core.text.TextKitProvider;
 import com.tchepannou.kiosk.image.ImageExtractor;
 import com.tchepannou.kiosk.image.support.ImageGrabber;
@@ -27,13 +30,17 @@ import com.tchepannou.kiosk.validator.Rule;
 import com.tchepannou.kiosk.validator.Validator;
 import com.tchepannou.kiosk.validator.ValidatorContext;
 import com.tchepannou.kiosk.validator.rules.ContentLengthRule;
+import com.tchepannou.kiosk.validator.rules.DuplicateArticleRule;
 import com.tchepannou.kiosk.validator.rules.LanguageRule;
-import com.tchepannou.kiosk.validator.rules.TitleLengthRule;
+import com.tchepannou.kiosk.validator.rules.NoTitleRule;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Configuration
@@ -49,6 +56,12 @@ public class PipelineConfig {
 
     @Value("${kiosk.rules.LanguageRule.whiteList}")
     String languageWhiteList;
+
+    @Autowired
+    ArticleRepository articleRepository;
+
+    @Autowired
+    TimeService timeService;
 
     //-- Create
     @Bean
@@ -117,14 +130,35 @@ public class PipelineConfig {
 
     @Bean
     ValidatorContext validatorContext() {
+        final List<String> languages = Arrays.asList(languageWhiteList.split(","));
+
         return new ValidatorContext() {
             @Override
             public List<Rule> getRules() {
                 return Arrays.asList(
-                        new ContentLengthRule(minTextLength),
-                        new TitleLengthRule(),
-                        new LanguageRule(Arrays.asList(languageWhiteList.split(",")))
+                        new ContentLengthRule(),
+                        new NoTitleRule(),
+                        new LanguageRule(),
+                        new DuplicateArticleRule()
                 );
+            }
+
+            @Override
+            public List<String> getLanguages() {
+                return languages;
+            }
+
+            @Override
+            public int getContentMinLength() {
+                return minTextLength;
+            }
+
+            @Override
+            public boolean alreadyPublished(final String id, final String title) {
+                final Date endDate = timeService.now();
+                final Date startDate = DateUtils.addDays(endDate, -7);
+                final List<Article> articles = articleRepository.findByPublishedDateBetweenAndTitleAndIdNot(startDate, endDate, title, id);
+                return !articles.isEmpty();
             }
         };
     }

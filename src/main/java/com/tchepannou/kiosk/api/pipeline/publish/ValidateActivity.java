@@ -42,5 +42,6 @@ public class ValidateActivity extends Activity {
 
         log.add("Success", validation.isSuccess());
         log.add("ValidationReason", validation.getReason());
+        log.log();
     }
 }
