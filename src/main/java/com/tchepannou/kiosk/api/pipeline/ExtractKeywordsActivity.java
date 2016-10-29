@@ -9,7 +9,6 @@ import com.tchepannou.kiosk.core.text.Fragment;
 import com.tchepannou.kiosk.core.text.TextKit;
 import com.tchepannou.kiosk.core.text.TextKitProvider;
 import org.apache.commons.lang3.time.DateUtils;
-import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
@@ -77,11 +76,11 @@ public class ExtractKeywordsActivity extends Activity {
     }
 
     private List<String> extractKeywords(final Article article) {
-        final String content = articleService.fetchContent(article, Article.Status.processed);
-        final String xcontent = Jsoup.parse(content).text();
+//        final String content = articleService.fetchContent(article, Article.Status.processed);
+//        final String xcontent = Jsoup.parse(content).text();
         final String title = article.getTitle();
         final TextKit kit = textKitProvider.get(article.getLanguageCode());
-        final List<Fragment> fragments = Fragment.parse(title + "." + xcontent, kit);
+        final List<Fragment> fragments = Fragment.parse(title, kit);
         final List<String> keywords = new ArrayList<>();
         for (final Fragment fragment : fragments) {
             keywords.addAll(fragment.extractKeywords(3));
@@ -103,13 +102,13 @@ public class ExtractKeywordsActivity extends Activity {
                 final double tf = tf(keyword, keywords);
                 final double idf = idf(keyword, allKeywords);
 
-                words.add(new Word(keyword, tf * idf));
+                words.add(new Word(keyword, tf, idf));
             }
 
             Collections.sort(words, Collections.reverseOrder());
             sb.append(article.getId() + " - " + article.getTitle() + "\n");
             for (Word word : words) {
-                sb.append(String.format("  %50s %.5f\n", word.getValue(), word.getScore()));
+                sb.append(String.format("  %50s %.5f %.5f %.5f\n", word.getValue(), word.getTf(), word.getIdf(), word.getScore()));
             }
         }
 
@@ -144,11 +143,21 @@ public class ExtractKeywordsActivity extends Activity {
 
     public static class Word implements Comparable<Word> {
         private final String value;
-        private final double score;
+        private final double tf;
+        private final double idf;
 
-        public Word(final String value, final double score) {
+        public Word(final String value, final double tf, final double idf) {
             this.value = value;
-            this.score = score;
+            this.tf = tf;
+            this.idf = idf;
+        }
+
+        public double getTf() {
+            return tf;
+        }
+
+        public double getIdf() {
+            return idf;
         }
 
         public String getValue() {
@@ -156,12 +165,13 @@ public class ExtractKeywordsActivity extends Activity {
         }
 
         public double getScore() {
-            return score;
+            return tf*idf;
         }
+
 
         @Override
         public int compareTo(final Word o) {
-            return (int)(1000000*(score-o.score));
+            return (int)(1000000*(getScore()-o.getScore()));
         }
     }
 }
