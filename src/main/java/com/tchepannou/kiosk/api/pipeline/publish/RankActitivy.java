@@ -51,7 +51,7 @@ public class RankActitivy extends Activity {
 
         // Save
         articleRepository.save(articles);
-        publishEvent(new Event(PipelineConstants.EVENT_END, articles));
+        publishEvent(new Event(PipelineConstants.EVENT_EXTRACT_KEYWORDS, articles));
     }
 
 }

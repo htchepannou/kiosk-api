@@ -156,7 +156,7 @@ public class PipelineConfig {
             @Override
             public boolean alreadyPublished(final String id, final String title) {
                 final Date endDate = timeService.now();
-                final Date startDate = DateUtils.addDays(endDate, -7);
+                final Date startDate = DateUtils.addDays(endDate, -30);
                 final List<Article> articles = articleRepository.findByPublishedDateBetweenAndTitleAndIdNot(startDate, endDate, title, id);
                 return !articles.isEmpty();
             }

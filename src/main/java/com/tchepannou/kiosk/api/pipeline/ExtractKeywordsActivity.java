@@ -1,21 +1,29 @@
 package com.tchepannou.kiosk.api.pipeline;
 
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.jpa.ArticleRepository;
+import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.core.service.FileService;
-import com.tchepannou.kiosk.core.text.Stemmer;
-import com.tchepannou.kiosk.core.text.StopWord;
+import com.tchepannou.kiosk.core.service.TimeService;
+import com.tchepannou.kiosk.core.text.Fragment;
 import com.tchepannou.kiosk.core.text.TextKit;
 import com.tchepannou.kiosk.core.text.TextKitProvider;
-import com.tchepannou.kiosk.core.text.Tokenizer;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ExtractKeywordsActivity extends Activity {
     @Autowired
@@ -24,6 +32,15 @@ public class ExtractKeywordsActivity extends Activity {
     @Autowired
     TextKitProvider textKitProvider;
 
+    @Autowired
+    ArticleRepository articleRepository;
+
+    @Autowired
+    TimeService timeService;
+
+    @Autowired
+    ArticleService articleService;
+
     @Override
     protected String getTopic() {
         return PipelineConstants.EVENT_EXTRACT_KEYWORDS;
@@ -31,98 +48,118 @@ public class ExtractKeywordsActivity extends Activity {
 
     @Override
     protected void doHandleEvent(final Event event) {
-        final Article article = (Article) event.getPayload();
-        Throwable ex = null;
-        try {
-            if (Article.Status.processed.equals(article.getStatus())){
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                final String url = article.contentKey(article.getStatus());
-                fileService.get(url, out);
+        final List<Article> articles = getArticles(event);
 
-                final Collection<Word> words = extract(article, out.toString("utf-8"));
-                output(article, words);
-            }
+        final Map<Article, List<String>> allKeywords = new HashMap<>();
 
-            publishEvent(new Event(PipelineConstants.EVENT_END, article));
-        } catch (Exception e){
-            ex = e;
-        } finally {
-            log(article, ex);
-        }
-    }
-
-    private void output(Article article, Collection<Word> words) throws IOException {
-        final int total = totalWords(words);
-        final StringBuilder sb = new StringBuilder();
-        for (Word word: words){
-            double frequency = (double)word.getCount() / (double)total;
-            sb.append(word.getText() + "," + word.getCount() + "," + frequency + "\n");
+        for (final Article article : articles) {
+            final List<String> keywords = extractKeywords(article);
+            allKeywords.put(article, keywords);
         }
 
-        final String key = article.keywordKey();
-        final ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes("utf-8"));
-        fileService.put(key, in);
+        printFrequency(allKeywords);
+
+        publishEvent(new Event(PipelineConstants.EVENT_END, event.getPayload()));
     }
 
-    private Collection<Word> extract(final Article article, final String content) {
-        final TextKit kit = textKitProvider.get(article.getLanguageCode());
+    private List<Article> getArticles(final Event event) {
+        final Date endDate = timeService.now();
+        final Date startDate = DateUtils.addDays(endDate, -7);
+        final PageRequest pagination = new PageRequest(0, 300);
+        final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.processed, startDate, endDate, pagination);
+
+        final List<Article> result = ((List<Article>) event.getPayload()).stream()
+                .filter(a -> Article.Status.processed.equals(a.getStatus()))
+                .collect(Collectors.toList());
+        result.addAll(articles);
+
+        return result;
+    }
+
+    private List<String> extractKeywords(final Article article) {
+        final String content = articleService.fetchContent(article, Article.Status.processed);
+        final String xcontent = Jsoup.parse(content).text();
         final String title = article.getTitle();
-        final String text = Jsoup.parse(content).text();
+        final TextKit kit = textKitProvider.get(article.getLanguageCode());
+        final List<Fragment> fragments = Fragment.parse(title + "." + xcontent, kit);
+        final List<String> keywords = new ArrayList<>();
+        for (final Fragment fragment : fragments) {
+            keywords.addAll(fragment.extractKeywords(3));
+        }
 
-        final Tokenizer tokenizer = kit.getTokenizer(title + "\n" + text);
-        final Map<String, Word> words = new HashMap<>();
-        final Stemmer stemmer = kit.getStemmer();
-        final StopWord stopWord = kit.getStopWord();
-        while (true) {
-            final String token = tokenizer.nextToken();
-            if (token == null) {
-                break;
-            } else if (token.length() <= 1 || stopWord.is(token)){
-                continue;
+        Collections.sort(keywords);
+        return keywords;
+    }
+
+    private void printFrequency(final Map<Article, List<String>> allKeywords){
+        for (final Article article : allKeywords.keySet()) {
+            final List<String> keywords = allKeywords.get(article);
+            final Set<String> keywordSet = new HashSet<>(keywords);
+            final List<Word> words = new ArrayList<>();
+
+            for (final String keyword : keywordSet) {
+                final double tf = tf(keyword, keywords);
+                final double idf = idf(keyword, allKeywords);
+
+                words.add(new Word(keyword, tf * idf));
             }
 
-            final String stem = stemmer.stem(token);
-            Word word = words.get(stem);
-            if (word == null){
-                word = new Word(token);
-                words.put(token, word);
+            Collections.sort(words, Collections.reverseOrder());
+            final StringBuilder sb = new StringBuilder();
+            sb.append(article.getId() + " - " + article.getTitle() + "\n");
+            for (Word word : words) {
+                sb.append(String.format("  %50s %.5f\n", word.getValue(), word.getScore()));
             }
-            word.incr();
+
+            try {
+                System.out.println(sb.toString());
+                fileService.put("keywords/keywords.txt", new ByteArrayInputStream(sb.toString().getBytes()));
+            } catch (IOException e){
+                // Nothing
+            }
         }
-        return words.values();
     }
 
-    private int totalWords(Collection<Word> words){
-        int total = 0;
-        for (Word word : words){
-            total += word.getCount();
+    private double tf(final String keyword, final List<String> keywords) {
+        double count = 0;
+        for (final String kw : keywords) {
+            if (kw.equals(keyword)) {
+                count++;
+            }
         }
-        return total;
+        return count / keywords.size();
     }
 
-    private void log (final Article article, final Throwable ex){
-        addToLog(article);
-        addToLog(ex);
+    private double idf(final String keyword, final Map<Article, List<String>> allKeywords) {
+        double count = 0;
+        for (final List<String> keywords : allKeywords.values()) {
+            if (keywords.contains(keyword)) {
+                count++;
+            }
+        }
+        return Math.log(allKeywords.size()/count);
     }
 
-    private static class Word{
-        private String text;
-        private int count;
+    public static class Word implements Comparable<Word> {
+        private final String value;
+        private final double score;
 
-        public Word(final String text) {
-            this.text = text;
+        public Word(final String value, final double score) {
+            this.value = value;
+            this.score = score;
         }
 
-        public String getText() {
-            return text;
+        public String getValue() {
+            return value;
         }
 
-        public int getCount() {
-            return count;
+        public double getScore() {
+            return score;
         }
 
-        public void incr (){
-            count++;
+        @Override
+        public int compareTo(final Word o) {
+            return (int)(1000000*(score-o.score));
         }
     }
 }
