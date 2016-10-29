@@ -92,6 +92,8 @@ public class ExtractKeywordsActivity extends Activity {
     }
 
     private void printFrequency(final Map<Article, List<String>> allKeywords){
+        final StringBuilder sb = new StringBuilder();
+
         for (final Article article : allKeywords.keySet()) {
             final List<String> keywords = allKeywords.get(article);
             final Set<String> keywordSet = new HashSet<>(keywords);
@@ -105,19 +107,19 @@ public class ExtractKeywordsActivity extends Activity {
             }
 
             Collections.sort(words, Collections.reverseOrder());
-            final StringBuilder sb = new StringBuilder();
             sb.append(article.getId() + " - " + article.getTitle() + "\n");
             for (Word word : words) {
                 sb.append(String.format("  %50s %.5f\n", word.getValue(), word.getScore()));
             }
-
-            try {
-                System.out.println(sb.toString());
-                fileService.put("keywords/keywords.txt", new ByteArrayInputStream(sb.toString().getBytes()));
-            } catch (IOException e){
-                // Nothing
-            }
         }
+
+        try {
+            System.out.println(sb.toString());
+            fileService.put("keywords/keywords.txt", new ByteArrayInputStream(sb.toString().getBytes()));
+        } catch (IOException e){
+            // Nothing
+        }
+
     }
 
     private double tf(final String keyword, final List<String> keywords) {
