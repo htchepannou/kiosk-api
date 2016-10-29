@@ -110,7 +110,7 @@ public class ArticleService {
     }
 
     public GetArticleListResponse findByStatus(final String status, final int page) {
-        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate");
+        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "score", "publishedDate");
         final Date endDate = timeService.now();
         final Date startDate = DateUtils.addHours(endDate, -NEWS_WINDOW_HOURS);
         final List<Article> articles = articleRepository.findByStatusAndPublishedDateBetween(Article.Status.valueOf(status.toLowerCase()), startDate, endDate, pagination);
