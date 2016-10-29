@@ -36,6 +36,7 @@ public class Article {
     private String url;
 
     private String title;
+    private String displayTitle;
 
     @Column(columnDefinition = "text")
     private String slug;
@@ -87,6 +88,14 @@ public class Article {
     public void setUrl(final String url) {
         this.url = url;
         this.id = generateId(url);
+    }
+
+    public String getDisplayTitle() {
+        return displayTitle;
+    }
+
+    public void setDisplayTitle(final String displayTitle) {
+        this.displayTitle = displayTitle;
     }
 
     public String getTitle() {

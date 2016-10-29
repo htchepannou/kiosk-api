@@ -32,6 +32,7 @@ public class ArticleMapper {
         article.setSlug(dto.getSlug());
         article.setTitle(dto.getTitle());
         article.setUrl(dto.getUrl());
+        article.setDisplayTitle(dto.getDisplayTitle());
 
         final String publishedDate = dto.getPublishedDate();
         if (publishedDate != null) {
@@ -52,6 +53,7 @@ public class ArticleMapper {
         data.setTitle(article.getTitle());
         data.setUrl(article.getUrl());
         data.setId(article.getId());
+        data.setDisplayTitle(article.getDisplayTitle());
         return data;
     }
 }

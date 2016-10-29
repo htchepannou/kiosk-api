@@ -47,6 +47,7 @@ public class ArticleMapperTest {
         assertThat(article.getStatus()).isNull();
         assertThat(article.getTitle()).isEqualTo(request.getArticle().getTitle());
         assertThat(article.getUrl()).isEqualTo(request.getArticle().getUrl());
+        assertThat(article.getDisplayTitle()).isEqualTo(request.getArticle().getDisplayTitle());
     }
 
     @Test
@@ -94,5 +95,6 @@ public class ArticleMapperTest {
         assertThat(dto.getSlug()).isEqualTo(article.getSlug());
         assertThat(dto.getTitle()).isEqualTo(article.getTitle());
         assertThat(dto.getUrl()).isEqualTo(article.getUrl());
+        assertThat(dto.getDisplayTitle()).isEqualTo(article.getDisplayTitle());
     }
 }

@@ -53,6 +53,7 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("article.id", is("100"))
                 .body("article.url", is("http://feed100/100"))
                 .body("article.title", is("Article #100"))
+                .body("article.displayTitle", is("This is article #100"))
                 .body("article.slug", is("Slug #100"))
                 .body("article.countryCode", is("CMR"))
                 .body("article.languageCode", is("FR"))

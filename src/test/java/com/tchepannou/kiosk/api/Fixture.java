@@ -76,6 +76,7 @@ public class Fixture {
         article.setSlug("This is a slug");
         article.setStatus(Article.Status.submitted);
         article.setTitle("This is title");
+        article.setDisplayTitle("This is the title to display");
         article.setUrl("http://article.com/" + id);
         article.setContentLength(100);
 

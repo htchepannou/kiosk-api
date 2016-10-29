@@ -70,7 +70,8 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
         // Then
         assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_IMAGE, article);
 
-        assertThat(article.getTitle()).isEqualTo("!!! Title");
+        assertThat(article.getTitle()).isEqualTo(article.getTitle());
+        assertThat(article.getDisplayTitle()).isEqualTo("!!! Title");
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
         assertThat(article.getContentLength()).isEqualTo(17);
         assertThat(article.getContentCssId()).isEqualTo("item1");

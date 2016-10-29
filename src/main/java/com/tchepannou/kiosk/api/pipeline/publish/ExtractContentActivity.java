@@ -89,8 +89,8 @@ public class ExtractContentActivity extends Activity {
         fileService.put(key, new ByteArrayInputStream(xhtml.getBytes("utf-8")));
 
         // Update article
-        final String title = titleSanitizer.sanitize(article.getTitle(), ctx);
-        article.setTitle(title);
+        final String displayTitle = titleSanitizer.sanitize(article.getTitle(), ctx);
+        article.setDisplayTitle(displayTitle);
         article.setStatus(status);
         article.setContentLength(length(xhtml));
         article.setContentCssId(findContentCssId(xhtml));
