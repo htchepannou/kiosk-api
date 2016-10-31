@@ -3,7 +3,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
-import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.content.ContentExtractor;
@@ -64,11 +63,10 @@ public class ExtractContentActivityTest extends ActivityTestSupport {
         when(titleSanitizer.sanitize(any(), any())).thenReturn("!!! Title");
 
         // When
-        final Event event = new Event("foo", article);
-        activity.doHandleEvent(event);
+        final String next = activity.doHandleArticle(article);
 
         // Then
-        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_IMAGE, article);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_EXTRACT_IMAGE);
 
         assertThat(article.getTitle()).isEqualTo(article.getTitle());
         assertThat(article.getDisplayTitle()).isEqualTo("!!! Title");

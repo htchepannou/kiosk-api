@@ -2,7 +2,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
-import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,10 +28,10 @@ public class ExtractLanguageActivityTest extends ActivityTestSupport {
                 "La triste nouvelle n’est pas encore officielle. Mais, des sources proches de la famille du Gouverneur affirment que ce dernier est décédé dans la matinée de ce lundi 24 octobre 2016 en France des suites de maladie."
         );
 
-        activity.doHandleEvent(new Event("foo", article));
+        final String next = activity.doHandleArticle(article);
 
         assertThat(article.getLanguageCode()).isEqualTo("fr");
-        assertThatEventPublished(PipelineConstants.EVENT_VALIDATE, article);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_VALIDATE);
     }
 
     @Test
@@ -42,10 +41,10 @@ public class ExtractLanguageActivityTest extends ActivityTestSupport {
                 "A new executive of the Meme Lawyers’ Association, MELA, elected into office on October 15, has pledged to sustain the current momentum of Common Law lawyers’ in Cameroon."
         );
 
-        activity.doHandleEvent(new Event("foo", article));
+        final String next = activity.doHandleArticle(article);
 
         assertThat(article.getLanguageCode()).isEqualTo("en");
-        assertThatEventPublished(PipelineConstants.EVENT_VALIDATE, article);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_VALIDATE);
     }
 
     private Article createArticle(final String title, final String slug) {

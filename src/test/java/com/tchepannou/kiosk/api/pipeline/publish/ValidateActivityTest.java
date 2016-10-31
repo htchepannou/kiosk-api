@@ -2,7 +2,6 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
-import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.validator.Validation;
 import com.tchepannou.kiosk.validator.Validator;
@@ -42,12 +41,12 @@ public class ValidateActivityTest extends ActivityTestSupport {
         // When
         final Article article = createArticle();
         article.setStatus(Article.Status.processed);
-        activity.doHandleEvent(new Event("foo", article));
+        final String next = activity.doHandleArticle(article);
 
         // Then
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
 
-        assertThatEventPublished(PipelineConstants.EVENT_END, article);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_END);
     }
 
     @Test
@@ -58,12 +57,12 @@ public class ValidateActivityTest extends ActivityTestSupport {
         // When
         final Article article = createArticle();
         article.setStatus(Article.Status.processed);
-        activity.doHandleEvent(new Event("foo", article));
+        final String next = activity.doHandleArticle(article);
 
         // Then
         assertThat(article.getStatus()).isEqualTo(Article.Status.rejected);
         assertThat(article.getStatusReason()).isEqualTo("err");
 
-        assertThatEventPublished(PipelineConstants.EVENT_END, article);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_END);
     }
 }

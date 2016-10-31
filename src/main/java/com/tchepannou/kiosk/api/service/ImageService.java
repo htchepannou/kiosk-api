@@ -32,13 +32,17 @@ public class ImageService implements DimensionProvider {
     @Value("${kiosk.image.public.baseUri}")
     String publicBaseUrl;
 
-    public Image createImage(final String url) throws IOException, MimeTypeException {
-        final ImageData data = grabber.grab(url);
-        final String id = Image.generateId(url);
-        final Image image = toImage(id, url, data);
-        store(image, data);
+    public Image createImage(final String url) throws IOException {
+        try {
+            final ImageData data = grabber.grab(url);
+            final String id = Image.generateId(url);
+            final Image image = toImage(id, url, data);
+            store(image, data);
 
-        return image;
+            return image;
+        } catch (MimeTypeException e){
+            throw new PipelineException(e);
+        }
     }
 
     @Override
@@ -53,7 +57,7 @@ public class ImageService implements DimensionProvider {
 
             return image;
 
-        } catch (IOException | MimeTypeException ex) {
+        } catch (IOException ex) {
             throw new PipelineException(ex);
         }
     }

@@ -2,10 +2,8 @@ package com.tchepannou.kiosk.api.pipeline.publish;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Website;
-import com.tchepannou.kiosk.api.pipeline.Activity;
-import com.tchepannou.kiosk.api.pipeline.Event;
+import com.tchepannou.kiosk.api.pipeline.ArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
-import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.content.ContentExtractor;
 import com.tchepannou.kiosk.content.ExtractorContext;
@@ -22,7 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-public class ExtractContentActivity extends Activity {
+public class ExtractContentActivity extends ArticleActivity {
     @Autowired
     FileService fileService;
 
@@ -46,23 +44,24 @@ public class ExtractContentActivity extends Activity {
     }
 
     @Override
-    protected void doHandleEvent(final Event event) {
-        final Article article = (Article) event.getPayload();
-        try {
+    protected String doHandleArticle(final Article article) throws IOException {
 
-            final Website website = article.getFeed().getWebsite();
-            final ExtractorContext ctx = createExtractorContext(website);
-            final String html = articleService.fetchContent(article, Article.Status.submitted);
-            final String xhtml = extractor.extract(html, ctx);
+        final Website website = article.getFeed().getWebsite();
+        final ExtractorContext ctx = createExtractorContext(website);
+        final String html = articleService.fetchContent(article, Article.Status.submitted);
+        final String xhtml = extractor.extract(html, ctx);
 
-            store(article, xhtml, ctx);
+        // Update
+        final String displayTitle = titleSanitizer.sanitize(article.getTitle(), ctx);
+        article.setDisplayTitle(displayTitle);
+        article.setStatus(Article.Status.processed);
+        article.setContentLength(length(xhtml));
+        article.setContentCssId(findContentCssId(xhtml));
 
-            log(article);
-            publishEvent(new Event(PipelineConstants.EVENT_EXTRACT_IMAGE, article));
+        // Store
+        store(article, xhtml);
 
-        } catch (final IOException ex) {
-            throw new PipelineException(ex);
-        }
+        return PipelineConstants.EVENT_EXTRACT_IMAGE;
     }
 
 
@@ -82,23 +81,10 @@ public class ExtractContentActivity extends Activity {
         };
     }
 
-    private void store (final Article article, final String xhtml, final ExtractorContext ctx) throws IOException {
-        // Store content
+    private void store (final Article article, final String xhtml) throws IOException {
         final Article.Status status = Article.Status.processed;
         final String key = article.contentKey(status);
         fileService.put(key, new ByteArrayInputStream(xhtml.getBytes("utf-8")));
-
-        // Update article
-        final String displayTitle = titleSanitizer.sanitize(article.getTitle(), ctx);
-        article.setDisplayTitle(displayTitle);
-        article.setStatus(status);
-        article.setContentLength(length(xhtml));
-        article.setContentCssId(findContentCssId(xhtml));
-    }
-
-    private void log(final Article article) {
-        addToLog(article);
-        log.log();
     }
 
     private int length(final String xhtml) {

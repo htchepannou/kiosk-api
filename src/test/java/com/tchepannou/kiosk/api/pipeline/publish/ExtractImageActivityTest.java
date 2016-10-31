@@ -5,7 +5,6 @@ import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.domain.Image;
 import com.tchepannou.kiosk.api.jpa.ImageRepository;
 import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
-import com.tchepannou.kiosk.api.pipeline.Event;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.service.ArticleService;
 import com.tchepannou.kiosk.api.service.ImageService;
@@ -75,12 +74,12 @@ public class ExtractImageActivityTest extends ActivityTestSupport {
         when(imageRepository.findOne(img1.getId())).thenReturn(img1);
 
         // When
-        activity.doHandleEvent(new Event("foo", article));
+        final String next = activity.doHandleArticle(article);
 
         // Then
         assertThat(article.getImage()).isEqualTo(img1);
 
-        assertThatEventPublished(PipelineConstants.EVENT_EXTRACT_LANGUAGE, article);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_EXTRACT_LANGUAGE);
     }
 
     private Image createImage(final int w, final int h) {
