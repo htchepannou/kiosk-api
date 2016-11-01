@@ -35,7 +35,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
@@ -135,18 +134,6 @@ public class ArticleService {
         // Publish
         publisher.publishEvent(new Event(PipelineConstants.EVENT_CREATE_ARTICLE, request));
         return createPublishResponse(articleId);
-    }
-
-    @Transactional
-    @Scheduled(cron = "${kiosk.process.cron}")
-    public void process(){
-        // Get the articles
-        final Date endDate = timeService.now();
-        final Date startDate = DateUtils.addHours(endDate, -NEWS_WINDOW_HOURS);
-        final List<Article> articles = findAllArticles(startDate, endDate, 100, 10);
-
-        // Process
-        publisher.publishEvent(new Event(PipelineConstants.EVENT_RANK, articles));
     }
 
     public String fetchContent(final Article article, final Article.Status status) {

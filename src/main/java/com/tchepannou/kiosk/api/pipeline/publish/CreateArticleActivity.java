@@ -11,6 +11,7 @@ import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import com.tchepannou.kiosk.api.pipeline.PipelineException;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.FileService;
+import com.tchepannou.kiosk.core.service.TimeService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class CreateArticleActivity extends Activity{
 
     @Autowired
     FileService fileService;
+
+    @Autowired
+    TimeService timeService;
 
     @Value("${kiosk.article.slug.maxLength}")
     int slugMaxLength;
@@ -66,6 +70,9 @@ public class CreateArticleActivity extends Activity{
 
         if (Strings.isNullOrEmpty(article.getSlug())) {
             article.setSlug(defaultSlug(request));
+        }
+        if (article.getPublishedDate() == null){
+            article.setPublishedDate(timeService.now());
         }
 
         return article;

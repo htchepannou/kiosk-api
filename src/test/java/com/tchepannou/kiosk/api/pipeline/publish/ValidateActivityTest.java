@@ -46,7 +46,7 @@ public class ValidateActivityTest extends ActivityTestSupport {
         // Then
         assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
 
-        assertThat(next).isEqualTo(PipelineConstants.EVENT_END);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_EXTRACT_KEYWORDS);
     }
 
     @Test

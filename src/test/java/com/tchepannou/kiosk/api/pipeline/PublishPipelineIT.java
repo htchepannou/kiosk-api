@@ -43,7 +43,6 @@ public class PublishPipelineIT {
     @Autowired
     private ArticleRepository articleRepository;
 
-
     @After
     public void tearDown() {
         handler.getEvents().clear();
@@ -51,7 +50,7 @@ public class PublishPipelineIT {
 
     @Bean
     CustomScopeConfigurer customScopeConfigurer() {
-        CustomScopeConfigurer configurer = new CustomScopeConfigurer();
+        final CustomScopeConfigurer configurer = new CustomScopeConfigurer();
         configurer.addScope("request", new SimpleThreadScope());
         return configurer;
     }
@@ -75,12 +74,15 @@ public class PublishPipelineIT {
 
         // Event
         assertThat(handler.getEvents()).containsExactly(
-            PipelineConstants.EVENT_CREATE_ARTICLE,
-            PipelineConstants.EVENT_EXTRACT_CONTENT,
-            PipelineConstants.EVENT_EXTRACT_IMAGE,
-            PipelineConstants.EVENT_EXTRACT_LANGUAGE,
-            PipelineConstants.EVENT_VALIDATE,
-            PipelineConstants.EVENT_END
+                PipelineConstants.EVENT_CREATE_ARTICLE,
+                PipelineConstants.EVENT_EXTRACT_CONTENT,
+                PipelineConstants.EVENT_EXTRACT_IMAGE,
+                PipelineConstants.EVENT_EXTRACT_VIDEO,
+                PipelineConstants.EVENT_EXTRACT_LANGUAGE,
+                PipelineConstants.EVENT_VALIDATE,
+                PipelineConstants.EVENT_EXTRACT_KEYWORDS,
+                PipelineConstants.EVENT_SCORE,
+                PipelineConstants.EVENT_END
         );
 
         // Article persisted
@@ -97,7 +99,7 @@ public class PublishPipelineIT {
         return article;
     }
 
-    public static class EventHandler{
+    public static class EventHandler {
         private final List<String> events = new ArrayList<>();
 
         @EventListener

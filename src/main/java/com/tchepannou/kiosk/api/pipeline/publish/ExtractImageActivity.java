@@ -46,17 +46,22 @@ public class ExtractImageActivity extends ArticleActivity {
         final Website website = article.getFeed().getWebsite();
 
         final ImageContext ctx = createImageContext(website);
-        final String url = extractor.extract(html, ctx);
-        if (url != null) {
-            Image image = imageRepository.findOne(Image.generateId(url));
-            if (image == null) {
-                image = imageService.createImage(url);
+        try {
+            final String url = extractor.extract(html, ctx);
+            if (url != null) {
+                Image image = imageRepository.findOne(Image.generateId(url));
+                if (image == null) {
+                    image = imageService.createImage(url);
+                }
+
+                article.setImage(image);
             }
 
-            article.setImage(image);
+        } catch (Exception e){
+            addToLog(e);
+        } finally {
+            return PipelineConstants.EVENT_EXTRACT_VIDEO;
         }
-
-        return PipelineConstants.EVENT_EXTRACT_LANGUAGE;
     }
 
     @Override

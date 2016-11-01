@@ -79,7 +79,7 @@ public class ExtractImageActivityTest extends ActivityTestSupport {
         // Then
         assertThat(article.getImage()).isEqualTo(img1);
 
-        assertThat(next).isEqualTo(PipelineConstants.EVENT_EXTRACT_LANGUAGE);
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_EXTRACT_VIDEO);
     }
 
     private Image createImage(final int w, final int h) {

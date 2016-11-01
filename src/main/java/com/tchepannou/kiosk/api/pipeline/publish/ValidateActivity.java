@@ -26,13 +26,16 @@ public class ValidateActivity extends ArticleActivity {
         final ValidableArticle varticle = new ValidableArticle(article);
 
         final Validation validation = validator.validate(varticle, context);
+        log(validation);
+
         if (!validation.isSuccess()) {
             article.setStatus(Article.Status.rejected);
             article.setStatusReason(validation.getReason());
+            return PipelineConstants.EVENT_END;
+        } else{
+            return PipelineConstants.EVENT_EXTRACT_KEYWORDS;
         }
-        log(validation);
 
-        return PipelineConstants.EVENT_END;
     }
 
     private void log(final Validation validation) {

@@ -2,13 +2,14 @@ package com.tchepannou.kiosk.api.config;
 
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
-import com.tchepannou.kiosk.api.pipeline.ExtractKeywordsActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.CreateArticleActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.EndActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractContentActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractImageActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.ExtractKeywordsActivity;
 import com.tchepannou.kiosk.api.pipeline.publish.ExtractLanguageActivity;
-import com.tchepannou.kiosk.api.pipeline.publish.RankActitivy;
+import com.tchepannou.kiosk.api.pipeline.publish.ExtractVideoActivity;
+import com.tchepannou.kiosk.api.pipeline.publish.ScoreActitivy;
 import com.tchepannou.kiosk.api.pipeline.publish.ValidateActivity;
 import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.content.ContentExtractor;
@@ -20,9 +21,9 @@ import com.tchepannou.kiosk.core.text.TextKitProvider;
 import com.tchepannou.kiosk.image.ImageExtractor;
 import com.tchepannou.kiosk.image.support.ImageGrabber;
 import com.tchepannou.kiosk.ranker.Dimension;
-import com.tchepannou.kiosk.ranker.Ranker;
 import com.tchepannou.kiosk.ranker.RankerContext;
 import com.tchepannou.kiosk.ranker.ScoreProvider;
+import com.tchepannou.kiosk.ranker.Scorer;
 import com.tchepannou.kiosk.ranker.score.ContentLengthScoreProvider;
 import com.tchepannou.kiosk.ranker.score.ImageScoreProvider;
 import com.tchepannou.kiosk.ranker.score.PublishedDateScoreProvider;
@@ -45,16 +46,10 @@ import java.util.List;
 
 @Configuration
 public class PipelineConfig {
-    @Value("${kiosk.filters.ContentFilter.blocMinLength}")
-    int minBlocLength;
-
-    @Value("${kiosk.filters.ArticleTitleFilter.maxLength}")
-    int titleMaxLength;
-
-    @Value("${kiosk.rules.TextLengthRule.minLength}")
+    @Value("${kiosk.validation.TextLengthRule.minLength}")
     int minTextLength;
 
-    @Value("${kiosk.rules.LanguageRule.whiteList}")
+    @Value("${kiosk.validation.LanguageRule.whiteList}")
     String languageWhiteList;
 
     @Autowired
@@ -111,10 +106,65 @@ public class PipelineConfig {
         return new ImageGrabber();
     }
 
+    //-- Video
+    @Bean
+    ExtractVideoActivity extractVideoActivity(){
+        return new ExtractVideoActivity();
+    }
+
     //-- Language
     @Bean
     ExtractLanguageActivity extractLanguageActivity(){
         return new ExtractLanguageActivity();
+    }
+
+    //-- Score
+    @Bean
+    Scorer scorer(){
+        return new Scorer();
+    }
+
+    @Bean
+    ScoreActitivy scoreActitivy(){
+        return new ScoreActitivy();
+    }
+
+    @Bean
+    RankerContext rankerContext() {
+        return new RankerContext() {
+            @Override
+            public List<Dimension> getDimensions() {
+                return Arrays.asList(
+                        createDimension("published-date", .50, new PublishedDateScoreProvider()),
+                        createDimension("image", .35, new ImageScoreProvider()),
+                        createDimension("content-length", .15, new ContentLengthScoreProvider())
+                );
+            }
+
+            @Override
+            public int getContentMaxLength() {
+                return 1000;
+            }
+        };
+    }
+
+    Dimension createDimension(final String name, final double weight, final ScoreProvider score) {
+        return new Dimension() {
+            @Override
+            public double getWeight() {
+                return weight;
+            }
+
+            @Override
+            public ScoreProvider getScoreProvider() {
+                return score;
+            }
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        };
     }
 
     //-- Validation
@@ -174,50 +224,6 @@ public class PipelineConfig {
         return new ExtractKeywordsActivity();
     }
 
-
-    //-- Rank
-    @Bean
-    RankActitivy rankActitivy() {
-        return new RankActitivy();
-    }
-
-    @Bean
-    Ranker ranker() {
-        return new Ranker();
-    }
-
-    @Bean
-    RankerContext rankerContext() {
-        return new RankerContext() {
-            @Override
-            public List<Dimension> getDimensions() {
-                return Arrays.asList(
-                        createDimension("published-date", .50, new PublishedDateScoreProvider()),
-                        createDimension("image", .35, new ImageScoreProvider()),
-                        createDimension("content-length", .15, new ContentLengthScoreProvider())
-                );
-            }
-        };
-    }
-
-    Dimension createDimension(final String name, final double weight, final ScoreProvider score) {
-        return new Dimension() {
-            @Override
-            public double getWeight() {
-                return weight;
-            }
-
-            @Override
-            public ScoreProvider getScoreProvider() {
-                return score;
-            }
-
-            @Override
-            public String getName() {
-                return name;
-            }
-        };
-    }
 
     //-- End
     @Bean

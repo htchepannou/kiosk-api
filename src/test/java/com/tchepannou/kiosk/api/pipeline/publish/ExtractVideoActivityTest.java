@@ -1,7 +1,7 @@
 package com.tchepannou.kiosk.api.pipeline.publish;
 
-import com.tchepannou.kiosk.api.Fixture;
 import com.tchepannou.kiosk.api.domain.Article;
+import com.tchepannou.kiosk.api.pipeline.ActivityTestSupport;
 import com.tchepannou.kiosk.api.pipeline.PipelineConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,24 +11,22 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EndActivityTest {
+public class ExtractVideoActivityTest extends ActivityTestSupport {
+
     @InjectMocks
-    EndActivity activity;
+    ExtractVideoActivity activity;
 
     @Test
     public void testGetTopic() throws Exception {
-        assertThat(activity.getTopic()).isEqualTo(PipelineConstants.EVENT_END);
+        assertThat(activity.getTopic()).isEqualToIgnoringCase(PipelineConstants.EVENT_EXTRACT_VIDEO);
     }
 
     @Test
-    public void testDoHandleEventArticle() throws Exception {
-        // Given
-        final Article article = Fixture.createArticle();
+    public void testDoHandleArticle() throws Exception {
+        final Article article = new Article();
 
-        // When
         final String next = activity.doHandleArticle(article);
 
-        // Then
-        assertThat(next).isNull();
+        assertThat(next).isEqualTo(PipelineConstants.EVENT_EXTRACT_LANGUAGE);
     }
 }

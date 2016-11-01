@@ -96,17 +96,6 @@ public class ArticleController {
         return toResponseEntity(response);
     }
 
-    @ApiOperation("Process the articles")
-    @RequestMapping(value = "/process", method = RequestMethod.GET)
-    @ApiResponses(
-            {
-                    @ApiResponse(code = 200, message = "Success"),
-            }
-    )
-    public void process() {
-        service.process();
-    }
-
     private <T> ResponseEntity<T> toResponseEntity(final AbstractResponse response) {
         HttpStatus status = HttpStatus.OK;
         if (!response.isSuccess()) {

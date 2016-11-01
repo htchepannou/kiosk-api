@@ -35,9 +35,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import static com.tchepannou.kiosk.api.Fixture.createArticle;
@@ -310,27 +308,6 @@ public class ArticleServiceTest {
         assertThat(response.getArticleId()).isNotNull();
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getError().getCode()).isEqualTo(ErrorConstants.FEED_INVALID);
-    }
-
-    //-- Process
-    @Test
-    public void shouldProcess(){
-        // Given
-        final Article a1 = createArticle();
-        final Article a2 = createArticle();
-        final Article a3 = createArticle();
-        final List<Article> artickes = Arrays.asList(a1, a2, a3);
-        when(articleRepository.findByStatusAndPublishedDateBetween(any(), any(), any(), any()))
-                .thenReturn(artickes);
-
-        // When
-        service.process();
-
-        // Then
-        final ArgumentCaptor<Event> event = ArgumentCaptor.forClass(Event.class);
-        verify(publisher).publishEvent(event.capture());
-        assertThat(event.getValue().getTopic()).isEqualTo(PipelineConstants.EVENT_RANK);
-        assertThat(event.getValue().getPayload()).isEqualTo(artickes);
     }
 
     //-- Private
