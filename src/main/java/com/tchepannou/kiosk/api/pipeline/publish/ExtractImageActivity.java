@@ -11,12 +11,16 @@ import com.tchepannou.kiosk.api.service.ImageService;
 import com.tchepannou.kiosk.image.DimensionProvider;
 import com.tchepannou.kiosk.image.ImageContext;
 import com.tchepannou.kiosk.image.ImageExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
 public class ExtractImageActivity extends ArticleActivity {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtractImageActivity.class);
+
     @Autowired
     ImageRepository imageRepository;
 
@@ -47,6 +51,7 @@ public class ExtractImageActivity extends ArticleActivity {
 
         final ImageContext ctx = createImageContext(website);
         try {
+
             final String url = extractor.extract(html, ctx);
             if (url != null) {
                 Image image = imageRepository.findOne(Image.generateId(url));
@@ -58,10 +63,10 @@ public class ExtractImageActivity extends ArticleActivity {
             }
 
         } catch (Exception e){
-            addToLog(e);
-        } finally {
-            return PipelineConstants.EVENT_EXTRACT_VIDEO;
+            LOGGER.error("Unable to extract image from " + article.getUrl(), e);
         }
+
+        return PipelineConstants.EVENT_EXTRACT_VIDEO;
     }
 
     @Override

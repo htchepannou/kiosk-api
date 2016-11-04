@@ -3,6 +3,7 @@ package com.tchepannou.kiosk.api.pipeline;
 import com.codahale.metrics.MetricRegistry;
 import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.core.service.LogService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -33,6 +34,7 @@ public abstract class Activity {
 
         } catch (final RuntimeException e) {
             addToLog(e);
+            markMeter("Error");
             log.log(e);
         }
     }
@@ -66,6 +68,8 @@ public abstract class Activity {
         log.add("Success", false);
         log.add("Exception", ex.getClass().getName());
         log.add("ExceptionMessage", ex.getMessage());
+
+        LoggerFactory.getLogger(getClass()).error("Unexpected error", ex);
     }
 
     protected void markMeter(final String name) {
