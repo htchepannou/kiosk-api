@@ -28,7 +28,6 @@ public class ImageService implements DimensionProvider {
     @Autowired
     ImageGrabber grabber;
 
-
     public Image createImage(final String url) throws IOException {
         try {
             final ImageData data = grabber.grab(url);
@@ -37,7 +36,7 @@ public class ImageService implements DimensionProvider {
             store(image, data);
 
             return image;
-        } catch (MimeTypeException e){
+        } catch (final MimeTypeException e) {
             throw new PipelineException(e);
         }
     }
@@ -54,7 +53,7 @@ public class ImageService implements DimensionProvider {
 
             return image;
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new PipelineException(ex);
         }
     }
@@ -92,7 +91,7 @@ public class ImageService implements DimensionProvider {
 
     private String key(final String id, final ImageData data) throws MimeTypeException {
         final MimeType mime = MimeTypes.getDefaultMimeTypes().forName(data.getContentType());
-        return "images/" + id + "/0." + mime.getExtension();
+        return "images/" + id + "/0" + mime.getExtension();
     }
 }
 
