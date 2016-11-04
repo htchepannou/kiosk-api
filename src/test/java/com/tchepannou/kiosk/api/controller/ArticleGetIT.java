@@ -69,7 +69,7 @@ public class ArticleGetIT extends RestAssuredSupport{
                 .body("article.image.contentType", is("image/png"))
                 .body("article.image.width", is(128))
                 .body("article.image.height", is(256))
-                .body("article.image.publicUrl", is("http://public.x.com/11.png"))
+                .body("article.image.publicUrl", is("http://localhost:8080/kiosk/v1/assets/images/100"))
         ;
 
         // @formatter:on

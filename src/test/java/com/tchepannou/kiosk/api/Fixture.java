@@ -60,7 +60,6 @@ public class Fixture {
         img.setTitle("Test Image");
         img.setUrl(url);
         img.setWidth(120);
-        img.setPublicUrl("http://img.com/images/121198/0.jpeg");
         return img;
     }
 

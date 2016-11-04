@@ -30,9 +30,6 @@ public class Image implements Dimension {
     private int width;
     private int height;
 
-    @Column(columnDefinition = "text")
-    private String publicUrl;
-
     public static String generateId(final String url) {
         return url == null
                 ? null
@@ -93,14 +90,6 @@ public class Image implements Dimension {
 
     public void setContentType(final String contentType) {
         this.contentType = contentType;
-    }
-
-    public String getPublicUrl() {
-        return publicUrl;
-    }
-
-    public void setPublicUrl(final String publicUrl) {
-        this.publicUrl = publicUrl;
     }
 
     @Override

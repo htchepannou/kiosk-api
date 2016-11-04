@@ -72,7 +72,7 @@ public class ArticleGetListIT extends RestAssuredSupport {
                 .body("articles[2].image.contentType", is("image/png"))
                 .body("articles[2].image.width", is(128))
                 .body("articles[2].image.height", is(256))
-                .body("articles[2].image.publicUrl", is("http://public.x.com/11.png"))
+                .body("articles[2].image.publicUrl", is("http://localhost:8080/kiosk/v1/assets/images/100"))
         ;
 
         // @formatter:on

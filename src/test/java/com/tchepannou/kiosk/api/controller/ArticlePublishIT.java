@@ -7,8 +7,9 @@ import com.tchepannou.kiosk.api.domain.Article;
 import com.tchepannou.kiosk.api.jpa.ArticleRepository;
 import com.tchepannou.kiosk.client.dto.PublishRequest;
 import com.tchepannou.kiosk.core.service.FileService;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,12 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.tchepannou.kiosk.api.Fixture.createArticleDataDto;
 import static com.tchepannou.kiosk.api.Fixture.createPublishRequest;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Starter.class)
@@ -44,6 +44,8 @@ public class ArticlePublishIT extends RestAssuredSupport {
     @Ignore
     public void shouldPublishAnArticle() throws Exception {
         final PublishRequest request = createPublishRequest(100, createArticleDataDto());
+        final String html =IOUtils.toString(getClass().getResourceAsStream("/controller/article-fr.html"), Charset.forName("UTF-8"));
+        request.getArticle().setContent(html);
 
         // @formatter:off
         final String id = given ()
@@ -54,14 +56,13 @@ public class ArticlePublishIT extends RestAssuredSupport {
         .then()
                 .log().all()
                 .statusCode(HttpStatus.SC_OK)
-                .body("success", is(true))
-
-                .body("error", nullValue())
         .extract()
                 .path("articleId")
         ;
 
         // @formatter:on
+
+        Thread.sleep(5000);
 
         final Article article = articleRepository.findOne(id);
         assertThat(article).isNotNull();
@@ -69,7 +70,7 @@ public class ArticlePublishIT extends RestAssuredSupport {
         assertThat(article.getFeed().getId()).isEqualTo(request.getFeedId());
         assertThat(article.getLanguageCode()).isEqualTo(request.getArticle().getLanguageCode());
         assertThat(article.getSlug()).isEqualTo(request.getArticle().getSlug());
-        assertThat(article.getStatus()).isEqualTo(Article.Status.submitted);
+        assertThat(article.getStatus()).isEqualTo(Article.Status.processed);
         assertThat(article.getTitle()).isEqualTo(request.getArticle().getTitle());
         assertThat(article.getUrl()).isEqualTo(request.getArticle().getUrl());
 

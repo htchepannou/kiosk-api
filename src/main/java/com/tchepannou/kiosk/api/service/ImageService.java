@@ -12,7 +12,6 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,8 +28,6 @@ public class ImageService implements DimensionProvider {
     @Autowired
     ImageGrabber grabber;
 
-    @Value("${kiosk.image.public.baseUri}")
-    String publicBaseUrl;
 
     public Image createImage(final String url) throws IOException {
         try {
@@ -80,7 +77,6 @@ public class ImageService implements DimensionProvider {
         img.setContentType(data.getContentType());
         img.setKey(key);
         img.setUrl(url);
-        img.setPublicUrl(publicBaseUrl + "/" + id);
 
         final BufferedImage bimg = ImageIO.read(new ByteArrayInputStream(data.getContent()));
         if (bimg != null) {

@@ -6,8 +6,8 @@ INSERT INTO website(id, name, url, active)
 INSERT INTO feed VALUES (100, 100, 'rss', 'CMR', 'Mboa Football', 'http://mboafootball.com/rss', TRUE);
 
 -- Images
-INSERT INTO image (id, url, public_url, image_key, content_type, title, width, height)
-  VALUES ('100', 'http://x.com/1.png', 'http://public.x.com/11.png', 'images/11/0.png', 'image/png', 'sample image', 128, 256);
+INSERT INTO image (id, url, image_key, content_type, title, width, height)
+  VALUES ('100', 'http://x.com/1.png', 'images/11/0.png', 'image/png', 'sample image', 128, 256);
 
 -- Articles
 INSERT INTO article(id, feed_id, image_id, STATUS, title, display_title, slug, country_code, language_code, published_date, url)
