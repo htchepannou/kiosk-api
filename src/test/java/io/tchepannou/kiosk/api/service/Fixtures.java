@@ -12,7 +12,7 @@ public class Fixtures {
 
     public static Feed createFeed (){
         Feed feed = new Feed();
-        feed.setId(System.currentTimeMillis());
+        feed.setId(++uid);
         feed.setName("camfoot");
         feed.setUrl("http://camfoot.com");
         feed.setLogoUrl("dev/img/camfoot.png");
@@ -21,14 +21,14 @@ public class Fixtures {
 
     public static Link createLink (Feed feed){
         final Link link = new Link();
-        link.setId(System.currentTimeMillis());
+        link.setId(++uid);
         link.setFeed(feed);
         return link;
     }
 
     public static Image createImage (Link link, int type){
         final Image img = new Image();
-        img.setId(System.currentTimeMillis());
+        img.setId(++uid);
         img.setLink(link);
         img.setS3Key("dev/content/222/11/" + img.getId() + ".png");
         img.setType(type);
@@ -37,7 +37,7 @@ public class Fixtures {
 
     public static Article createArticle(final Link link) {
         final Article article = new Article();
-        article.setId(System.currentTimeMillis());
+        article.setId(++uid);
         article.setDisplayTitle("DisplayTitle");
         article.setLink(link);
         article.setPublishedDate(new Date());
