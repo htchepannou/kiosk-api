@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.api.persistence.domain.Image;
 
 public class ArticleMapper {
     private String assetUrlPrefix;
+    private String feedLogoFolder;
 
     public ArticleModel toArticleModel(final ArticleContainer container){
         final ArticleModel model = new ArticleModel();
@@ -37,6 +38,14 @@ public class ArticleMapper {
         this.assetUrlPrefix = assetUrlPrefix;
     }
 
+    public String getFeedLogoFolder() {
+        return feedLogoFolder;
+    }
+
+    public void setFeedLogoFolder(final String feedLogoFolder) {
+        this.feedLogoFolder = feedLogoFolder;
+    }
+
     //-- Private
     private void mapArticle(final Article article, ArticleModel model){
         model.setDisplayTitle(article.getDisplayTitle());
@@ -55,7 +64,7 @@ public class ArticleMapper {
         FeedModel feedModel = new FeedModel();
         feedModel.setId(feed.getId());
         feedModel.setName(feed.getName());
-        feedModel.setLogoUrl(assetUrl(feed.getLogoUrl()));
+        feedModel.setLogoUrl(feedLogoUrl(feed.getLogoUrl()));
 
         model.setFeed(feedModel);
     }
@@ -74,7 +83,17 @@ public class ArticleMapper {
         model.setThumbnailUrl(assetUrl(image.getS3Key()));
     }
 
+    private String feedLogoUrl(final String url){
+        if (url == null){
+            return null;
+        }
+
+        return assetUrl(String.format("%s/%s", feedLogoFolder, url));
+    }
+
     private String assetUrl(final String url){
         return url != null ? String.format("%s/%s", assetUrlPrefix, url) : null;
     }
+
+
 }

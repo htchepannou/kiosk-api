@@ -46,13 +46,13 @@ public class AppConfiguration {
 
     //-- Beans
     @Bean
-    @ConfigurationProperties("kiosk.services.ArticleMapper")
+    @ConfigurationProperties("kiosk.service.ArticleMapper")
     ArticleMapper articleMapper(){
         return new ArticleMapper();
     }
 
     @Bean
-    @ConfigurationProperties("kiosk.services.ArticleService")
+    @ConfigurationProperties("kiosk.service.ArticleService")
     ArticleService articleService(){
         return new ArticleService();
     }

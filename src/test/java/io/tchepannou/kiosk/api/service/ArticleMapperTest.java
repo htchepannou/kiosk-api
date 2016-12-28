@@ -22,6 +22,7 @@ public class ArticleMapperTest {
     @Before
     public void setUp(){
         mapper.setAssetUrlPrefix(ASSET_URL);
+        mapper.setFeedLogoFolder("dev/image");
     }
 
     @Test
@@ -53,7 +54,7 @@ public class ArticleMapperTest {
 
         assertThat(model.getFeed().getId()).isEqualTo(feed.getId());
         assertThat(model.getFeed().getName()).isEqualTo(feed.getName());
-        assertThat(model.getFeed().getLogoUrl()).isEqualTo(ASSET_URL + "/" + feed.getLogoUrl());
+        assertThat(model.getFeed().getLogoUrl()).isEqualTo(ASSET_URL + "/dev/image/" + feed.getLogoUrl());
     }
 
 }

@@ -2,6 +2,7 @@ kiosk:
   service:
     ArticleMapper:
       assetUrlPrefix: "http://io.tchepannou.kiosk.s3-website-us-east-1.amazonaws.com"
+      feedLogoFolder: "${kiosk.environment}/image"
     ArticleService:
       pageSize: 20
 

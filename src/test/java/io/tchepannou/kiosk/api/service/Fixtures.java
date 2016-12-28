@@ -15,7 +15,7 @@ public class Fixtures {
         feed.setId(++uid);
         feed.setName("camfoot");
         feed.setUrl("http://camfoot.com");
-        feed.setLogoUrl("dev/img/camfoot.png");
+        feed.setLogoUrl("feed/camfoot.png");
         return feed;
     }
 
