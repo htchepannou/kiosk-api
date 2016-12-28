@@ -1,0 +1,56 @@
+kiosk:
+  service:
+    ArticleMapper:
+      assetUrlPrefix: "http://io.tchepannou.kiosk.s3-website-us-east-1.amazonaws.com"
+    ArticleService:
+      pageSize: 20
+
+spring:
+  datasource:
+    poolName: Kiosk.CP
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/kiosk
+    username: root
+    #password:
+    connectionTimeout: 30000
+    connectionTestQuery: SELECT 1
+    maximumPoolSize: 10
+    idleTimeout: 15000
+    maxLifetime: 60000
+    leakDetectionThreshold: 30000
+    dataSourceProperties:
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+
+
+swagger:
+  version: "1.0"
+  title: Kiosk API
+  description: "Kiosk API"
+  termsPath: ""
+  email: "herve.tchepannou@gmail.com"
+  licenceType: ""
+  licencePath: "#"
+
+endpoints:
+  enabled: true
+  health:
+    sensitive: false
+  info:
+    sensitive: false
+  metrics:
+    sensitive: false
+
+logging:
+  level:
+    root: INFO
+    io.tchepannou.kiosk: INFO
+    com.amazonaws: WARN
+    org: WARN
+    io: WARN
+    springfix: WARN
+
+  pattern:
+    console: "%d Type=%level Thread=%thread Message='%m'%n"
+    file: "%d Type=%level Thread=%thread Message='%m'%n"

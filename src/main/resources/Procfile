@@ -1,1 +1,0 @@
-web: java -jar kiosk-api.jar -Xms=256m -Xmx=768m
