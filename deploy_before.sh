@@ -2,5 +2,5 @@
 
 if [ "$TRAVIS_BRANCH" == "master" ]; then
   mkdir target/deploy
-  cp target/kiosk-pipeline.jar target/deploy/.
+  cp target/kiosk-api.jar target/deploy/.
 fi
