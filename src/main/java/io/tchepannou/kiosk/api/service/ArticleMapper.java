@@ -1,8 +1,9 @@
 package io.tchepannou.kiosk.api.service;
 
-import io.tchepannou.kiosk.api.model.ArticleModelList;
 import io.tchepannou.kiosk.api.model.ArticleModel;
+import io.tchepannou.kiosk.api.model.ArticleModelList;
 import io.tchepannou.kiosk.api.model.FeedModel;
+import io.tchepannou.kiosk.api.model.ImageModel;
 import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Feed;
 import io.tchepannou.kiosk.api.persistence.domain.Image;
@@ -15,7 +16,7 @@ public class ArticleMapper {
         final ArticleModel model = new ArticleModel();
 
         mapArticle(container.getArticle(), model);
-        mapImage(container.getImage(), model);
+        mapMainImage(container.getImage(), model);
         mapThumbmail(container.getThumbnail(), model);
         mapFeed(container.getFeed(), model);
         return model;
@@ -70,18 +71,26 @@ public class ArticleMapper {
         model.setFeed(feedModel);
     }
 
-    private void mapImage (final Image image, ArticleModel model){
+    private ImageModel toImageModel (final Image image){
         if (image == null){
-            return;
+            return null;
         }
-        model.setImageUrl(assetUrl(image.getS3Key()));
+        ImageModel model = new ImageModel();
+        model.setContentLength(image.getContentLength());
+        model.setContentType(image.getContentType());
+        model.setWidth(image.getWidth());
+        model.setHeight(image.getHeight());
+        model.setUrl(assetUrl(image.getS3Key()));
+
+        return model;
+    }
+
+    private void mapMainImage (final Image image, ArticleModel model){
+        model.setMainImage(toImageModel(image));
     }
 
     private void mapThumbmail (final Image image, ArticleModel model){
-        if (image == null){
-            return;
-        }
-        model.setThumbnailUrl(assetUrl(image.getS3Key()));
+        model.setThumbnailImage(toImageModel(image));
     }
 
     private String feedLogoUrl(final String url){

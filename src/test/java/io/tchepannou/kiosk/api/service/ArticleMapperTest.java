@@ -46,16 +46,26 @@ public class ArticleMapperTest {
         assertThat(model.getContentUrl()).isEqualTo(ASSET_URL + "/" + article.getS3Key());
         assertThat(model.getDisplayTitle()).isEqualTo(article.getDisplayTitle());
         assertThat(model.getId()).isEqualTo(article.getId());
-        assertThat(model.getImageUrl()).isEqualTo(ASSET_URL + "/" + image.getS3Key());
         assertThat(model.getPublishedDate()).isEqualTo(article.getPublishedDate());
         assertThat(model.getSummary()).isEqualTo(article.getSummary());
-        assertThat(model.getThumbnailUrl()).isEqualTo(ASSET_URL + "/" + thumbnail.getS3Key());
         assertThat(model.getTitle()).isEqualTo(article.getTitle());
         assertThat(model.getUrl()).isEqualTo(link.getUrl());
 
         assertThat(model.getFeed().getId()).isEqualTo(feed.getId());
         assertThat(model.getFeed().getName()).isEqualTo(feed.getName());
         assertThat(model.getFeed().getLogoUrl()).isEqualTo(ASSET_URL + "/dev/image/" + feed.getLogoUrl());
+        
+        assertThat(model.getMainImage().getContentLength()).isEqualTo(image.getContentLength());
+        assertThat(model.getMainImage().getContentType()).isEqualTo(image.getContentType());
+        assertThat(model.getMainImage().getHeight()).isEqualTo(image.getHeight());
+        assertThat(model.getMainImage().getUrl()).isEqualTo(ASSET_URL + "/" + image.getS3Key());
+        assertThat(model.getMainImage().getWidth()).isEqualTo(image.getWidth());
+
+        assertThat(model.getThumbnailImage().getContentLength()).isEqualTo(thumbnail.getContentLength());
+        assertThat(model.getThumbnailImage().getContentType()).isEqualTo(thumbnail.getContentType());
+        assertThat(model.getThumbnailImage().getHeight()).isEqualTo(thumbnail.getHeight());
+        assertThat(model.getThumbnailImage().getUrl()).isEqualTo(ASSET_URL + "/" + thumbnail.getS3Key());
+        assertThat(model.getThumbnailImage().getWidth()).isEqualTo(thumbnail.getWidth());
     }
 
 }

@@ -5,13 +5,13 @@ import java.util.Date;
 public class ArticleModel {
     private long id;
     private FeedModel feed;
+    private ImageModel mainImage;
+    private ImageModel thumbnailImage;
     private String title;
     private String displayTitle;
     private String summary;
     private Date publishedDate;
     private String contentUrl;
-    private String imageUrl;
-    private String thumbnailUrl;
     private String url;
 
     public long getId() {
@@ -70,27 +70,27 @@ public class ArticleModel {
         this.contentUrl = contentUrl;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(final String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
-
-    public void setThumbnailUrl(final String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
     public String getUrl() {
         return url;
     }
 
     public void setUrl(final String url) {
         this.url = url;
+    }
+
+    public ImageModel getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(final ImageModel mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    public ImageModel getThumbnailImage() {
+        return thumbnailImage;
+    }
+
+    public void setThumbnailImage(final ImageModel thumbnailImage) {
+        this.thumbnailImage = thumbnailImage;
     }
 }
