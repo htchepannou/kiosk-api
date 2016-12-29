@@ -54,6 +54,7 @@ public class ArticleMapper {
         model.setPublishedDate(article.getPublishedDate());
         model.setSummary(article.getSummary());
         model.setTitle(article.getTitle());
+        model.setUrl(article.getLink().getUrl());
     }
 
     private void mapFeed (final Feed feed, final ArticleModel model){

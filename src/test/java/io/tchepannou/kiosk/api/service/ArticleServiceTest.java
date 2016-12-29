@@ -72,7 +72,7 @@ public class ArticleServiceTest {
         when(mapper.toArticleListModel(any())).thenReturn(list);
 
         // Given
-        final ArticleModelList result = service.list(0);
+        final ArticleModelList result = service.list(0, 20);
 
         // Then
         assertThat(result).isEqualTo(list);

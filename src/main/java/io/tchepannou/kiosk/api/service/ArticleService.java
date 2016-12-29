@@ -25,13 +25,11 @@ public class ArticleService {
     @Autowired
     ArticleMapper mapper;
 
-    int pageSize = 20;
-
-    public ArticleModelList list(final int page) {
+    public ArticleModelList list(final int page, final int limit) {
 
         // Load the articles
-        final PageRequest pagination = new PageRequest(page, pageSize, Sort.Direction.DESC, "publishedDate");
-        final List<Article> articles = articleRepository.findByStatus(0, pagination);
+        final PageRequest pagination = new PageRequest(page, limit, Sort.Direction.DESC, "publishedDate");
+        final List<Article> articles = articleRepository.findByStatus(Article.STATUS_VALID, pagination);
         final List<ArticleContainer> containers = toArticleContainer(articles);
 
         // Collect the links

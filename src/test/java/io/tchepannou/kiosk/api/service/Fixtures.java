@@ -10,8 +10,8 @@ import java.util.Date;
 public class Fixtures {
     private static long uid = System.currentTimeMillis();
 
-    public static Feed createFeed (){
-        Feed feed = new Feed();
+    public static Feed createFeed() {
+        final Feed feed = new Feed();
         feed.setId(++uid);
         feed.setName("camfoot");
         feed.setUrl("http://camfoot.com");
@@ -19,14 +19,15 @@ public class Fixtures {
         return feed;
     }
 
-    public static Link createLink (Feed feed){
+    public static Link createLink(final Feed feed) {
         final Link link = new Link();
         link.setId(++uid);
         link.setFeed(feed);
+        link.setUrl("http://ggg.com/" + uid);
         return link;
     }
 
-    public static Image createImage (Link link, int type){
+    public static Image createImage(final Link link, final int type) {
         final Image img = new Image();
         img.setId(++uid);
         img.setLink(link);
@@ -47,5 +48,5 @@ public class Fixtures {
         article.setTitle("Title");
         return article;
     }
-    
+
 }

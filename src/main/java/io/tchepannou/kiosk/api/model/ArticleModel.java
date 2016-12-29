@@ -12,6 +12,7 @@ public class ArticleModel {
     private String contentUrl;
     private String imageUrl;
     private String thumbnailUrl;
+    private String url;
 
     public long getId() {
         return id;
@@ -83,5 +84,13 @@ public class ArticleModel {
 
     public void setThumbnailUrl(final String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(final String url) {
+        this.url = url;
     }
 }

@@ -32,9 +32,14 @@ public class ArticleController {
     public ArticleModelList list(
             @RequestParam(name = "page", defaultValue = "0")
             @ApiParam(required = false, defaultValue = "0", value = "zero based index of the articles")
-            final int page
+            final int page,
+
+            @RequestParam(name = "limit", defaultValue = "30")
+            @ApiParam(required = false, defaultValue = "30", value = "Number of article to return. Max=100")
+            final int limit
+
     ) {
-        return articleService.list(page);
+        return articleService.list(page, Math.min(limit, 100));
     }
 
 }

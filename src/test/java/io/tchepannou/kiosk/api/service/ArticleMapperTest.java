@@ -51,6 +51,7 @@ public class ArticleMapperTest {
         assertThat(model.getSummary()).isEqualTo(article.getSummary());
         assertThat(model.getThumbnailUrl()).isEqualTo(ASSET_URL + "/" + thumbnail.getS3Key());
         assertThat(model.getTitle()).isEqualTo(article.getTitle());
+        assertThat(model.getUrl()).isEqualTo(link.getUrl());
 
         assertThat(model.getFeed().getId()).isEqualTo(feed.getId());
         assertThat(model.getFeed().getName()).isEqualTo(feed.getName());

@@ -11,6 +11,10 @@ import java.util.Date;
 
 @Entity
 public class Article {
+    public static final int STATUS_CREATED = 0x00;
+    public static final int STATUS_INVALID = 0x01;
+    public static final int STATUS_VALID = 0x10;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
