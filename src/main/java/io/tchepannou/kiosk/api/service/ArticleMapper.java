@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.api.service;
 
+import com.google.common.base.Strings;
 import io.tchepannou.kiosk.api.model.ArticleModel;
 import io.tchepannou.kiosk.api.model.ArticleModelList;
 import io.tchepannou.kiosk.api.model.FeedModel;
@@ -56,6 +57,10 @@ public class ArticleMapper {
         model.setSummary(article.getSummary());
         model.setTitle(article.getTitle());
         model.setUrl(article.getLink().getUrl());
+
+        if (Strings.isNullOrEmpty(model.getDisplayTitle())){
+            model.setDisplayTitle(article.getTitle());
+        }
     }
 
     private void mapFeed (final Feed feed, final ArticleModel model){

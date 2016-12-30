@@ -20,13 +20,13 @@ public class ArticleMapperTest {
     ArticleMapper mapper = new ArticleMapper();
 
     @Before
-    public void setUp(){
+    public void setUp() {
         mapper.setAssetUrlPrefix(ASSET_URL);
         mapper.setFeedLogoFolder("dev/image");
     }
 
     @Test
-    public void testToArticleModel() throws Exception {
+    public void shouldConvertToModel() throws Exception {
         // Given
         final Feed feed = createFeed();
         final Link link = createLink(feed);
@@ -40,7 +40,7 @@ public class ArticleMapperTest {
         container.setImage(image);
 
         // When
-        ArticleModel model = mapper.toArticleModel(container);
+        final ArticleModel model = mapper.toArticleModel(container);
 
         // Then
         assertThat(model.getContentUrl()).isEqualTo(ASSET_URL + "/" + article.getS3Key());
@@ -54,7 +54,7 @@ public class ArticleMapperTest {
         assertThat(model.getFeed().getId()).isEqualTo(feed.getId());
         assertThat(model.getFeed().getName()).isEqualTo(feed.getName());
         assertThat(model.getFeed().getLogoUrl()).isEqualTo(ASSET_URL + "/dev/image/" + feed.getLogoUrl());
-        
+
         assertThat(model.getMainImage().getContentLength()).isEqualTo(image.getContentLength());
         assertThat(model.getMainImage().getContentType()).isEqualTo(image.getContentType());
         assertThat(model.getMainImage().getHeight()).isEqualTo(image.getHeight());
@@ -68,4 +68,26 @@ public class ArticleMapperTest {
         assertThat(model.getThumbnailImage().getWidth()).isEqualTo(thumbnail.getWidth());
     }
 
+    @Test
+    public void displayTitleShouldFallbackToTitle() throws Exception {
+        // Given
+        final Feed feed = createFeed();
+        final Link link = createLink(feed);
+        final Article article = createArticle(link);
+        final Image thumbnail = createImage(link, Image.TYPE_THUMBNAIL);
+        final Image image = createImage(link, Image.TYPE_MAIN);
+        final ArticleContainer container = new ArticleContainer();
+        container.setArticle(article);
+        container.setThumbnail(thumbnail);
+        container.setLink(link);
+        container.setImage(image);
+
+        article.setDisplayTitle(null);
+
+        // When
+        final ArticleModel model = mapper.toArticleModel(container);
+
+        // Then
+        assertThat(model.getDisplayTitle()).isEqualTo(article.getTitle());
+    }
 }
