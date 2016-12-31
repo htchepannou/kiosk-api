@@ -5,6 +5,9 @@ kiosk:
       feedLogoFolder: "${kiosk.environment}/image"
     ArticleService:
       pageSize: 20
+    PipelineRunner:
+      accessToken: bzNqnE2ceORS1bcFDPJzLA
+      url: https://api.travis-ci.org/repo/htchepannou%2Fkiosk-pipeline/requests
 
 spring:
   datasource:

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.api.service.ArticleMapper;
 import io.tchepannou.kiosk.api.service.ArticleService;
+import io.tchepannou.kiosk.api.service.PipelineRunner;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -55,5 +56,11 @@ public class AppConfiguration {
     @ConfigurationProperties("kiosk.service.ArticleService")
     ArticleService articleService(){
         return new ArticleService();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.PipelineRunner")
+    PipelineRunner pipelineRunner(){
+        return new PipelineRunner();
     }
 }
