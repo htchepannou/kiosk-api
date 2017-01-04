@@ -11,21 +11,21 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Video {
     @Id
-    @GeneratedValue (strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @ManyToOne
-    @JoinColumn (name = "link_fk")
+    @JoinColumn(name = "link_fk")
     private Link link;
 
-    @Column (name="embed_url", columnDefinition = "TEXT")
+    @Column(name = "embed_url", length = 100)
     private String embedUrl;
 
     public String getEmbedUrl() {
         return embedUrl;
     }
 
-    public void setEmbedUrl(String embedUrl) {
+    public void setEmbedUrl(final String embedUrl) {
         this.embedUrl = embedUrl;
     }
 
@@ -33,7 +33,7 @@ public class Video {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(final long id) {
         this.id = id;
     }
 
@@ -41,7 +41,7 @@ public class Video {
         return link;
     }
 
-    public void setLink(Link link) {
+    public void setLink(final Link link) {
         this.link = link;
     }
 }
