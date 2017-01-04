@@ -5,13 +5,17 @@ import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Feed;
 import io.tchepannou.kiosk.api.persistence.domain.Image;
 import io.tchepannou.kiosk.api.persistence.domain.Link;
+import io.tchepannou.kiosk.api.persistence.domain.Video;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static io.tchepannou.kiosk.api.service.Fixtures.createArticle;
 import static io.tchepannou.kiosk.api.service.Fixtures.createFeed;
 import static io.tchepannou.kiosk.api.service.Fixtures.createImage;
 import static io.tchepannou.kiosk.api.service.Fixtures.createLink;
+import static io.tchepannou.kiosk.api.service.Fixtures.createVideo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArticleMapperTest {
@@ -33,11 +37,14 @@ public class ArticleMapperTest {
         final Article article = createArticle(link);
         final Image thumbnail = createImage(link, Image.TYPE_THUMBNAIL);
         final Image image = createImage(link, Image.TYPE_MAIN);
+        final Video video1 = createVideo(link);
+        final Video video2 = createVideo(link);
         final ArticleContainer container = new ArticleContainer();
         container.setArticle(article);
         container.setThumbnail(thumbnail);
         container.setLink(link);
         container.setImage(image);
+        container.setVideos(Arrays.asList(video1, video2));
 
         // When
         final ArticleModel model = mapper.toArticleModel(container);
@@ -66,6 +73,10 @@ public class ArticleMapperTest {
         assertThat(model.getThumbnailImage().getHeight()).isEqualTo(thumbnail.getHeight());
         assertThat(model.getThumbnailImage().getUrl()).isEqualTo(ASSET_URL + "/" + thumbnail.getS3Key());
         assertThat(model.getThumbnailImage().getWidth()).isEqualTo(thumbnail.getWidth());
+
+        assertThat(model.getVideos()).hasSize(2);
+        assertThat(model.getVideos().get(0).getEmbedUrl()).isEqualTo(video1.getEmbedUrl());
+        assertThat(model.getVideos().get(1).getEmbedUrl()).isEqualTo(video2.getEmbedUrl());
     }
 
     @Test

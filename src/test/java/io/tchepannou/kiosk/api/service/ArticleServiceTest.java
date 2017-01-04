@@ -5,8 +5,10 @@ import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Feed;
 import io.tchepannou.kiosk.api.persistence.domain.Image;
 import io.tchepannou.kiosk.api.persistence.domain.Link;
+import io.tchepannou.kiosk.api.persistence.domain.Video;
 import io.tchepannou.kiosk.api.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.api.persistence.repository.ImageRepository;
+import io.tchepannou.kiosk.api.persistence.repository.VideoRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -19,6 +21,7 @@ import static io.tchepannou.kiosk.api.service.Fixtures.createArticle;
 import static io.tchepannou.kiosk.api.service.Fixtures.createFeed;
 import static io.tchepannou.kiosk.api.service.Fixtures.createImage;
 import static io.tchepannou.kiosk.api.service.Fixtures.createLink;
+import static io.tchepannou.kiosk.api.service.Fixtures.createVideo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -31,6 +34,9 @@ public class ArticleServiceTest {
 
     @Mock
     ImageRepository imageRepository;
+
+    @Mock
+    VideoRepository videoRepository;
 
     @Mock
     ArticleMapper mapper;
@@ -67,6 +73,12 @@ public class ArticleServiceTest {
         final Image thumbnail31 = createImage(link31, Image.TYPE_THUMBNAIL);
         when(imageRepository.findByLinkIn(any()))
                 .thenReturn(Arrays.asList(image11, image21, image31, thumbnail11, thumbnail21, thumbnail31));
+
+        final Video video111 = createVideo(link11);
+        final Video video112 = createVideo(link11);
+        final Video video121 = createVideo(link12);
+        when(videoRepository.findByLinkIn(any()))
+                .thenReturn(Arrays.asList(video111, video112, video121));
 
         final ArticleModelList list = new ArticleModelList();
         when(mapper.toArticleListModel(any())).thenReturn(list);

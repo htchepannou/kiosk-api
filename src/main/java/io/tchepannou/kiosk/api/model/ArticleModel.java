@@ -1,6 +1,8 @@
 package io.tchepannou.kiosk.api.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ArticleModel {
     private long id;
@@ -13,6 +15,14 @@ public class ArticleModel {
     private Date publishedDate;
     private String contentUrl;
     private String url;
+    private List<VideoModel> videos;
+
+    public void addVideo(VideoModel video){
+        if (videos == null){
+            videos = new ArrayList<>();
+        }
+        videos.add(video);
+    }
 
     public long getId() {
         return id;
@@ -92,5 +102,13 @@ public class ArticleModel {
 
     public void setThumbnailImage(final ImageModel thumbnailImage) {
         this.thumbnailImage = thumbnailImage;
+    }
+
+    public List<VideoModel> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(final List<VideoModel> videos) {
+        this.videos = videos;
     }
 }

@@ -5,9 +5,13 @@ import io.tchepannou.kiosk.api.model.ArticleModel;
 import io.tchepannou.kiosk.api.model.ArticleModelList;
 import io.tchepannou.kiosk.api.model.FeedModel;
 import io.tchepannou.kiosk.api.model.ImageModel;
+import io.tchepannou.kiosk.api.model.VideoModel;
 import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Feed;
 import io.tchepannou.kiosk.api.persistence.domain.Image;
+import io.tchepannou.kiosk.api.persistence.domain.Video;
+
+import java.util.List;
 
 public class ArticleMapper {
     private String assetUrlPrefix;
@@ -20,6 +24,7 @@ public class ArticleMapper {
         mapMainImage(container.getImage(), model);
         mapThumbmail(container.getThumbnail(), model);
         mapFeed(container.getFeed(), model);
+        mapVideos(container.getVideos(), model);
         return model;
     }
 
@@ -90,12 +95,20 @@ public class ArticleMapper {
         return model;
     }
 
-    private void mapMainImage (final Image image, ArticleModel model){
+    private void mapMainImage (final Image image, final ArticleModel model){
         model.setMainImage(toImageModel(image));
     }
 
-    private void mapThumbmail (final Image image, ArticleModel model){
+    private void mapThumbmail (final Image image, final ArticleModel model){
         model.setThumbnailImage(toImageModel(image));
+    }
+
+    private void mapVideos(final List<Video> videos, final ArticleModel article){
+        for (Video video : videos){
+            VideoModel model = new VideoModel();
+            model.setEmbedUrl(video.getEmbedUrl());
+            article.addVideo(model);
+        }
     }
 
     private String feedLogoUrl(final String url){
@@ -109,6 +122,5 @@ public class ArticleMapper {
     private String assetUrl(final String url){
         return url != null ? String.format("%s/%s", assetUrlPrefix, url) : null;
     }
-
 
 }

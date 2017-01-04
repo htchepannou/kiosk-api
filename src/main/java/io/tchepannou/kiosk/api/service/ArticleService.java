@@ -4,12 +4,15 @@ import io.tchepannou.kiosk.api.model.ArticleModelList;
 import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Image;
 import io.tchepannou.kiosk.api.persistence.domain.Link;
+import io.tchepannou.kiosk.api.persistence.domain.Video;
 import io.tchepannou.kiosk.api.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.api.persistence.repository.ImageRepository;
+import io.tchepannou.kiosk.api.persistence.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,9 @@ public class ArticleService {
     ImageRepository imageRepository;
 
     @Autowired
+    VideoRepository videoRepository;
+
+    @Autowired
     ArticleMapper mapper;
 
     public ArticleModelList list(final int page, final int limit) {
@@ -34,10 +40,15 @@ public class ArticleService {
 
         // Collect the links
         final Map<Link, ArticleContainer> containerByLink = indexByLink(containers);
+        final Collection<Link> links = containerByLink.keySet();
 
         // Collect the images
-        final List<Image> images = imageRepository.findByLinkIn(containerByLink.keySet());
+        final List<Image> images = imageRepository.findByLinkIn(links);
         assignImages(containerByLink, images);
+
+        // Collect videos
+        final List<Video> videos = videoRepository.findByLinkIn(links);
+        assignVideos(containerByLink, videos);
 
         return mapper.toArticleListModel(containers);
     }
@@ -72,6 +83,17 @@ public class ArticleService {
                 } else if (type == Image.TYPE_THUMBNAIL){
                     container.setThumbnail(image);
                 }
+            }
+        }
+
+    }
+
+
+    private void assignVideos(final Map<Link, ArticleContainer> containerMap, final List<Video> videos){
+        for (final Video video : videos) {
+            ArticleContainer container = containerMap.get(video.getLink());
+            if (container != null){
+                container.addVideo(video);
             }
         }
 

@@ -4,12 +4,25 @@ import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Feed;
 import io.tchepannou.kiosk.api.persistence.domain.Image;
 import io.tchepannou.kiosk.api.persistence.domain.Link;
+import io.tchepannou.kiosk.api.persistence.domain.Video;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArticleContainer {
     private Article article;
     private Image image;
     private Image thumbnail;
     private Link link;
+    private List<Video> videos = new ArrayList<>();
+
+    public void addVideo(Video video){
+        if (videos == null){
+            videos = new ArrayList<>();
+        }
+        videos.add(video);
+    }
+
 
     public Link getLink() {
         return link;
@@ -45,5 +58,13 @@ public class ArticleContainer {
 
     public void setThumbnail(final Image thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(final List<Video> videos) {
+        this.videos = videos;
     }
 }
