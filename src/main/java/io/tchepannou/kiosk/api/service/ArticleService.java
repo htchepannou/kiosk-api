@@ -35,7 +35,7 @@ public class ArticleService {
 
         // Load the articles
         final PageRequest pagination = new PageRequest(page, limit, Sort.Direction.DESC, "publishedDate");
-        final List<Article> articles = articleRepository.findByStatus(Article.STATUS_VALID, pagination);
+        final List<Article> articles = articleRepository.findByStatus(Article.STATUS_PUBLISHED, pagination);
         final List<ArticleContainer> containers = toArticleContainer(articles);
 
         // Collect the links

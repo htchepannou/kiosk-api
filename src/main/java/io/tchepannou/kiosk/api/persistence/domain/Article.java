@@ -13,7 +13,7 @@ import java.util.Date;
 public class Article {
     public static final int STATUS_CREATED = 0x00;
     public static final int STATUS_INVALID = 0x01;
-    public static final int STATUS_VALID = 0x10;
+    public static final int STATUS_PUBLISHED = 0x20;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
