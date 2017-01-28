@@ -1,4 +1,11 @@
 kiosk:
+  namespace: "io.tchepannou"
+  aws:
+    connectionTimeout: 30000
+    maxErrorRetries: 5
+    s3:
+      s3Bucket: "${kiosk.namespace}.kiosk"
+
   service:
     ArticleMapper:
       assetUrlPrefix: "http://io.tchepannou.kiosk.s3-website-us-east-1.amazonaws.com"
@@ -8,6 +15,8 @@ kiosk:
     PipelineRunner:
       accessToken: bzNqnE2ceORS1bcFDPJzLA
       url: https://api.travis-ci.org/repo/htchepannou%2Fkiosk-pipeline/requests
+    EventService:
+      queueUrl: https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-event-queue
 
 spring:
   datasource:

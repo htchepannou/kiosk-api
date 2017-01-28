@@ -2,9 +2,11 @@ package io.tchepannou.kiosk.api.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.api.service.ArticleMapper;
 import io.tchepannou.kiosk.api.service.ArticleService;
+import io.tchepannou.kiosk.api.service.EventService;
 import io.tchepannou.kiosk.api.service.PipelineRunner;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,6 +34,11 @@ public class AppConfiguration {
                         DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
                 );
+    }
+
+    @Bean
+    ObjectMapper objectMapper(){
+        return jackson2ObjectMapperBuilder().build();
     }
 
     @Bean(destroyMethod = "close")
@@ -62,5 +69,11 @@ public class AppConfiguration {
     @ConfigurationProperties("kiosk.service.PipelineRunner")
     PipelineRunner pipelineRunner(){
         return new PipelineRunner();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.EventService")
+    EventService eventService(){
+        return new EventService();
     }
 }
