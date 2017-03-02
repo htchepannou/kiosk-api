@@ -17,6 +17,8 @@ kiosk:
       url: https://api.travis-ci.org/repo/htchepannou%2Fkiosk-pipeline/requests
     EventService:
       queueUrl: https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-event-queue
+    FeatureFlagService:
+      videoEnabled: true
 
 spring:
   datasource:

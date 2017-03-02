@@ -29,6 +29,9 @@ public class ArticleService {
     VideoRepository videoRepository;
 
     @Autowired
+    FeatureFlagService featureFlagService;
+
+    @Autowired
     ArticleMapper mapper;
 
     public ArticleModelList list(final int page, final int limit) {
@@ -47,8 +50,10 @@ public class ArticleService {
         assignImages(containerByLink, images);
 
         // Collect videos
-        final List<Video> videos = videoRepository.findByLinkIn(links);
-        assignVideos(containerByLink, videos);
+        if (featureFlagService.isVideoEnabled()) {
+            final List<Video> videos = videoRepository.findByLinkIn(links);
+            assignVideos(containerByLink, videos);
+        }
 
         return mapper.toArticleListModel(containers);
     }
@@ -87,7 +92,6 @@ public class ArticleService {
         }
 
     }
-
 
     private void assignVideos(final Map<Link, ArticleContainer> containerMap, final List<Video> videos){
         for (final Video video : videos) {

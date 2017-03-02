@@ -7,6 +7,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.api.service.ArticleMapper;
 import io.tchepannou.kiosk.api.service.ArticleService;
 import io.tchepannou.kiosk.api.service.EventService;
+import io.tchepannou.kiosk.api.service.FeatureFlagService;
 import io.tchepannou.kiosk.api.service.PipelineRunner;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -76,4 +77,11 @@ public class AppConfiguration {
     EventService eventService(){
         return new EventService();
     }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.FeatureFlagService")
+    FeatureFlagService featureFlagService(){
+        return new FeatureFlagService();
+    }
+
 }

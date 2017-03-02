@@ -1,5 +1,18 @@
 kiosk:
   environment: prod
+  service:
+    ArticleMapper:
+      assetUrlPrefix: "http://io.tchepannou.kiosk.s3-website-us-east-1.amazonaws.com"
+      feedLogoFolder: "${kiosk.environment}/image"
+    ArticleService:
+      pageSize: 20
+    PipelineRunner:
+      accessToken: bzNqnE2ceORS1bcFDPJzLA
+      url: https://api.travis-ci.org/repo/htchepannou%2Fkiosk-pipeline/requests
+    EventService:
+      queueUrl: https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-event-queue
+    FeatureFlagService:
+      videoEnabled: false
 
 spring:
   datasource:
