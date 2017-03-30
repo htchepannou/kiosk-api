@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AssetRepository extends CrudRepository<Link, Long> {
-    List<Asset> findByLinkIn(List<Link> links);
+public interface AssetRepository extends CrudRepository<Asset, Long> {
+    List<Asset> findByLinkIn(List<Link> link);
 }

@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.api.persistence.domain.Asset;
 import io.tchepannou.kiosk.api.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.api.persistence.domain.Link;
 import io.tchepannou.kiosk.api.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.api.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.api.persistence.repository.AssetRepository;
 import io.tchepannou.kiosk.api.persistence.repository.LinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ArticleService {
 
         // Load the articles
         final PageRequest pagination = new PageRequest(page, limit, Sort.Direction.DESC, "publishedDate");
-        final List<Link> articles = linkRepository.findByStatus(LinkStatusEnum.published, pagination);
+        final List<Link> articles = linkRepository.findByTypeAndStatus(LinkTypeEnum.article, LinkStatusEnum.published, pagination);
         final List<Asset> assets = assetRepository.findByLinkIn(articles);
         final Multimap<Link, Asset> assetMap = indexByLink(assets);
 
