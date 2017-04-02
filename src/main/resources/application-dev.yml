@@ -1,2 +1,5 @@
 kiosk:
   environment: dev
+  service:
+    ArticleMapper:
+      assetUrlPrefix: "file://${user.home}/kiosk/repository"

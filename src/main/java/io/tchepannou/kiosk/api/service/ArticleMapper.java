@@ -2,39 +2,61 @@ package io.tchepannou.kiosk.api.service;
 
 import com.google.common.base.Strings;
 import io.tchepannou.kiosk.api.model.ArticleModel;
-import io.tchepannou.kiosk.api.model.ArticleModelList;
 import io.tchepannou.kiosk.api.model.FeedModel;
 import io.tchepannou.kiosk.api.model.ImageModel;
-import io.tchepannou.kiosk.api.model.VideoModel;
-import io.tchepannou.kiosk.api.persistence.domain.Article;
 import io.tchepannou.kiosk.api.persistence.domain.Feed;
-import io.tchepannou.kiosk.api.persistence.domain.Image;
-import io.tchepannou.kiosk.api.persistence.domain.Video;
-
-import java.util.List;
+import io.tchepannou.kiosk.api.persistence.domain.Link;
 
 public class ArticleMapper {
     private String assetUrlPrefix;
     private String feedLogoFolder;
 
-    public ArticleModel toArticleModel(final ArticleContainer container){
+    public ArticleModel toArticleModel(final Link article){
         final ArticleModel model = new ArticleModel();
 
-        mapArticle(container.getArticle(), model);
-        mapMainImage(container.getImage(), model);
-        mapThumbmail(container.getThumbnail(), model);
-        mapFeed(container.getFeed(), model);
-        mapVideos(container.getVideos(), model);
+        model.setDisplayTitle(article.getDisplayTitle());
+        model.setContentUrl(assetUrl(article.getS3Key()));
+        model.setId(article.getId());
+        model.setPublishedDate(article.getPublishedDate());
+        model.setSummary(article.getSummary());
+        model.setTitle(article.getTitle());
+        model.setUrl(article.getUrl());
+
+        if (Strings.isNullOrEmpty(model.getDisplayTitle())){
+            model.setDisplayTitle(article.getTitle());
+        }
+
         return model;
     }
 
-    public ArticleModelList toArticleListModel (final Iterable<ArticleContainer> containers){
-        final ArticleModelList model = new ArticleModelList();
-        for (ArticleContainer container : containers){
-            model.add(toArticleModel(container));
+    public ImageModel toImageModel (final Link image){
+        if (image == null){
+            return null;
         }
+
+        ImageModel model = new ImageModel();
+        model.setContentLength(image.getContentLength());
+        model.setContentType(image.getContentType());
+        model.setWidth(image.getWidth());
+        model.setHeight(image.getHeight());
+        model.setUrl(assetUrl(image.getS3Key()));
+
         return model;
     }
+
+    public FeedModel toFeed (final Feed feed){
+        if (feed == null){
+            return null;
+        }
+
+        FeedModel model = new FeedModel();
+        model.setId(feed.getId());
+        model.setName(feed.getName());
+        model.setLogoUrl(feedLogoUrl(feed.getLogoUrl()));
+
+        return model;
+    }
+
 
     //-- Getter/Setter
     public String getAssetUrlPrefix() {
@@ -54,63 +76,6 @@ public class ArticleMapper {
     }
 
     //-- Private
-    private void mapArticle(final Article article, ArticleModel model){
-        model.setDisplayTitle(article.getDisplayTitle());
-        model.setContentUrl(assetUrl(article.getS3Key()));
-        model.setId(article.getId());
-        model.setPublishedDate(article.getPublishedDate());
-        model.setSummary(article.getSummary());
-        model.setTitle(article.getTitle());
-        model.setUrl(article.getLink().getUrl());
-
-        if (Strings.isNullOrEmpty(model.getDisplayTitle())){
-            model.setDisplayTitle(article.getTitle());
-        }
-    }
-
-    private void mapFeed (final Feed feed, final ArticleModel model){
-        if (feed == null){
-            return ;
-        }
-
-        FeedModel feedModel = new FeedModel();
-        feedModel.setId(feed.getId());
-        feedModel.setName(feed.getName());
-        feedModel.setLogoUrl(feedLogoUrl(feed.getLogoUrl()));
-
-        model.setFeed(feedModel);
-    }
-
-    private ImageModel toImageModel (final Image image){
-        if (image == null){
-            return null;
-        }
-        ImageModel model = new ImageModel();
-        model.setContentLength(image.getContentLength());
-        model.setContentType(image.getContentType());
-        model.setWidth(image.getWidth());
-        model.setHeight(image.getHeight());
-        model.setUrl(assetUrl(image.getS3Key()));
-
-        return model;
-    }
-
-    private void mapMainImage (final Image image, final ArticleModel model){
-        model.setMainImage(toImageModel(image));
-    }
-
-    private void mapThumbmail (final Image image, final ArticleModel model){
-        model.setThumbnailImage(toImageModel(image));
-    }
-
-    private void mapVideos(final List<Video> videos, final ArticleModel article){
-        for (Video video : videos){
-            VideoModel model = new VideoModel();
-            model.setEmbedUrl(video.getEmbedUrl());
-            article.addVideo(model);
-        }
-    }
-
     private String feedLogoUrl(final String url){
         if (url == null){
             return null;

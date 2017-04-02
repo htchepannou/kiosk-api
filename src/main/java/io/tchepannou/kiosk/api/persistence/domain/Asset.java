@@ -9,24 +9,30 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class Video {
+public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
 
     @ManyToOne
     @JoinColumn(name = "link_fk")
     private Link link;
 
-    @Column(name = "embed_url", length = 100)
-    private String embedUrl;
+    @ManyToOne
+    @JoinColumn(name = "target_fk")
+    private Link target;
 
-    public String getEmbedUrl() {
-        return embedUrl;
+    @Column(length = 20)
+    private AssetTypeEnum type;
+
+    public Asset() {
     }
 
-    public void setEmbedUrl(final String embedUrl) {
-        this.embedUrl = embedUrl;
+    public Asset(final Link link, final Link target, final AssetTypeEnum type) {
+        this.link = link;
+        this.target = target;
+        this.type = type;
     }
 
     public long getId() {
@@ -43,5 +49,21 @@ public class Video {
 
     public void setLink(final Link link) {
         this.link = link;
+    }
+
+    public Link getTarget() {
+        return target;
+    }
+
+    public void setTarget(final Link target) {
+        this.target = target;
+    }
+
+    public AssetTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(final AssetTypeEnum type) {
+        this.type = type;
     }
 }

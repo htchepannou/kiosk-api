@@ -5,8 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.io.IOException;
-import java.net.URL;
+import java.util.Date;
 
 @Entity
 public class Feed {
@@ -25,26 +24,14 @@ public class Feed {
     @Column(name="logo_url")
     private String logoUrl;
 
-    //-- Public
-    public boolean urlMatches(String uri) {
-        uri = uri.toLowerCase();
-        final boolean matches = uri.equals(url) || uri.toLowerCase().startsWith(url + "/");
+    @Column(name="display_title_regex", length = 64)
+    private String displayTitleRegex;
 
-        if (matches && path != null) {
-            final String regex = ("\\Q" + path + "\\E").replace("*", "\\E.*\\Q");
-            try {
-                final String file = new URL(uri).getPath();
-                return file.matches(regex);
-            } catch (final IOException e) {
-                return false;
-            }
-        }
+    @Column(name="onboard_date")
+    private Date onboardDate;
 
-        return matches;
-    }
 
     //-- Getter/Setter
-
     public long getId() {
         return id;
     }
@@ -75,6 +62,9 @@ public class Feed {
 
     public void setUrl(final String url) {
         this.url = url != null ? url.toLowerCase() : null;
+        if (this.url != null && this.url.endsWith("/")){
+            this.url = this.url.substring(0, this.url.length()-1);
+        }
     }
 
     public String getPath() {
@@ -83,5 +73,21 @@ public class Feed {
 
     public void setPath(final String path) {
         this.path = path;
+    }
+
+    public String getDisplayTitleRegex() {
+        return displayTitleRegex;
+    }
+
+    public void setDisplayTitleRegex(final String displayTitleRegex) {
+        this.displayTitleRegex = displayTitleRegex;
+    }
+
+    public Date getOnboardDate() {
+        return onboardDate;
+    }
+
+    public void setOnboardDate(final Date onboardDate) {
+        this.onboardDate = onboardDate;
     }
 }
