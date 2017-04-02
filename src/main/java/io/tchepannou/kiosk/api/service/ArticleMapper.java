@@ -15,7 +15,7 @@ public class ArticleMapper {
         final ArticleModel model = new ArticleModel();
 
         model.setDisplayTitle(article.getDisplayTitle());
-        model.setContentUrl(assetUrl(article.getS3Key()));
+        model.setContentUrl(assetUrl(article.getContentKey()));
         model.setId(article.getId());
         model.setPublishedDate(article.getPublishedDate());
         model.setSummary(article.getSummary());
