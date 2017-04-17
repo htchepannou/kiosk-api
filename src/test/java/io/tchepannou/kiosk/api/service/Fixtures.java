@@ -1,8 +1,8 @@
 package io.tchepannou.kiosk.api.service;
 
-import io.tchepannou.kiosk.api.persistence.domain.Feed;
-import io.tchepannou.kiosk.api.persistence.domain.Link;
-import io.tchepannou.kiosk.api.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
 
 import java.util.Date;
 

@@ -4,8 +4,8 @@ import com.google.common.base.Strings;
 import io.tchepannou.kiosk.api.model.ArticleModel;
 import io.tchepannou.kiosk.api.model.FeedModel;
 import io.tchepannou.kiosk.api.model.ImageModel;
-import io.tchepannou.kiosk.api.persistence.domain.Feed;
-import io.tchepannou.kiosk.api.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Link;
 
 public class ArticleMapper {
     private String assetUrlPrefix;

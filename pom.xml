@@ -20,6 +20,9 @@
         <project.sourceEncoding>UTF-8</project.sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <kiosk-persistence.version>2.7.0</kiosk-persistence.version>
+
+
         <aws-java-sdk.version>1.11.63</aws-java-sdk.version>
         <commons-codec.version>1.10</commons-codec.version>
         <hikaricp.version>2.5.1</hikaricp.version>
@@ -34,6 +37,28 @@
     </properties>
 
     <dependencies>
+        <!-- ==== KIOSK ===== -->
+        <dependency>
+            <groupId>io.tchepannou.kiosk</groupId>
+            <artifactId>kiosk-persistence</artifactId>
+            <version>${kiosk-persistence.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.data</groupId>
+                    <artifactId>spring-data-jpa</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.persistence</groupId>
+                    <artifactId>persistence-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
         <!-- ==== AWS ==== -->
         <dependency>
             <groupId>com.amazonaws</groupId>
