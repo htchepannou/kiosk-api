@@ -346,5 +346,9 @@
             <name>bintray readytalk</name>
             <url>http://dl.bintray.com/readytalk/maven</url>
         </repository>
+        <repository>
+            <id>io.tchepannou.maven</id>
+            <url>s3://io.tchepannou.maven/release</url>
+        </repository>
     </repositories>
 </project>
